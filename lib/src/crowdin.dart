@@ -4,7 +4,8 @@ import 'dart:developer';
 import 'package:crowdin_sdk/crowdin_sdk.dart';
 import 'package:crowdin_sdk/src/crowdin_storage.dart';
 import 'package:flutter/services.dart' show rootBundle;
-import 'package:shared_preferences/shared_preferences.dart';
+
+import 'crowdin_exceptions.dart';
 
 enum InternetConnectionType { wifi, mobileData, any }
 
@@ -14,7 +15,6 @@ class Crowdin {
   static InternetConnectionType _connectionType = InternetConnectionType.any;
 
 
-  static Map<String, dynamic> _fallback = {};
   static Map<String, dynamic> _otaTranslation = {};
 
   static final CrowdinStorage _storage = CrowdinStorage();
@@ -30,11 +30,9 @@ class Crowdin {
     InternetConnectionType? connectionType,
   }) async {
     String fallbackString = await rootBundle.loadString('lib/l10n/en.arb');
-    _fallback = jsonDecode(fallbackString);
     log('-=Crowdin=- fallbackString $fallbackString');
 
     await _storage.init();
-
 
     if (distributionTtl != null) _distributionHash = distributionHash;
     log('-=Crowdin=- distributionHash $_distributionHash');
@@ -47,20 +45,27 @@ class Crowdin {
   }
 
   static Future<void> getDistribution(String locale) async {
-    var result =
-        await CrowdinApi.getDistribution(locale: locale, distributionHash: _distributionHash);
-    if(result != null) {
-    _otaTranslation = result;
-    _storage.setDistributionToStorage(jsonEncode(result));
-    } else {
-      result = _storage.getDistributionFromStorage();
+
+    try {
+      var result =
+      await CrowdinApi.getDistribution(locale: locale, distributionHash: _distributionHash);
+      if(result != null) {
+        _otaTranslation = result;
+        _storage.setDistributionToStorage(jsonEncode(result));
+      } else {
+        result = _storage.getDistributionFromStorage();
+      }
+      log('-=Crowdin=- translation $_otaTranslation');
+    } catch (_) {
+      throw CrowdinException(message: 'No translations on Crowdin');
     }
-    log('-=Crowdin=- translation $_otaTranslation');
+
 
   }
 
   static String? getText(String key) {
-    String? translation = _otaTranslation[key] ?? _fallback[key];
+    if(_otaTranslation[key] is String) {}
+    String? translation = _otaTranslation[key] is String ? _otaTranslation[key] : null;
     return translation;
   }
 
