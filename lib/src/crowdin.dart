@@ -29,8 +29,6 @@ class Crowdin {
     Duration? distributionTtl,
     InternetConnectionType? connectionType,
   }) async {
-    String fallbackString = await rootBundle.loadString('lib/l10n/en.arb');
-    log('-=Crowdin=- fallbackString $fallbackString');
 
     await _storage.init();
 
@@ -56,8 +54,9 @@ class Crowdin {
         result = _storage.getDistributionFromStorage();
       }
       log('-=Crowdin=- translation $_otaTranslation');
-    } catch (_) {
-      throw CrowdinException(message: 'No translations on Crowdin');
+    } catch (ex) {
+      // throw CrowdinException(message: 'No translations on Crowdin');
+      throw CrowdinException(message: '$ex');
     }
 
 

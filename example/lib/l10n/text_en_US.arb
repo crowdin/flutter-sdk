@@ -1,0 +1,6 @@
+{
+  "@@locale": "en_US",
+  "example": "en_US test string",
+  "test_string": "en_US second string",
+  "thirdString": "en_US third string"
+}
