@@ -1,5 +1,5 @@
 import 'dart:convert';
-import 'dart:developer';
+import 'dart:ui';
 
 import 'package:crowdin_sdk/crowdin_sdk.dart';
 import 'package:crowdin_sdk/src/crowdin_storage.dart';
@@ -14,13 +14,14 @@ class Crowdin {
   static Duration _distributionTtl = const Duration(minutes: 15);
   static InternetConnectionType _connectionType = InternetConnectionType.any;
 
-
   static Map<String, dynamic> _otaTranslation = {};
+
+  static DateTime _distributionTimeToUpdate = DateTime.now();
 
   static final CrowdinStorage _storage = CrowdinStorage();
 
-  static Future<String> getArb () async{
-    String arb  = await rootBundle.loadString('lib/l10n/en.arb');
+  static Future<String> getArb() async {
+    String arb = await rootBundle.loadString('lib/l10n/en.arb');
     return arb;
   }
 
@@ -29,54 +30,55 @@ class Crowdin {
     Duration? distributionTtl,
     InternetConnectionType? connectionType,
   }) async {
-
     await _storage.init();
 
     if (distributionTtl != null) _distributionHash = distributionHash;
-    log('-=Crowdin=- distributionHash $_distributionHash');
+    print('-=Crowdin=- distributionHash $_distributionHash');
 
     if (distributionTtl != null) _distributionTtl = distributionTtl;
-    log('-=Crowdin=- distributionTtl $_distributionTtl');
+    print('-=Crowdin=- distributionTtl $_distributionTtl');
 
     if (connectionType != null) _connectionType = connectionType;
-    log('-=Crowdin=- connectionType $_connectionType');
+    print('-=Crowdin=- connectionType $_connectionType');
+
+    _distributionTimeToUpdate = DateTime.now().add(_distributionTtl);
+
+    await Crowdin.getDistribution(const Locale('en'));
   }
 
-  static Future<void> getDistribution(String locale) async {
+  static Future<void> getDistribution(Locale locale) async {
+    Map<String, dynamic>? distribution;
 
     try {
-      var result =
-      await CrowdinApi.getDistribution(locale: locale, distributionHash: _distributionHash);
-      if(result != null) {
-        _otaTranslation = result;
-        _storage.setDistributionToStorage(jsonEncode(result));
-      } else {
-        result = _storage.getDistributionFromStorage();
+      if (_canUseCachedDistribution(_distributionTimeToUpdate)) {
+        distribution = _storage.getDistributionFromStorage(locale);
+        if (distribution != null) {
+          _otaTranslation = distribution;
+          return;
+        }
       }
-      log('-=Crowdin=- translation $_otaTranslation');
+      distribution = await CrowdinApi.getDistribution(
+          locale: locale.toLanguageTag(), distributionHash: _distributionHash);
+      if (distribution != null) {
+        _storage.setDistributionToStorage(
+          jsonEncode(distribution),
+        );
+      }
     } catch (ex) {
       // throw CrowdinException(message: 'No translations on Crowdin');
       throw CrowdinException(message: '$ex');
     }
-
-
+    _otaTranslation = distribution ?? {};
   }
 
   static String? getText(String key) {
-    if(_otaTranslation[key] is String) {}
+    if (_otaTranslation[key] is String) {}
     String? translation = _otaTranslation[key] is String ? _otaTranslation[key] : null;
     return translation;
   }
+}
 
-  // Future<void> setDistributionToStorage(String distribution) async {
-  //   CrowdinStorage storage = CrowdinStorage()..init();
-  //   storage.setDistributionToStorage(distribution);
-  // }
-
-
-  Future<Map<String, dynamic>?> getDistributionFromStorage() async {
-    Map<String, dynamic>? distributionFromStorage = _storage.getDistributionFromStorage();
-   return distributionFromStorage;
-  }
-
+bool _canUseCachedDistribution(DateTime distributionTimeToUpdate) {
+  bool canUseCachedDistribution = distributionTimeToUpdate.isAfter(DateTime.now());
+  return canUseCachedDistribution;
 }
