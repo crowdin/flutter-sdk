@@ -88,7 +88,7 @@ class _HomeState extends State<Home> {
                       (locale) => DropdownMenuItem<String>(
                     value: locale.languageCode,
                     onTap: () async {
-                      await Crowdin.getDistribution(locale.languageCode);
+                      await Crowdin.getDistribution(locale);
                       widget.changeLocale(locale);
                       print(AppLocalizations.supportedLocales);
                       print(AppLocalizations.of(context)!.localeName);

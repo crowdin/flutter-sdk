@@ -44,7 +44,6 @@ Future<String> getTemplateDirPath () async{
   String arbDir = yamlGenConfig['arb-dir'];
   String templateArbFile = yamlGenConfig['template-arb-file'];
   String templateDirPat = path.join(arbDir, templateArbFile);
-  print('------templateDirPat $templateDirPat');
   return templateDirPat;
   } else {
   throw Exception('No l10n.yaml file');
