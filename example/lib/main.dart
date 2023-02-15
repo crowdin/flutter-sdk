@@ -1,7 +1,8 @@
 import 'package:crowdin_sdk/crowdin_sdk.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
-import 'package:flutter_gen/gen_l10n/crowdin_localizations.dart';
+// import 'package:flutter_gen/gen_l10n/crowdin_localizations.dart';
+import 'package:flutter_gen/gen_l10n/crowdin_localizations111.dart';
 import 'dart:io';
 
 import 'package:flutter_dotenv/flutter_dotenv.dart';
@@ -90,8 +91,6 @@ class _HomeState extends State<Home> {
                     onTap: () async {
                       await Crowdin.getDistribution(locale);
                       widget.changeLocale(locale);
-                      print(AppLocalizations.supportedLocales);
-                      print(AppLocalizations.of(context)!.localeName);
                       setState(() {
                         dropdownValue = locale.languageCode;
                       });
@@ -111,6 +110,18 @@ class _HomeState extends State<Home> {
           children: [
             Text(
               AppLocalizations.of(context)?.example ?? '',
+              style: const TextStyle(fontSize: 30),
+            ),
+            Text(
+              AppLocalizations.of(context)?.hello('userName') ?? '',
+              style: const TextStyle(fontSize: 30),
+            ),
+            Text(
+              AppLocalizations.of(context)?.numberOfDataPoints(1000)?? '',
+              style: const TextStyle(fontSize: 30),
+            ),
+            Text(
+              AppLocalizations.of(context)?.nThings(0, 'thing') ?? '',
               style: const TextStyle(fontSize: 30),
             ),
           ],

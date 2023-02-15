@@ -2,5 +2,38 @@
   "@@locale": "en",
   "example": "Example",
   "test_string": "Test string",
-  "thirdString": "third string"
+  "thirdString": "third string",
+  "hello": "Hello {userName}",
+  "@hello": {
+    "description": "A message with a single parameter",
+    "placeholders": {
+      "userName": {
+        "type": "String",
+        "example": "Bob"
+      }
+    }
+  },
+  "numberOfDataPoints": "Number of data points: {value}",
+  "@numberOfDataPoints": {
+    "description": "A message with a formatted int parameter",
+    "placeholders": {
+      "value": {
+        "type": "int",
+        "format": "compactLong"
+      }
+    }
+  },
+  "nThings": "{count,plural, =0{no {thing}s} other{{count} {thing}s}}",
+  "@nThings": {
+    "description": "A plural message with an additional parameter",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "thing": {
+        "example": "wombat"
+      }
+    }
+  }
+
 }
