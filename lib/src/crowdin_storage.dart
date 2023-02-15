@@ -1,7 +1,7 @@
 import 'dart:convert';
 import 'dart:ui';
 
-import 'package:crowdin_sdk/src/crowdin_exceptions.dart';
+import 'package:crowdin_sdk/src/exceptions/crowdin_exceptions.dart';
 import 'package:intl/intl.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -21,7 +21,7 @@ class CrowdinStorage {
     try {
       await _sharedPrefs.setString(_kCrowdinTexts, distribution);
     } catch (_) {
-      throw CrowdinException(message: "Can't store the distribution");
+      throw CrowdinException("Can't store the distribution");
     }
   }
 
@@ -38,7 +38,9 @@ class CrowdinStorage {
           return null;
         }
       }
-    } catch (ex) {}
+    } catch (ex) {
+      throw CrowdinException("Can't get distribution from storage");
+    }
     return null;
   }
 }

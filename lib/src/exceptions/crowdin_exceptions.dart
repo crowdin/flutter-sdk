@@ -1,7 +1,7 @@
 class CrowdinException implements Exception {
-  final String message;
+  final String? message;
 
-  CrowdinException({this.message = ''});
+  CrowdinException(this.message);
 
   @override
   String toString() {
