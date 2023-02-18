@@ -1,18 +1,19 @@
 import 'package:crowdin_sdk/crowdin_sdk.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
-// import 'package:flutter_gen/gen_l10n/crowdin_localizations.dart';
-import 'package:flutter_gen/gen_l10n/crowdin_localizations111.dart';
+
+import 'package:flutter_gen/gen_l10n/crowdin_localizations.dart';
 import 'dart:io';
 
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 
+final GlobalKey<ScaffoldState> _key = GlobalKey();
+
 List<Locale> locales = const [
   Locale('en'),
   Locale('uk'),
-  Locale('zh'),
+  Locale('it'),
   Locale('he'),
-  Locale('ar'),
 ];
 
 void main() async {
@@ -40,7 +41,6 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   Locale currentLocale = Locale(Locale(Platform.localeName).toLanguageTag());
-
 
   @override
   Widget build(BuildContext context) {
@@ -72,35 +72,55 @@ class Home extends StatefulWidget {
 }
 
 class _HomeState extends State<Home> {
-  String dropdownValue = 'en';
+  String dropdownValue = locales.first.languageCode;
+
+  int _counter = 0;
+
+  void _incrementCounter() {
+    setState(() {
+      _counter++;
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      drawer: Drawer(
+        key: _key,
+        child: ListView(
+          padding: EdgeInsets.zero,
+          children: [
+            const DrawerHeader(
+              decoration: BoxDecoration(
+                color: Colors.blue,
+              ),
+              child: Text('Menu'),
+            ),
+            ListTile(
+              title: Text(AppLocalizations.of(context)!.settings),
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => SettingsScreen(
+                      onLanguageChanged: (locale) => widget.changeLocale(locale),
+                    ),
+                  ),
+                );
+              },
+            ),
+          ],
+        ),
+      ),
       appBar: AppBar(
-        title: Text(AppLocalizations.of(context)?.test_string ?? '11'),
+        title: Center(child: Text(AppLocalizations.of(context)!.main)),
+        leading: const SizedBox(),
         actions: [
-          DropdownButton(
-            iconSize: 40,
-            value: dropdownValue,
-            items: [
-              ...locales
-                  .map(
-                      (locale) => DropdownMenuItem<String>(
-                    value: locale.languageCode,
-                    onTap: () async {
-                      await Crowdin.getDistribution(locale);
-                      widget.changeLocale(locale);
-                      setState(() {
-                        dropdownValue = locale.languageCode;
-                      });
-                    },
-                    child: Text(locale.languageCode),
-                  )
-              )
-                  .toList(),
-            ],
-            onChanged: (item) {},
+          Builder(
+            builder: (ctx) => IconButton(
+              icon: const Icon(Icons.list_outlined),
+              onPressed: () => Scaffold.of(ctx).openDrawer(),
+            ),
           ),
         ],
       ),
@@ -109,20 +129,78 @@ class _HomeState extends State<Home> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Text(
-              AppLocalizations.of(context)?.example ?? '',
+              AppLocalizations.of(context)!.example,
               style: const TextStyle(fontSize: 30),
             ),
+            const SizedBox(height: 16),
             Text(
-              AppLocalizations.of(context)?.hello('userName') ?? '',
+              AppLocalizations.of(context)!.hello('userName'),
               style: const TextStyle(fontSize: 30),
             ),
+            const SizedBox(height: 16),
             Text(
-              AppLocalizations.of(context)?.numberOfDataPoints(1000)?? '',
+              AppLocalizations.of(context)!.counter(_counter),
               style: const TextStyle(fontSize: 30),
             ),
+            const SizedBox(height: 16),
             Text(
-              AppLocalizations.of(context)?.nThings(0, 'thing') ?? '',
+              AppLocalizations.of(context)!.nThings(0, 'thing'),
               style: const TextStyle(fontSize: 30),
+            ),
+          ],
+        ),
+      ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: _incrementCounter,
+        child: const Icon(Icons.add),
+      ),
+    );
+  }
+}
+
+class SettingsScreen extends StatefulWidget {
+  final Function(Locale locale) onLanguageChanged;
+
+  const SettingsScreen({
+    required this.onLanguageChanged,
+    Key? key,
+  }) : super(key: key);
+
+  @override
+  State<SettingsScreen> createState() => _SettingsScreenState();
+}
+
+class _SettingsScreenState extends State<SettingsScreen> {
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text(AppLocalizations.of(context)!.settings),
+      ),
+      body: Padding(
+        padding: const EdgeInsets.all( 16.0),
+        child: Row(
+          children: [
+            Text('${AppLocalizations.of(context)!.language}: '),
+            DropdownButton(
+              iconSize: 40,
+              value: AppLocalizations.of(context)!.localeName,
+              items: [
+                ...locales
+                    .map((locale) => DropdownMenuItem<String>(
+                          value: locale.languageCode,
+                          onTap: () async {
+                            await Crowdin.getDistribution(locale);
+                            widget.onLanguageChanged(locale);
+                            setState(() {
+                              // dropdownValue = locale.languageCode;
+                            });
+                          },
+                          child: Text(locale.languageCode),
+                        ))
+                    .toList(),
+              ],
+              onChanged: (item) {},
             ),
           ],
         ),

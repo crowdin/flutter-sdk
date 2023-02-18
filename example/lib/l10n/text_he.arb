@@ -1,24 +1,13 @@
 {
   "@@locale": "he",
-  "example": "כותרת",
-  "test_string": "מחרוזת בדיקה",
-  "hello": "Hello {userName}",
+  "example": "דוגמא",
+  "hello": "שלום {userName}",
   "@hello": {
     "description": "A message with a single parameter",
     "placeholders": {
       "userName": {
         "type": "String",
         "example": "Bob"
-      }
-    }
-  },
-  "numberOfDataPoints": "Number of data points: {value}",
-  "@numberOfDataPoints": {
-    "description": "A message with a formatted int parameter",
-    "placeholders": {
-      "value": {
-        "type": "int",
-        "format": "compactLong"
       }
     }
   },
@@ -31,6 +20,19 @@
       },
       "thing": {
         "example": "wombat"
+      }
+    }
+  },
+  "settings": "הגדרות",
+  "language": "שפה",
+  "main": "רָאשִׁי",
+  "counter": "דֶלְפֵּק: {value}",
+  "@counter": {
+    "description": "A message with a formatted int parameter",
+    "placeholders": {
+      "value": {
+        "type": "int",
+        "format": "compactLong"
       }
     }
   }
