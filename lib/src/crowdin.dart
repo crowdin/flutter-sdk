@@ -15,19 +15,19 @@ enum InternetConnectionType { wifi, mobileData, any }
 class Crowdin {
   static String _distributionHash = '';
   static Duration _distributionTtl = const Duration(minutes: 15);
+
   /// connection type logic will be implemented soon
   static InternetConnectionType _connectionType = InternetConnectionType.any;
 
-  static Map<String, dynamic> _otaTranslation = {};
+  /// keeps app resource bundle for the last received distribution
+  static late AppResourceBundle _arb;
 
   static DateTime _distributionTimeToUpdate = DateTime.now();
 
-  static final CrowdinStorage _storage = CrowdinStorage();
+  /// contains certain distribution file paths for locales
+  static Map<String, dynamic> _distributionsMap = {};
 
-  static Future<String> getArb() async {
-    String arb = await rootBundle.loadString('lib/l10n/en.arb');
-    return arb;
-  }
+  static final CrowdinStorage _storage = CrowdinStorage();
 
   static void init({
     required String distributionHash,
@@ -47,6 +47,10 @@ class Crowdin {
 
     _distributionTimeToUpdate = DateTime.now().add(_distributionTtl);
 
+    /// fetch manifest file to get certain paths for each locale distribution
+    var manifest = await CrowdinApi.getManifest(distributionHash: _distributionHash);
+    _distributionsMap = manifest?['content'];
+
     await Crowdin.getDistribution(const Locale('en'));
   }
 
@@ -57,40 +61,39 @@ class Crowdin {
       if (_canUseCachedDistribution(_distributionTimeToUpdate)) {
         distribution = _storage.getDistributionFromStorage(locale);
         if (distribution != null) {
-          _otaTranslation = distribution;
+          _arb = AppResourceBundle(distribution);
           return;
         }
       }
+
       distribution = await CrowdinApi.getDistribution(
-          locale: locale.toLanguageTag(), distributionHash: _distributionHash);
+          path: _distributionsMap[locale.toLanguageTag()][0] as String,
+          distributionHash: _distributionHash);
       if (distribution != null) {
         _storage.setDistributionToStorage(
           jsonEncode(distribution),
         );
+        _arb = AppResourceBundle(distribution);
       }
     } catch (ex) {
-      // throw CrowdinException(message: 'No translations on Crowdin');
-      throw CrowdinException('$ex');
+      throw CrowdinException('No translations on Crowdin');
+      // throw CrowdinException('$ex');
     }
-    _otaTranslation = distribution ?? {};
   }
-
-  // static String? getText(String key) {
-  //   if (_otaTranslation[key] is String) {}
-  //   String? translation = _otaTranslation[key] is String ? _otaTranslation[key] : null;
-  //   return translation;
-  // }
 
   static final Extractor _extractor = Extractor();
 
-  static String? getText(
-    String locale,
-    String key, [
-    Map<String, dynamic> args = const {},
-  ]) {
+  static String? getText(String locale,
+      String key, [
+        Map<String, dynamic> args = const {},
+      ]) {
     try {
-      var arb = AppResourceBundle(_otaTranslation);
-        return _extractor.getText(locale, arb, key, args);
+      return _extractor.getText(
+        locale,
+        _arb,
+        key,
+        args,
+      );
     } catch (e) {
       return null;
     }

@@ -1,9 +1,9 @@
 {
   "@@locale": "uk",
-  "example": "Приклад",
-  "hello": "Привіт, {userName}",
+  "example": "_Приклад",
+  "hello": "_Привіт, {userName}",
   "@hello": {
-    "description": "A message with a single parameter",
+    "description": "_A message with a single parameter",
     "placeholders": {
       "userName": {
         "type": "String",
@@ -11,7 +11,7 @@
       }
     }
   },
-  "nThings": "{count,plural, =0{жодного {thing}а} other{{count} {thing}}}",
+  "nThings": "_{count,plural, =0{жодного {thing}а} other{{count} {thing}}}",
   "@nThings": {
     "description": "A plural message with an additional parameter",
     "placeholders": {
@@ -23,10 +23,10 @@
       }
     }
   },
-  "settings": "Налаштування",
-  "language": "Мова",
-  "main": "Головна",
-  "counter": "Лічильник: {value}",
+  "settings": "_Налаштування",
+  "language": "_Мова",
+  "main": "_Головна",
+  "counter": "_Лічильник: {value}",
   "@counter": {
     "description": "A message with a formatted int parameter",
     "placeholders": {

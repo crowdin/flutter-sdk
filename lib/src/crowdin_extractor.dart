@@ -31,10 +31,10 @@ class Extractor {
     final countPlaceholder = message.isPlural ? message.getCountPlaceholder() : null;
     var placeholders = message.placeholders;
     for (var i = 0; i < placeholders.length; i++) {
-      final placeholder = placeholders[i];
-      final value = args[placeholder?.name];
+      final placeholder = placeholders.values.toList()[i];
+      final value = args[placeholder.name];
       final optionals = {
-        for (final parameter in placeholder!.optionalParameters) parameter.name: parameter.value
+        for (final parameter in placeholder.optionalParameters) parameter.name: parameter.value
       };
       String result;
       if (placeholder.isDate) {
