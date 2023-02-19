@@ -1,10 +1,10 @@
+import 'package:flutter/foundation.dart';
 import 'package:intl/intl.dart' as intl;
 
 import 'common/gen_l10n_types.dart';
 
 ///finds message parameters
 class Extractor {
-  //throws exceptions
   String? getText(
     String locale,
     AppResourceBundle arb,
@@ -33,79 +33,81 @@ class Extractor {
     for (var i = 0; i < placeholders.length; i++) {
       final placeholder = placeholders.values.toList()[i];
       final value = args[placeholder.name];
-      final optionals = {
-        for (final parameter in placeholder.optionalParameters) parameter.name: parameter.value
-      };
+      final optionals = {for (final op in placeholder.optionalParameters) op.name: op.value};
       String result;
       if (placeholder.isDate) {
         result = intl.DateFormat(placeholder.format, locale).format(value as DateTime);
       } else if (placeholder.isNumber || placeholder == countPlaceholder) {
-        final name = optionals['name'] as String?;
-        final symbol = optionals['symbol'] as String?;
-        final decimalDigits = optionals['decimalDigits'] as int?;
-        final customPattern = optionals['customPattern'] as String?;
-        switch (placeholder.format) {
-          case 'compact':
-            result = intl.NumberFormat.compact(locale: locale).format(value);
-            break;
-          case 'compactCurrency':
-            result = intl.NumberFormat.compactCurrency(
-              locale: locale,
-              name: name,
-              symbol: symbol,
-              decimalDigits: decimalDigits,
-            ).format(value);
-            break;
-          case 'compactSimpleCurrency':
-            result = intl.NumberFormat.compactSimpleCurrency(
-              locale: locale,
-              name: name,
-              decimalDigits: decimalDigits,
-            ).format(value);
-            break;
-          case 'compactLong':
-            result = intl.NumberFormat.compactLong(locale: locale).format(value);
-            break;
-          case 'currency':
-            result = intl.NumberFormat.currency(
-              locale: locale,
-              name: name,
-              symbol: symbol,
-              decimalDigits: decimalDigits,
-              customPattern: customPattern,
-            ).format(value);
-            break;
-          case 'decimalPattern':
-            result = intl.NumberFormat.decimalPattern().format(value);
-            break;
-          case 'decimalPercentPattern':
-            result = intl.NumberFormat.decimalPercentPattern(
-              locale: locale,
-              decimalDigits: decimalDigits,
-            ).format(value);
-            break;
-          case 'percentPattern':
-            result = intl.NumberFormat.percentPattern().format(value);
-            break;
-          case 'scientificPattern':
-            result = intl.NumberFormat.scientificPattern().format(value);
-            break;
-          case 'simpleCurrency':
-            result = intl.NumberFormat.simpleCurrency(
-              locale: locale,
-              name: name,
-              decimalDigits: decimalDigits,
-            ).format(value);
-            break;
-          default:
-            result = value.toString();
-        }
+        result = _findNumberPlaceholder(
+          optionals: optionals,
+          locale: locale,
+          placeholder: placeholder,
+          placeholderValue: value,
+        );
       } else {
         result = value.toString();
       }
       buffer = buffer?.replaceAll('{${placeholder.name}}', result);
     }
     return buffer;
+  }
+
+  String _findNumberPlaceholder({
+    required Map<String, dynamic> optionals,
+    required Placeholder placeholder,
+    required dynamic placeholderValue,
+    required String locale,
+  }) {
+    final name = optionals['name'] as String?;
+    final symbol = optionals['symbol'] as String?;
+    final decimalDigits = optionals['decimalDigits'] as int?;
+    final customPattern = optionals['customPattern'] as String?;
+    switch (placeholder.format) {
+      case 'compact':
+        return intl.NumberFormat.compact(locale: locale).format(placeholderValue);
+      case 'compactCurrency':
+        return intl.NumberFormat.compactCurrency(
+          locale: locale,
+          name: name,
+          symbol: symbol,
+          decimalDigits: decimalDigits,
+        ).format(placeholderValue);
+      case 'compactSimpleCurrency':
+        return intl.NumberFormat.compactSimpleCurrency(
+          locale: locale,
+          name: name,
+          decimalDigits: decimalDigits,
+        ).format(placeholderValue);
+      case 'compactLong':
+        return intl.NumberFormat.compactLong(locale: locale).format(placeholderValue);
+      case 'currency':
+        return intl.NumberFormat.currency(
+          locale: locale,
+          name: name,
+          symbol: symbol,
+          decimalDigits: decimalDigits,
+          customPattern: customPattern,
+        ).format(placeholderValue);
+      case 'decimalPattern':
+        return intl.NumberFormat.decimalPattern().format(placeholderValue);
+      case 'decimalPercentPattern':
+        return intl.NumberFormat.decimalPercentPattern(
+          locale: locale,
+          decimalDigits: decimalDigits,
+        ).format(placeholderValue);
+      case 'percentPattern':
+        return intl.NumberFormat.percentPattern().format(placeholderValue);
+      case 'scientificPattern':
+        return intl.NumberFormat.scientificPattern().format(placeholderValue);
+      case 'simpleCurrency':
+        return intl.NumberFormat.simpleCurrency(
+          locale: locale,
+          name: name,
+          decimalDigits: decimalDigits,
+        ).format(placeholderValue);
+      default:
+        return placeholderValue.toString();
+    }
   }
 
 //https://docs.google.com/document/d/10e0saTfAv32OZLRmONy866vnaw0I2jwL8zukykpgWBc/edit#heading=h.yfh1gyd78g7g
@@ -123,25 +125,22 @@ class Extractor {
       'other',
     ];
 
-    var easyMessage = message.value;
+    var messageValue = message.value;
     for (final placeholder in message.placeholders.values) {
-      easyMessage = easyMessage.replaceAll('{${placeholder.name}}', '#${placeholder.name}#');
+      messageValue = messageValue.replaceAll('{${placeholder.name}}', '#${placeholder.name}#');
     }
-    var extractedPlurals = pluralIds
-        .map((key) => _findPlural(easyMessage, key))
-        .map((extracted) => message.placeholders.values.fold<String?>(
-              extracted,
-              (extracted, placeholder) =>
-                  extracted?.replaceAll('#${placeholder.name}#', '{${placeholder.name}}'),
-            ))
-        .map((normalized) => _findPlaceholders(
-              locale,
-              message,
-              normalized,
-              args,
-            ))
-        .toList(growable: false);
 
+    final extractedPlurals = List.generate(pluralIds.length, (i) {
+      final extracted = findPlural(messageValue, pluralIds[i]);
+      var formattedMessage = message.placeholders.values.fold<String?>(
+        extracted,
+        (extracted, placeholder) =>
+            extracted?.replaceAll('#${placeholder.name}#', '{${placeholder.name}}'),
+      );
+      return _findPlaceholders(locale, message, formattedMessage, args);
+    });
+
+    print('------extractedPlurals $extractedPlurals');
     int howMany = args[message.getCountPlaceholder().name];
     return intl.Intl.pluralLogic(
       howMany,
@@ -155,13 +154,32 @@ class Extractor {
     );
   }
 
-  String? _findPlural(String easyMessage, String pluralKey) {
-    final exp = RegExp('($pluralKey)\\s*{([^}]+)}');
-    final RegExpMatch? match = exp.firstMatch(easyMessage);
-    if (match != null && match.groupCount == 2) {
-      return match.group(2)!;
-    } else {
-      return null;
-    }
+// String? _findPlural(String formattedMessage, String pluralKey) {
+//   final exp = RegExp('($pluralKey)\\s*{([^}]+)}');
+//   final RegExpMatch? match = exp.firstMatch(formattedMessage);
+//   if (match != null && match.groupCount == 2) {
+//     return match.group(2)!;
+//   } else {
+//     return null;
+//   }
+// }
+
+}
+
+@visibleForTesting
+String? findPlural(String formattedMessage, String pluralKey) {
+  final startIndex = formattedMessage.indexOf(pluralKey);
+  /// Returns -1 if no match is found
+  if (startIndex == -1) {
+    return null;
   }
+  final openingBraceIndex = formattedMessage.indexOf('{', startIndex);
+  if (openingBraceIndex == -1) {
+    return null;
+  }
+  final closingBraceIndex = formattedMessage.indexOf('}', openingBraceIndex);
+  if (closingBraceIndex == -1) {
+    return null;
+  }
+  return formattedMessage.substring(openingBraceIndex + 1, closingBraceIndex);
 }

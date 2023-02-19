@@ -19,6 +19,9 @@ class CrowdinStorage {
 
   Future<void> setDistributionToStorage(String distribution) async {
     try {
+      if (_sharedPrefs.containsKey(_kCrowdinTexts)) {
+        await _sharedPrefs.remove(_kCrowdinTexts);
+      }
       await _sharedPrefs.setString(_kCrowdinTexts, distribution);
     } catch (_) {
       throw CrowdinException("Can't store the distribution");

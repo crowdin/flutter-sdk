@@ -5,7 +5,6 @@ import 'dart:ui';
 import 'package:crowdin_sdk/crowdin_sdk.dart';
 import 'package:crowdin_sdk/src/crowdin_storage.dart';
 import 'package:crowdin_sdk/src/crowdin_extractor.dart';
-import 'package:flutter/services.dart' show rootBundle;
 
 import 'exceptions/crowdin_exceptions.dart';
 import 'common/gen_l10n_types.dart';
@@ -70,6 +69,9 @@ class Crowdin {
           path: _distributionsMap[locale.toLanguageTag()][0] as String,
           distributionHash: _distributionHash);
       if (distribution != null) {
+        /// todo remove when distribution file locale will be fixed
+        distribution['@@locale'] = locale.languageCode;
+
         _storage.setDistributionToStorage(
           jsonEncode(distribution),
         );
@@ -83,10 +85,11 @@ class Crowdin {
 
   static final Extractor _extractor = Extractor();
 
-  static String? getText(String locale,
-      String key, [
-        Map<String, dynamic> args = const {},
-      ]) {
+  static String? getText(
+    String locale,
+    String key, [
+    Map<String, dynamic> args = const {},
+  ]) {
     try {
       return _extractor.getText(
         locale,
