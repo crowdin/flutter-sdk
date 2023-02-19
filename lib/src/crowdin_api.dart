@@ -8,10 +8,20 @@ class CrowdinApi {
 
   static Future<Map<String, dynamic>?> getDistribution({
     required String distributionHash,
-    String locale = 'en',
+    String? path,
   }) async {
     var response = await http.get(
-      Uri.parse('https://distributions.crowdin.net/$distributionHash/content/$locale'),
+      Uri.parse('https://distributions.crowdin.net/$distributionHash$path'),
+    );
+    Map<String, dynamic> responseDecoded = jsonDecode(utf8.decode(response.bodyBytes));
+    return responseDecoded;
+  }
+
+  static Future<Map<String, dynamic>?> getManifest({
+    required String distributionHash,
+  }) async {
+    var response = await http.get(
+      Uri.parse('https://distributions.crowdin.net/$distributionHash/manifest.json'),
     );
     Map<String, dynamic> responseDecoded = jsonDecode(utf8.decode(response.bodyBytes));
     return responseDecoded;

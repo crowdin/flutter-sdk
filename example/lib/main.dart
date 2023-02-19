@@ -151,7 +151,9 @@ class _HomeState extends State<Home> {
         ),
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: _incrementCounter,
+        onPressed: () {
+          _incrementCounter();
+        },
         child: const Icon(Icons.add),
       ),
     );
@@ -178,7 +180,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
         title: Text(AppLocalizations.of(context)!.settings),
       ),
       body: Padding(
-        padding: const EdgeInsets.all( 16.0),
+        padding: const EdgeInsets.all(16.0),
         child: Row(
           children: [
             Text('${AppLocalizations.of(context)!.language}: '),

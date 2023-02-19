@@ -28,11 +28,11 @@ class CrowdinGenerator1 {
   }
 }
 
-///todo implement generator configurations accordingly to https://docs.google.com/document/d/10e0saTfAv32OZLRmONy866vnaw0I2jwL8zukykpgWBc/edit#heading=h.upij01jgi58m
-class GeneratorConfig {
+///todo implement configurations accordingly to https://docs.google.com/document/d/10e0saTfAv32OZLRmONy866vnaw0I2jwL8zukykpgWBc/edit#heading=h.upij01jgi58m
+class L10nConfig {
   String arbDir;
 
-  GeneratorConfig({
+  L10nConfig({
     required this.arbDir,
   });
 }
