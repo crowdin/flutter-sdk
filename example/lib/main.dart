@@ -1,26 +1,14 @@
 import 'package:crowdin_sdk/crowdin_sdk.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
-
 import 'package:flutter_gen/gen_l10n/crowdin_localizations.dart';
-import 'dart:io';
 
-import 'package:flutter_dotenv/flutter_dotenv.dart';
-
-final GlobalKey<ScaffoldState> _key = GlobalKey();
-
-List<Locale> locales = const [
-  Locale('en'),
-  Locale('uk'),
-  Locale('it'),
-  Locale('he'),
-];
+import 'package:intl/intl.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await dotenv.load(fileName: ".env");
   Crowdin.init(
-    distributionHash: dotenv.env['DISTRIBUTION_HASH'] ?? '', //your distribution hash
+    distributionHash: 'your distribution hash', //your distribution hash
     connectionType: InternetConnectionType.mobileData,
     distributionTtl: const Duration(minutes: 25),
   );
@@ -40,18 +28,18 @@ class _MyHomePageState extends State<MyHomePage> {
     super.initState();
   }
 
-  Locale currentLocale = Locale(Locale(Platform.localeName).toLanguageTag());
+  Locale currentLocale = Locale(Intl.shortLocale(Intl.systemLocale));
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
       locale: currentLocale,
       localizationsDelegates: CrowdinLocalization.localizationsDelegates,
-      supportedLocales: locales,
+      supportedLocales: AppLocalizations.supportedLocales,
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
-      home: Home(
+      home: MainScreen(
         changeLocale: (locale) => {
           setState(() {
             currentLocale = locale;
@@ -62,20 +50,18 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 }
 
-class Home extends StatefulWidget {
+class MainScreen extends StatefulWidget {
   final void Function(Locale locale) changeLocale;
 
-  const Home({Key? key, required this.changeLocale}) : super(key: key);
+  const MainScreen({Key? key, required this.changeLocale}) : super(key: key);
 
   @override
-  State<Home> createState() => _HomeState();
+  State<MainScreen> createState() => _MainScreenState();
 }
 
-class _HomeState extends State<Home> {
-  String dropdownValue = locales.first.languageCode;
+class _MainScreenState extends State<MainScreen> {
 
   int _counter = 0;
-
   void _incrementCounter() {
     setState(() {
       _counter++;
@@ -86,7 +72,6 @@ class _HomeState extends State<Home> {
   Widget build(BuildContext context) {
     return Scaffold(
       drawer: Drawer(
-        key: _key,
         child: ListView(
           padding: EdgeInsets.zero,
           children: [
@@ -142,11 +127,6 @@ class _HomeState extends State<Home> {
               AppLocalizations.of(context)!.counter(_counter),
               style: const TextStyle(fontSize: 30),
             ),
-            const SizedBox(height: 16),
-            Text(
-              AppLocalizations.of(context)!.nThings(0, 'thing'),
-              style: const TextStyle(fontSize: 30),
-            ),
           ],
         ),
       ),
@@ -188,15 +168,12 @@ class _SettingsScreenState extends State<SettingsScreen> {
               iconSize: 40,
               value: AppLocalizations.of(context)!.localeName,
               items: [
-                ...locales
+                ...AppLocalizations.supportedLocales
                     .map((locale) => DropdownMenuItem<String>(
                           value: locale.languageCode,
                           onTap: () async {
                             await Crowdin.getDistribution(locale);
                             widget.onLanguageChanged(locale);
-                            setState(() {
-                              // dropdownValue = locale.languageCode;
-                            });
                           },
                           child: Text(locale.languageCode),
                         ))

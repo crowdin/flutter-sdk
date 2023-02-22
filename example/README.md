@@ -1,16 +1,25 @@
 # example
 
-example project
+Simple project to demonstrate how to use Crowdin SDK
 
 ## Getting Started
 
-This project is a starting point for a Flutter application.
+To run example project follow next steps:
 
-A few resources to get you started if this is your first Flutter project:
-
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
-
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+1. Clone repository from GitHub
+2. Create project on [Crowdin](https://crowdin.com/). Use texts_en.arb file from this project (flutter-sdk/example/lib/l10n/texts_en.arb) as source file.
+3. Run 'pup get' command to get project dependencies
+4. Run 'flutter gen-l10n'
+5. Run 'flutter pub run crowdin_sdk:gen' to generate Crowdin localization
+6. Provide your distribution hash to Crowdin initialization in 'main' function
+   ```
+   void main() async {
+     WidgetsFlutterBinding.ensureInitialized();
+     Crowdin.init(
+       distributionHash: 'your distribution hash',
+       ...
+     );
+   ...
+   }
+   ```
+8. Run the application
