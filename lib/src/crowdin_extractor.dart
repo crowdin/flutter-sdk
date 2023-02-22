@@ -153,17 +153,6 @@ class Extractor {
       other: extractedPlurals[5],
     );
   }
-
-// String? _findPlural(String formattedMessage, String pluralKey) {
-//   final exp = RegExp('($pluralKey)\\s*{([^}]+)}');
-//   final RegExpMatch? match = exp.firstMatch(formattedMessage);
-//   if (match != null && match.groupCount == 2) {
-//     return match.group(2)!;
-//   } else {
-//     return null;
-//   }
-// }
-
 }
 
 @visibleForTesting

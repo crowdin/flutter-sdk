@@ -79,7 +79,6 @@ class Crowdin {
       }
     } catch (ex) {
       throw CrowdinException('No translations on Crowdin');
-      // throw CrowdinException('$ex');
     }
   }
 
