@@ -6,3 +6,7 @@ include: package:flutter_lints/flutter.yaml
 linter:
   rules:
     depend_on_referenced_packages: false
+
+analyzer:
+  exclude:
+    - example/**
