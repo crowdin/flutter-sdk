@@ -13,7 +13,7 @@ enum InternetConnectionType { wifi, mobileData, any }
 
 class Crowdin {
   static String _distributionHash = '';
-  static Duration _distributionTtl = const Duration(minutes: 15);
+  static Duration _updatesInterval = const Duration(minutes: 15);
 
   /// connection type logic will be implemented soon
   static InternetConnectionType _connectionType = InternetConnectionType.any;
@@ -30,40 +30,40 @@ class Crowdin {
 
   static Future<void> init({
     required String distributionHash,
-    Duration? distributionTtl,
+    Duration? updatesInterval,
     InternetConnectionType? connectionType,
   }) async {
     await _storage.init();
 
-    if (distributionTtl != null) _distributionHash = distributionHash;
+    if (updatesInterval != null) _distributionHash = distributionHash;
     log('-=Crowdin=- distributionHash $_distributionHash');
 
-    if (distributionTtl != null) _distributionTtl = distributionTtl;
-    log('-=Crowdin=- distributionTtl $_distributionTtl');
+    if (updatesInterval != null) _updatesInterval = updatesInterval;
+    log('-=Crowdin=- updatesInterval $_updatesInterval');
 
     if (connectionType != null) _connectionType = connectionType;
     log('-=Crowdin=- connectionType $_connectionType');
 
-    _distributionTimeToUpdate = DateTime.now().add(_distributionTtl);
+    _distributionTimeToUpdate = DateTime.now().add(_updatesInterval);
 
     /// fetch manifest file to get certain paths for each locale distribution
     var manifest = await CrowdinApi.getManifest(distributionHash: _distributionHash);
     _distributionsMap = manifest?['content'];
   }
 
-  static Future<void> getDistribution(Locale locale) async {
+  static Future<void> loadTranslations(Locale locale) async {
     Map<String, dynamic>? distribution;
 
     try {
       if (_canUseCachedDistribution(_distributionTimeToUpdate)) {
-        distribution = _storage.getDistributionFromStorage(locale);
+        distribution = _storage.getTranslationFromStorage(locale);
         if (distribution != null) {
           _arb = AppResourceBundle(distribution);
           return;
         }
       }
 
-      distribution = await CrowdinApi.getDistribution(
+      distribution = await CrowdinApi.loadTranslations(
           path: _distributionsMap[locale.toLanguageTag()][0] as String,
           distributionHash: _distributionHash);
       if (distribution != null) {

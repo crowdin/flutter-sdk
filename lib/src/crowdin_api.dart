@@ -6,7 +6,7 @@ import 'package:http/http.dart' as http;
 class CrowdinApi {
   HttpClient client = HttpClient();
 
-  static Future<Map<String, dynamic>?> getDistribution({
+  static Future<Map<String, dynamic>?> loadTranslations({
     required String distributionHash,
     String? path,
   }) async {

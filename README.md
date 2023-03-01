@@ -119,9 +119,9 @@ flutter:
 ```
    AppLocalizations.of(context)!.string_key;
 ```
-8. Use Crowdin.getDistribution to receive translation from Crowdin for certain locale:
+8. Use Crowdin.loadTranslations to receive translation from Crowdin for certain locale:
 ```
-   await Crowdin.getDistribution(Locale locale);
+   await Crowdin.loadTranslations(Locale locale);
 ```
 After receiving translations change app locale as usual
 

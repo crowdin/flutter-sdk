@@ -10,7 +10,7 @@ void main() async {
   await Crowdin.init(
     distributionHash: 'your distribution hash', //your distribution hash
     connectionType: InternetConnectionType.mobileData,
-    distributionTtl: const Duration(minutes: 25),
+    updatesInterval: const Duration(minutes: 25),
   );
   runApp(const MyHomePage());
 }
@@ -29,7 +29,7 @@ class _MyHomePageState extends State<MyHomePage> {
   @override
   void initState() {
     super.initState();
-    Crowdin.getDistribution(currentLocale).then((value) => setState(() {
+    Crowdin.loadTranslations(currentLocale).then((value) => setState(() {
           isLoading = false;
         }));
   }
@@ -206,11 +206,12 @@ class _SettingsScreenState extends State<SettingsScreen> {
       isLoading = true;
     });
     // get translations from Crowdin
-    await Crowdin.getDistribution(locale);
+    await Crowdin.loadTranslations(locale);
+    // change app locale
+    widget.onLanguageChanged(locale);
 
     setState(() {
       isLoading = false;
     });
-    widget.onLanguageChanged(locale);
   }
 }

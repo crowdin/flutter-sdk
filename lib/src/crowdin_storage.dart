@@ -28,7 +28,7 @@ class CrowdinStorage {
     }
   }
 
-  Map<String, dynamic>? getDistributionFromStorage(Locale locale) {
+  Map<String, dynamic>? getTranslationFromStorage(Locale locale) {
     try {
       String? distributionStr = _sharedPrefs.getString(_kCrowdinTexts);
       if (distributionStr != null) {
