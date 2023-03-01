@@ -28,7 +28,7 @@ class Crowdin {
 
   static final CrowdinStorage _storage = CrowdinStorage();
 
-  static void init({
+  static Future<void> init({
     required String distributionHash,
     Duration? distributionTtl,
     InternetConnectionType? connectionType,
@@ -49,8 +49,6 @@ class Crowdin {
     /// fetch manifest file to get certain paths for each locale distribution
     var manifest = await CrowdinApi.getManifest(distributionHash: _distributionHash);
     _distributionsMap = manifest?['content'];
-
-    await Crowdin.getDistribution(const Locale('en'));
   }
 
   static Future<void> getDistribution(Locale locale) async {

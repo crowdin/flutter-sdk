@@ -1,7 +1,7 @@
 {
   "@@locale": "en",
   "example": "Example",
-  "hello": "Hello {userName}",
+  "hello": "_Hello {userName}",
   "@hello": {
     "description": "A message with a single parameter",
     "placeholders": {
