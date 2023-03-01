@@ -76,7 +76,9 @@ Unsure where to begin contributing to Crowdin Flutter SDK? You can start by look
 
 - Install dependencies
 
-[//]: # (TODO)
+  ```console
+  flutter pub get
+  ```
 
 #### Pull Request Checklist
 
