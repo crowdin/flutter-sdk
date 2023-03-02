@@ -70,6 +70,7 @@ output-localization-file: app_localizations.dart
 - add your ARB files to the lib/l10n directory (for testing purposes you can use files from our example project)
 - generate app_localizations files, run:
 ```flutter gen-l10n```
+Generated files will be located in {FLUTTER_PROJECT}/.dart_tool/flutter_gen/gen_l10n
 
 3. Add Crowdin_sdk to your project:
 ```
@@ -85,8 +86,9 @@ flutter:
 ```
 4. Run command to generate Crowdin localization
 ```flutter pub run crowdin_sdk:gen```
+When generation is done Crowdin_localizations.dart file with needed classes will be in {FLUTTER_PROJECT}/.dart_tool/flutter_gen/gen_l10n
 
-5. Update localizationsDelegates in your project:
+6. Update localizationsDelegates in your project:
 ```
    import 'package:flutter_gen/gen_l10n/app_localizations.dart';
    import 'package:crowdin_sdk/crowdin_sdk.dart';
@@ -123,7 +125,7 @@ flutter:
 ```
    await Crowdin.loadTranslations(Locale locale);
 ```
-After receiving translations change app locale as usual
+After receiving translations change app locale as usual and translations from Crowdin will be applied
 
 ## Contributing
 
