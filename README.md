@@ -25,14 +25,7 @@ The Crowdin Flutter SDK delivers all new translations from Crowdin project to th
 
 ## Requirements
 
-[//]: # (TODO)
-
-* Dart version
-* Flutter version
-
-## Installation
-
-[//]: # (TODO)
+* Dart >=2.12.0
 
 ## Setup
 
@@ -53,7 +46,86 @@ To manage distributions open the needed project and go to *Over-The-Air Content 
 
 To integrate SDK with your application you need to follow the step-by-step instructions:
 
-[//]: # (TODO)
+
+1. Create project on [Crowdin](https://crowdin.com/) and get your distribution hash.
+2. Implement app localization using Flutter_localizations package. Follow [documentation](https://docs.flutter.dev/development/accessibility-and-localization/internationalization#setting-up) (recommended) or follow next steps:
+- add dependencies into the pubspec.yaml:
+```
+dependencies:
+  flutter_localizations:
+    sdk: flutter
+  intl: any
+  
+flutter:
+  generate: true
+```
+- get project dependencies, run:
+```flutter pub get```
+- create l10n.yaml file in your project root directory with next content:
+```
+arb-dir: lib/l10n
+template-arb-file: {template file name}_en.arb
+output-localization-file: app_localizations.dart
+```
+- add your ARB files to the lib/l10n directory (for testing purposes you can use files from our example project)
+- generate app_localizations files, run:
+```flutter gen-l10n```
+Generated files will be located in {FLUTTER_PROJECT}/.dart_tool/flutter_gen/gen_l10n
+
+3. Add Crowdin_sdk to your project:
+```
+dependencies:
+  crowdin_sdk: ^1.0.0
+
+  flutter_localizations:
+    sdk: flutter
+  intl: any
+  
+flutter:
+  generate: true
+```
+4. Run command to generate Crowdin localization
+```flutter pub run crowdin_sdk:gen```
+When generation is done Crowdin_localizations.dart file with needed classes will be in {FLUTTER_PROJECT}/.dart_tool/flutter_gen/gen_l10n
+
+6. Update localizationsDelegates in your project:
+```
+   import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+   import 'package:crowdin_sdk/crowdin_sdk.dart';
+   import 'package:flutter_gen/gen_l10n/crowdin_localizations.dart';
+```
+```
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      ...
+      localizationsDelegates: CrowdinLocalization.localizationsDelegates,
+      supportedLocales: AppLocalizations.supportedLocales,
+      ),
+      ...
+    );
+   }
+```
+6. Initialize Crowdin SDK using your distribution hash:
+```
+   void main() async {
+     WidgetsFlutterBinding.ensureInitialized();
+     await Crowdin.init(
+     distributionHash: 'your distribution hash',
+     ...
+     );
+   ...
+   }
+```
+7. Get strings in your code as you do it with Flutter_localizations package: 
+```
+   AppLocalizations.of(context)!.string_key;
+```
+8. Use Crowdin.loadTranslations to receive translation from Crowdin for certain locale:
+```
+   await Crowdin.loadTranslations(Locale locale);
+```
+After receiving translations change app locale as usual and translations from Crowdin will be applied
 
 ## Contributing
 

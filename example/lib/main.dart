@@ -7,10 +7,10 @@ import 'package:intl/intl.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  Crowdin.init(
+  await Crowdin.init(
     distributionHash: 'your distribution hash', //your distribution hash
     connectionType: InternetConnectionType.mobileData,
-    distributionTtl: const Duration(minutes: 25),
+    updatesInterval: const Duration(minutes: 25),
   );
   runApp(const MyHomePage());
 }
@@ -23,12 +23,16 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
+  Locale currentLocale = Locale(Intl.shortLocale(Intl.systemLocale));
+  bool isLoading = true;
+
   @override
   void initState() {
     super.initState();
+    Crowdin.loadTranslations(currentLocale).then((value) => setState(() {
+          isLoading = false;
+        }));
   }
-
-  Locale currentLocale = Locale(Intl.shortLocale(Intl.systemLocale));
 
   @override
   Widget build(BuildContext context) {
@@ -39,13 +43,19 @@ class _MyHomePageState extends State<MyHomePage> {
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
-      home: MainScreen(
-        changeLocale: (locale) => {
-          setState(() {
-            currentLocale = locale;
-          })
-        },
-      ),
+      home: isLoading
+          ? const Material(
+              child: Center(
+                child: CircularProgressIndicator(),
+              ),
+            )
+          : MainScreen(
+              changeLocale: (locale) => {
+                setState(() {
+                  currentLocale = locale;
+                })
+              },
+            ),
     );
   }
 }
@@ -60,8 +70,8 @@ class MainScreen extends StatefulWidget {
 }
 
 class _MainScreenState extends State<MainScreen> {
-
   int _counter = 0;
+
   void _incrementCounter() {
     setState(() {
       _counter++;
@@ -153,37 +163,55 @@ class SettingsScreen extends StatefulWidget {
 }
 
 class _SettingsScreenState extends State<SettingsScreen> {
+  bool isLoading = false;
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: Text(AppLocalizations.of(context)!.settings),
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Row(
-          children: [
-            Text('${AppLocalizations.of(context)!.language}: '),
-            DropdownButton(
-              iconSize: 40,
-              value: AppLocalizations.of(context)!.localeName,
-              items: [
-                ...AppLocalizations.supportedLocales
-                    .map((locale) => DropdownMenuItem<String>(
-                          value: locale.languageCode,
-                          onTap: () async {
-                            await Crowdin.getDistribution(locale);
-                            widget.onLanguageChanged(locale);
-                          },
-                          child: Text(locale.languageCode),
-                        ))
-                    .toList(),
-              ],
-              onChanged: (item) {},
+      body: isLoading
+          ? const Center(
+              child: CircularProgressIndicator(),
+            )
+          : Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Row(
+                children: [
+                  Text('${AppLocalizations.of(context)!.language}: '),
+                  DropdownButton(
+                    iconSize: 40,
+                    value: AppLocalizations.of(context)!.localeName,
+                    items: [
+                      ...AppLocalizations.supportedLocales
+                          .map((locale) => DropdownMenuItem<String>(
+                                value: locale.languageCode,
+                                child: Text(locale.languageCode),
+                                onTap: () async => await onPickLanguage(locale),
+                              ))
+                          .toList(),
+                    ],
+                    onChanged: (item) {},
+                  ),
+                ],
+              ),
             ),
-          ],
-        ),
-      ),
     );
+  }
+
+  Future<void> onPickLanguage(Locale locale) async {
+    // manage app loading state
+    setState(() {
+      isLoading = true;
+    });
+    // get translations from Crowdin
+    await Crowdin.loadTranslations(locale);
+    // change app locale
+    widget.onLanguageChanged(locale);
+
+    setState(() {
+      isLoading = false;
+    });
   }
 }
