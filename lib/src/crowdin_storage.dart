@@ -6,6 +6,7 @@ import 'package:intl/intl.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 String _kCrowdinTexts = 'crowdin_texts';
+String _kTranslationTimestamp = 'translation_timestamp';
 
 class CrowdinStorage {
   CrowdinStorage();
@@ -15,6 +16,26 @@ class CrowdinStorage {
   Future<SharedPreferences> init() async {
     _sharedPrefs = await SharedPreferences.getInstance();
     return _sharedPrefs;
+  }
+
+  Future<void> setTranslationTimeStampStorage(int timestamp) async {
+    try {
+      if (_sharedPrefs.containsKey(_kTranslationTimestamp)) {
+        await _sharedPrefs.remove(_kTranslationTimestamp);
+      }
+      await _sharedPrefs.setInt(_kTranslationTimestamp, timestamp);
+    } catch (_) {
+      throw CrowdinException("Can't store translation timestamp");
+    }
+  }
+
+  int? getTranslationTimestampFromStorage() {
+    try {
+      int? translationTimestamp = _sharedPrefs.getInt(_kTranslationTimestamp);
+      return translationTimestamp;
+    } catch (ex) {
+      throw CrowdinException("Can't get translation timestamp from storage");
+    }
   }
 
   Future<void> setDistributionToStorage(String distribution) async {

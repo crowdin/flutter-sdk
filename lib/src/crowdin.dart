@@ -2,14 +2,16 @@ import 'dart:convert';
 import 'dart:developer';
 import 'dart:ui';
 
+import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:crowdin_sdk/crowdin_sdk.dart';
 import 'package:crowdin_sdk/src/crowdin_storage.dart';
 import 'package:crowdin_sdk/src/crowdin_extractor.dart';
+import 'package:flutter/cupertino.dart';
 
 import 'exceptions/crowdin_exceptions.dart';
 import 'common/gen_l10n_types.dart';
 
-enum InternetConnectionType { wifi, mobileData, any }
+enum InternetConnectionType { wifi, mobileData, ethernet, any }
 
 class Crowdin {
   static String _distributionHash = '';
@@ -25,6 +27,11 @@ class Crowdin {
 
   /// contains certain distribution file paths for locales
   static Map<String, dynamic> _distributionsMap = {};
+
+  /// contains certain distribution file paths for locales
+  static int? _timestamp;
+
+  static int? _timestampCached = _storage.getTranslationTimestampFromStorage();
 
   static final CrowdinStorage _storage = CrowdinStorage();
 
@@ -48,20 +55,34 @@ class Crowdin {
 
     /// fetch manifest file to get certain paths for each locale distribution
     var manifest = await CrowdinApi.getManifest(distributionHash: _distributionHash);
-    _distributionsMap = manifest?['content'];
+    if (manifest != null) {
+      _distributionsMap = manifest['content'];
+
+      /// fetch manifest file to check if new updates available
+      _timestamp = manifest['timestamp'];
+    }
   }
 
   static Future<void> loadTranslations(Locale locale) async {
     Map<String, dynamic>? distribution;
 
+    bool canUseCache = _canUseCachedDistribution(
+      distributionTimeToUpdate: _distributionTimeToUpdate,
+      translationTimestamp: _timestamp,
+      cachedTranslationTimestamp: _timestampCached,
+    );
+
     try {
-      if (_canUseCachedDistribution(_distributionTimeToUpdate)) {
+      if (canUseCache) {
         distribution = _storage.getTranslationFromStorage(locale);
         if (distribution != null) {
           _arb = AppResourceBundle(distribution);
           return;
         }
       }
+
+      ///return from function if connection type is forbidden for downloading translations
+      if (!await _isConnectionTypeAllowed(_connectionType)) return;
 
       distribution = await CrowdinApi.loadTranslations(
           path: _distributionsMap[locale.toLanguageTag()][0] as String,
@@ -74,8 +95,14 @@ class Crowdin {
           jsonEncode(distribution),
         );
         _arb = AppResourceBundle(distribution);
+
+        if (_timestamp != null && _timestamp != _timestampCached) {
+          _storage.setTranslationTimeStampStorage(_timestamp!);
+          _timestampCached = _timestamp;
+        }
       }
     } catch (ex) {
+      // return;
       throw CrowdinException('No translations on Crowdin');
     }
   }
@@ -100,7 +127,29 @@ class Crowdin {
   }
 }
 
-bool _canUseCachedDistribution(DateTime distributionTimeToUpdate) {
-  bool canUseCachedDistribution = distributionTimeToUpdate.isAfter(DateTime.now());
-  return canUseCachedDistribution;
+bool _canUseCachedDistribution({
+  DateTime? distributionTimeToUpdate,
+  int? translationTimestamp,
+  int? cachedTranslationTimestamp,
+}) {
+  if (distributionTimeToUpdate != null) {
+    bool canUseCachedDistribution = distributionTimeToUpdate.isAfter(DateTime.now());
+    return canUseCachedDistribution;
+  } else {
+    return translationTimestamp == 0;
+  }
+}
+
+Future<bool> _isConnectionTypeAllowed(InternetConnectionType connectionType) async {
+  var connectionStatus = await Connectivity().checkConnectivity();
+  switch (connectionType) {
+    case InternetConnectionType.any:
+      return connectionStatus != ConnectivityResult.none;
+    case InternetConnectionType.wifi:
+      return connectionStatus == ConnectivityResult.wifi;
+    case InternetConnectionType.mobileData:
+      return connectionStatus == ConnectivityResult.mobile;
+    case InternetConnectionType.ethernet:
+      return connectionStatus == ConnectivityResult.ethernet;
+  }
 }
