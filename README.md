@@ -40,92 +40,93 @@ To configure Flutter SDK integration you need to:
 To manage distributions open the needed project and go to *Over-The-Air Content Delivery*. You can create as many distributions as you need and choose different files for each. You’ll need to click the *Release* button next to the necessary distribution every time you want to send new translations to the app.
 
 **Notes:**
+
 - The CDN feature does not update the localization files. if you want to add new translations to the localization files you need to do it yourself.
 - Once SDK receives the translations, it's stored on the device as application files for further sessions to minimize requests the next time the app starts. Storage time can be configured.
 - CDN caches all the translations in release and even when new translations are released in Crowdin, CDN may return them with a delay.
 
-To integrate SDK with your application you need to follow the step-by-step instructions:
+**To integrate SDK with your application you need to follow the step-by-step instructions:**
 
+- First of all, your Flutter project should be internationalized using the `flutter_localizations` package. For more detail, see [Setting up an internationalized app](https://docs.flutter.dev/development/accessibility-and-localization/internationalization#setting-up).
+- Create a project in [Crowdin](https://crowdin.com/).
+- Upload your `app_en.arb` file to the created Crowdin project. Optionally, you can also [Upload Existing Translations](https://support.crowdin.com/uploading-translations/).
+- [Set up a Distribution](https://support.crowdin.com/content-delivery/#distribution-setup).
+- Add the `crowdin_sdk` dependency to your project:
 
-1. Create project on [Crowdin](https://crowdin.com/) and get your distribution hash.
-2. Implement app localization using Flutter_localizations package. Follow [documentation](https://docs.flutter.dev/development/accessibility-and-localization/internationalization#setting-up) (recommended) or follow next steps:
-- add dependencies into the pubspec.yaml:
-```
-dependencies:
-  flutter_localizations:
-    sdk: flutter
-  intl: any
-  
-flutter:
-  generate: true
-```
-- get project dependencies, run:
-```flutter pub get```
-- create l10n.yaml file in your project root directory with next content:
-```
-arb-dir: lib/l10n
-template-arb-file: {template file name}_en.arb
-output-localization-file: app_localizations.dart
-```
-- add your ARB files to the lib/l10n directory (for testing purposes you can use files from our example project)
-- generate app_localizations files, run:
-```flutter gen-l10n```
-Generated files will be located in {FLUTTER_PROJECT}/.dart_tool/flutter_gen/gen_l10n
+  ```yml
+  dependencies:
+    crowdin_sdk: ^0.1.0
 
-3. Add Crowdin_sdk to your project:
-```
-dependencies:
-  crowdin_sdk: ^1.0.0
+    flutter_localizations:
+      sdk: flutter
+    intl: any
 
-  flutter_localizations:
-    sdk: flutter
-  intl: any
-  
-flutter:
-  generate: true
-```
-4. Run command to generate Crowdin localization
-```flutter pub run crowdin_sdk:gen```
-When generation is done Crowdin_localizations.dart file with needed classes will be in {FLUTTER_PROJECT}/.dart_tool/flutter_gen/gen_l10n
+  flutter:
+    generate: true
+  ```
 
-6. Update localizationsDelegates in your project:
-```
-   import 'package:flutter_gen/gen_l10n/app_localizations.dart';
-   import 'package:crowdin_sdk/crowdin_sdk.dart';
-   import 'package:flutter_gen/gen_l10n/crowdin_localizations.dart';
-```
-```
+- Run the following command to generate Crowdin localization:
+
+  ```consloe
+  flutter pub run crowdin_sdk:gen
+  ```
+
+  As a result, the `Crowdin_localizations.dart` will be created in the `{FLUTTER_PROJECT}/.dart_tool/flutter_gen/gen_l10n` directory.
+
+- Update localizationsDelegates in your project:
+
+  ```dart
+  import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+  import 'package:crowdin_sdk/crowdin_sdk.dart';
+  import 'package:flutter_gen/gen_l10n/crowdin_localizations.dart';
+  ```
+
+  ```dart
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      ...
+      // ...
+
       localizationsDelegates: CrowdinLocalization.localizationsDelegates,
       supportedLocales: AppLocalizations.supportedLocales,
       ),
-      ...
+
+      // ...
     );
-   }
-```
-6. Initialize Crowdin SDK using your distribution hash:
-```
+  }
+  ```
+
+- Initialize Crowdin SDK in the `main` function of your application:
+
+   ```dart
    void main() async {
      WidgetsFlutterBinding.ensureInitialized();
+
      await Crowdin.init(
-     distributionHash: 'your distribution hash',
-     ...
+       distributionHash: 'distribution_hash', // Fill in with your distribution hash
+       connectionType: InternetConnectionType.any,
+       updatesInterval: const Duration(minutes: 15),
      );
-   ...
+
+     // ...
    }
-```
-7. Get strings in your code as you do it with Flutter_localizations package: 
-```
-   AppLocalizations.of(context)!.string_key;
-```
-8. Use Crowdin.loadTranslations to receive translation from Crowdin for certain locale:
-```
-   await Crowdin.loadTranslations(Locale locale);
-```
-After receiving translations change app locale as usual and translations from Crowdin will be applied
+   ```
+
+- Use the `Crowdin.loadTranslations` function to load translations from Crowdin for the specified locale:
+
+  ```dart
+  await Crowdin.loadTranslations(Locale('en'));
+  ```
+
+After receiving translations change the app locale as usual and translations from Crowdin will be applied.
+
+## Configuration
+
+| Config option      | Description                                                                                                                                                                      |
+|--------------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| `distributionHash` | Crowdin Distribution Hash                                                                                                                                                        |
+| `connectionType`   | Network type to be used for translations download. Supported values are `any`, `wifi`, `mobileData`                                                                              |
+| `updatesInterval`  | Translations update interval in seconds. Translations will not be updated more frequently than the designated time interval. Instead, it will use previously cached translations |
 
 ## Contributing
 
