@@ -6,24 +6,23 @@ import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:crowdin_sdk/crowdin_sdk.dart';
 import 'package:crowdin_sdk/src/crowdin_storage.dart';
 import 'package:crowdin_sdk/src/crowdin_extractor.dart';
-import 'package:flutter/cupertino.dart';
+import 'package:crowdin_sdk/src/exceptions/crowdin_exceptions.dart';
 
-import 'exceptions/crowdin_exceptions.dart';
 import 'common/gen_l10n_types.dart';
 
 enum InternetConnectionType { wifi, mobileData, ethernet, any }
 
 class Crowdin {
   static String _distributionHash = '';
-  static Duration _updatesInterval = const Duration(minutes: 15);
+  static Duration? _updatesInterval;
 
   /// connection type logic will be implemented soon
   static InternetConnectionType _connectionType = InternetConnectionType.any;
 
   /// keeps app resource bundle for the last received distribution
-  static late AppResourceBundle _arb;
+  static AppResourceBundle? _arb;
 
-  static DateTime _distributionTimeToUpdate = DateTime.now();
+  static DateTime? _translationTimeToUpdate;
 
   /// contains certain distribution file paths for locales
   static Map<String, dynamic> _distributionsMap = {};
@@ -31,9 +30,9 @@ class Crowdin {
   /// contains certain distribution file paths for locales
   static int? _timestamp;
 
-  static int? _timestampCached = _storage.getTranslationTimestampFromStorage();
-
   static final CrowdinStorage _storage = CrowdinStorage();
+
+  static late int? _timestampCached;
 
   static Future<void> init({
     required String distributionHash,
@@ -42,19 +41,25 @@ class Crowdin {
   }) async {
     await _storage.init();
 
-    if (updatesInterval != null) _distributionHash = distributionHash;
+    _timestampCached = _storage.getTranslationTimestampFromStorage();
+
+    _distributionHash = distributionHash;
     log('-=Crowdin=- distributionHash $_distributionHash');
 
-    if (updatesInterval != null) _updatesInterval = updatesInterval;
+    if (updatesInterval != null) {
+      _updatesInterval = updatesInterval;
+
+      ///set initial value for _translationTimeToUpdate
+      _translationTimeToUpdate = DateTime.now();
+    }
     log('-=Crowdin=- updatesInterval $_updatesInterval');
 
     if (connectionType != null) _connectionType = connectionType;
     log('-=Crowdin=- connectionType $_connectionType');
 
-    _distributionTimeToUpdate = DateTime.now().add(_updatesInterval);
-
     /// fetch manifest file to get certain paths for each locale distribution
     var manifest = await CrowdinApi.getManifest(distributionHash: _distributionHash);
+
     if (manifest != null) {
       _distributionsMap = manifest['content'];
 
@@ -66,14 +71,19 @@ class Crowdin {
   static Future<void> loadTranslations(Locale locale) async {
     Map<String, dynamic>? distribution;
 
-    bool canUseCache = _canUseCachedDistribution(
-      distributionTimeToUpdate: _distributionTimeToUpdate,
+    if (!await _isConnectionTypeAllowed(_connectionType)) {
+      _arb = null;
+      return;
+    }
+
+    bool canUpdate = !_canUseCachedDistribution(
+      distributionTimeToUpdate: _translationTimeToUpdate,
       translationTimestamp: _timestamp,
       cachedTranslationTimestamp: _timestampCached,
     );
 
     try {
-      if (canUseCache) {
+      if (!canUpdate) {
         distribution = _storage.getTranslationFromStorage(locale);
         if (distribution != null) {
           _arb = AppResourceBundle(distribution);
@@ -82,7 +92,6 @@ class Crowdin {
       }
 
       ///return from function if connection type is forbidden for downloading translations
-      if (!await _isConnectionTypeAllowed(_connectionType)) return;
 
       distribution = await CrowdinApi.loadTranslations(
           path: _distributionsMap[locale.toLanguageTag()][0] as String,
@@ -96,13 +105,17 @@ class Crowdin {
         );
         _arb = AppResourceBundle(distribution);
 
+        ///set initial value for _translationTimeToUpdate
+        if (_updatesInterval != null) {
+          _translationTimeToUpdate = DateTime.now().add(_updatesInterval!);
+        }
+
         if (_timestamp != null && _timestamp != _timestampCached) {
           _storage.setTranslationTimeStampStorage(_timestamp!);
           _timestampCached = _timestamp;
         }
       }
     } catch (ex) {
-      // return;
       throw CrowdinException('No translations on Crowdin');
     }
   }
@@ -114,16 +127,19 @@ class Crowdin {
     String key, [
     Map<String, dynamic> args = const {},
   ]) {
-    try {
-      return _extractor.getText(
-        locale,
-        _arb,
-        key,
-        args,
-      );
-    } catch (e) {
-      return null;
+    if (_arb != null) {
+      try {
+        return _extractor.getText(
+          locale,
+          _arb!,
+          key,
+          args,
+        );
+      } catch (e) {
+        return null;
+      }
     }
+    return null;
   }
 }
 
@@ -133,10 +149,9 @@ bool _canUseCachedDistribution({
   int? cachedTranslationTimestamp,
 }) {
   if (distributionTimeToUpdate != null) {
-    bool canUseCachedDistribution = distributionTimeToUpdate.isAfter(DateTime.now());
-    return canUseCachedDistribution;
+    return distributionTimeToUpdate.isAfter(DateTime.now());
   } else {
-    return translationTimestamp == 0;
+    return translationTimestamp == cachedTranslationTimestamp;
   }
 }
 

@@ -140,7 +140,6 @@ class Extractor {
       return _findPlaceholders(locale, message, formattedMessage, args);
     });
 
-    print('------extractedPlurals $extractedPlurals');
     int howMany = args[message.getCountPlaceholder().name];
     return intl.Intl.pluralLogic(
       howMany,
