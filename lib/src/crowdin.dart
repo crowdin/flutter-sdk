@@ -47,7 +47,14 @@ class Crowdin {
     log('-=Crowdin=- distributionHash $_distributionHash');
 
     if (updatesInterval != null) {
-      _updatesInterval = updatesInterval;
+      ///minimum updates interval is 15 minutes
+      if (updatesInterval.inMinutes < 15) {
+        _updatesInterval = const Duration(minutes: 15);
+
+        /// TODO add log to inform that updates interval was settled to the default minimum value
+      } else {
+        _updatesInterval = updatesInterval;
+      }
 
       ///set initial value for _translationTimeToUpdate
       _translationTimeToUpdate = DateTime.now();
