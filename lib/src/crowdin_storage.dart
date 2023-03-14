@@ -2,7 +2,6 @@ import 'dart:convert';
 import 'dart:ui';
 
 import 'package:crowdin_sdk/src/exceptions/crowdin_exceptions.dart';
-import 'package:intl/intl.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 String _kCrowdinTexts = 'crowdin_texts';
@@ -55,8 +54,7 @@ class CrowdinStorage {
       if (distributionStr != null) {
         Map<String, dynamic>? distribution = jsonDecode(distributionStr);
         var distributionLocale = Locale(distribution?['@@locale']);
-        if (Intl.shortLocale(distributionLocale.languageCode) ==
-            Intl.shortLocale(locale.languageCode)) {
+        if (distributionLocale.toString() == locale.toString()) {
           return distribution;
         } else {
           return null;

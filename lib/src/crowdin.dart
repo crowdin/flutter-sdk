@@ -105,7 +105,7 @@ class Crowdin {
           distributionHash: _distributionHash);
       if (distribution != null) {
         /// todo remove when distribution file locale will be fixed
-        distribution['@@locale'] = locale.languageCode;
+        distribution['@@locale'] = locale.toString();
 
         _storage.setDistributionToStorage(
           jsonEncode(distribution),
