@@ -1,6 +1,5 @@
 name: example
-description: Simple project to demonstrate how to use Crowdin SDK
-
+description: Simple project to demonstrate how to use the Crowdin SDK
 
 publish_to: 'none' # Remove this line if you wish to publish to pub.dev
 
@@ -21,7 +20,6 @@ dependencies:
   crowdin_sdk:
     path: ../
 
-
   cupertino_icons: ^1.0.2
 
 dev_dependencies:
@@ -35,4 +33,3 @@ flutter:
   generate: true
 
   uses-material-design: true
-
