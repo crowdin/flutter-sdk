@@ -1,0 +1,39 @@
+{
+  "@@locale": "es",
+  "example": "Ejemplo",
+  "hello": "Hola {userName}",
+  "@hello": {
+    "description": "A message with a single parameter",
+    "placeholders": {
+      "userName": {
+        "type": "String",
+        "example": "Bob"
+      }
+    }
+  },
+  "nThings": "{count,plural, one {}=0{no {thing}s} other{{count} {thing}s}}",
+  "@nThings": {
+    "description": "A plural message with an additional parameter",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "thing": {
+        "example": "wombat"
+      }
+    }
+  },
+  "settings": "configuración",
+  "language": "Lengua",
+  "main": "Principal",
+  "counter": "Contador: {value}",
+  "@counter": {
+    "description": "A message with a formatted int parameter",
+    "placeholders": {
+      "value": {
+        "type": "int",
+        "format": "compactLong"
+      }
+    }
+  }
+}

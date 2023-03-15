@@ -122,11 +122,11 @@ After receiving translations change the app locale as usual and translations fro
 
 ## Configuration
 
-| Config option      | Description                                                                                                                                                                      |
-|--------------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| `distributionHash` | Crowdin Distribution Hash                                                                                                                                                        |
-| `connectionType`   | Network type to be used for translations download. Supported values are `any`, `wifi`, `mobileData`                                                                              |
-| `updatesInterval`  | Translations update interval in seconds. Translations will not be updated more frequently than the designated time interval. Instead, it will use previously cached translations |
+| Config option      | Description                                                                                                                                                                                           |
+|--------------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| `distributionHash` | Crowdin Distribution Hash                                                                                                                                                                             |
+| `connectionType`   | Network type to be used for translations download. Supported values are `any`, `wifi`, `mobileData`, `ethernet`                                                                                       |
+| `updatesInterval`  | Translations update interval. Translations will not be updated more frequently than the designated time interval (default minimum is 15 minutes). Instead, it will use previously cached translations |
 
 ## Contributing
 
