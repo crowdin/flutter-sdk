@@ -6,7 +6,6 @@ import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:crowdin_sdk/crowdin_sdk.dart';
 import 'package:crowdin_sdk/src/crowdin_storage.dart';
 import 'package:crowdin_sdk/src/crowdin_extractor.dart';
-import 'package:crowdin_sdk/src/exceptions/crowdin_exceptions.dart';
 
 import 'common/gen_l10n_types.dart';
 
@@ -123,7 +122,9 @@ class Crowdin {
         }
       }
     } catch (ex) {
-      throw CrowdinException('No translations on Crowdin');
+      ///todo add log, fallback is used
+      _arb = null;
+      return;
     }
   }
 
