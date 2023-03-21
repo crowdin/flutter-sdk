@@ -6,6 +6,7 @@ import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:crowdin_sdk/crowdin_sdk.dart';
 import 'package:crowdin_sdk/src/crowdin_storage.dart';
 import 'package:crowdin_sdk/src/crowdin_extractor.dart';
+import 'package:crowdin_sdk/src/crowdin_mapper.dart';
 
 import 'common/gen_l10n_types.dart';
 
@@ -79,7 +80,9 @@ class Crowdin {
 
     if (!await _isConnectionTypeAllowed(_connectionType)) {
       _arb = null;
-      return;
+      return; //return from function if connection type is forbidden for downloading translations
+
+
     }
 
     bool canUpdate = !_canUseCachedDistribution(
@@ -97,10 +100,12 @@ class Crowdin {
         }
       }
 
-      ///return from function if connection type is forbidden for downloading translations
+      //map locales to avoid problems with different language codes on Crowdin side and supported
+      // by GlobalMaterialLocalizations class  for some countries
+      Locale mappedLocale = CrowdinMapper.mapLocale(locale);
 
       distribution = await CrowdinApi.loadTranslations(
-          path: _distributionsMap[locale.toLanguageTag()][0] as String,
+          path: _distributionsMap[mappedLocale.toLanguageTag()][0] as String,
           distributionHash: _distributionHash);
       if (distribution != null) {
         /// todo remove when distribution file locale will be fixed

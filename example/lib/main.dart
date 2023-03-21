@@ -8,7 +8,7 @@ import 'package:intl/intl.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Crowdin.init(
-    distributionHash: 'c7853d00ebba88f0db086f9ap19', //your distribution hash
+    distributionHash: 'your distribution hash', //your distribution hash
     connectionType: InternetConnectionType.any,
     updatesInterval: const Duration(minutes: 25),
   );
