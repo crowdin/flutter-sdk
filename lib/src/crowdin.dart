@@ -80,9 +80,7 @@ class Crowdin {
 
     if (!await _isConnectionTypeAllowed(_connectionType)) {
       _arb = null;
-      return; //return from function if connection type is forbidden for downloading translations
-
-
+      return; // return from function if connection type is forbidden for downloading translations
     }
 
     bool canUpdate = !_canUseCachedDistribution(
@@ -100,8 +98,8 @@ class Crowdin {
         }
       }
 
-      //map locales to avoid problems with different language codes on Crowdin side and supported
-      // by GlobalMaterialLocalizations class  for some countries
+      // map locales to avoid problems with different language codes on Crowdin side and supported
+      // by GlobalMaterialLocalizations class for some countries
       Locale mappedLocale = CrowdinMapper.mapLocale(locale);
 
       distribution = await CrowdinApi.loadTranslations(
