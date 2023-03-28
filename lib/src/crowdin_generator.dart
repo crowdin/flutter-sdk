@@ -127,9 +127,10 @@ class _CrowdinLocalizationsDelegate extends LocalizationsDelegate<AppLocalizatio
 
 List<String> _generateMethodParameters(Message message) {
   assert(message.placeholders.isNotEmpty);
-  final countPlaceholder = message.isPlural ? message.getCountPlaceholder() : Object;
+  final countPlaceholder = message.isPlural ? message.getCountPlaceholder() : null;
   return message.placeholders.values.map((Placeholder placeholder) {
-    final type = placeholder == countPlaceholder ? 'num' : placeholder.type;
+
+    final type = placeholder.type == countPlaceholder?.type ? countPlaceholder?.type : placeholder.type;
     return '${type ?? Object} ${placeholder.name}';
   }).toList();
 }
