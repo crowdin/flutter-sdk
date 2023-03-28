@@ -128,6 +128,21 @@ After receiving translations change the app locale as usual and translations fro
 | `connectionType`   | Network type to be used for translations download. Supported values are `any`, `wifi`, `mobileData`, `ethernet`                                                                                       |
 | `updatesInterval`  | Translations update interval. Translations will not be updated more frequently than the designated time interval (default minimum is 15 minutes). Instead, it will use previously cached translations |
 
+## Notes
+
+Since some languages have different language codes maintained by intl package and by Crowdin (for example for Spanish intl use "es" and Crowdin use "es-ES"). For following language codes maintained by intl Crowdin SDK use equivalent language codes :
+
+- Armenian - 'hy': 'hy-AM'
+- Chinese Simplified -'zh': 'zh-CN'
+- Gujarati - 'gu': 'gu-IN'
+- Nepali - 'ne': 'ne-NP'
+- Portuguese -'pt': 'pt-PT'
+- Punjabi - 'pa': 'pa-IN'
+- Sinhala - 'si': 'si-LK'
+- Spanish -'es': 'es-ES'
+- Swedish - 'sv': 'sv-SE'
+- Urdu (India) -'ur': 'ur-IN'
+
 ## Contributing
 
 If you want to contribute please read the [Contributing](/CONTRIBUTING.md) guidelines.
