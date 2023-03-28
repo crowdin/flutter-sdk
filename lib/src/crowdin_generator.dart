@@ -82,8 +82,6 @@ class CrowdinLocalization extends AppLocalizations {
   static const List<Locale> supportedLocales = AppLocalizations.supportedLocales;
  ''');
 
-  ///+++
-
   var arb = AppResourceBundle(arbResource);
   var messages = arb.resourceIds.map((id) => Message(arb, id, false)).toList(growable: false);
   for (var message in messages) {
@@ -105,12 +103,6 @@ class CrowdinLocalization extends AppLocalizations {
     }
     buffer.writeln('');
   }
-
-  // for (String key in keys) {
-  //   buffer.writeln('  @override');
-  //   buffer.writeln("  String get $key => Crowdin.getText('$key') ?? _fallbackTexts.$key;");
-  //   buffer.writeln('');
-  // }
 
   buffer.writeln(''' 
 }

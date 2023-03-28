@@ -1,13 +1,12 @@
 import 'dart:io';
 import 'dart:convert';
 
-import 'package:crowdin_sdk/src/exceptions/crowdin_exceptions.dart';
 import 'package:http/http.dart' as http;
 
 class CrowdinApi {
   HttpClient client = HttpClient();
 
-  static Future<Map<String, dynamic>?> loadTranslations({
+   Future<Map<String, dynamic>?> loadTranslations({
     required String distributionHash,
     String? path,
   }) async {
@@ -23,7 +22,7 @@ class CrowdinApi {
 
   }
 
-  static Future<Map<String, dynamic>?> getManifest({
+   Future<Map<String, dynamic>?> getManifest({
     required String distributionHash,
   }) async {
     try {

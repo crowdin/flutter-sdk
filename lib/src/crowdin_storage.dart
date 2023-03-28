@@ -17,12 +17,12 @@ class CrowdinStorage {
     return _sharedPrefs;
   }
 
-  Future<void> setTranslationTimeStampStorage(int timestamp) async {
+  Future<void> setTranslationTimeStampStorage(int? timestamp) async {
     try {
       if (_sharedPrefs.containsKey(_kTranslationTimestamp)) {
         await _sharedPrefs.remove(_kTranslationTimestamp);
       }
-      await _sharedPrefs.setInt(_kTranslationTimestamp, timestamp);
+      await _sharedPrefs.setInt(_kTranslationTimestamp, timestamp ?? 1);
     } catch (_) {
       throw CrowdinException("Can't store translation timestamp");
     }
