@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'dart:convert';
 
+import 'package:meta/meta.dart';
 import 'package:path/path.dart' as path;
 import 'package:yaml/yaml.dart' as yaml;
 
@@ -82,8 +83,6 @@ class CrowdinLocalization extends AppLocalizations {
   static const List<Locale> supportedLocales = AppLocalizations.supportedLocales;
  ''');
 
-  ///+++
-
   var arb = AppResourceBundle(arbResource);
   var messages = arb.resourceIds.map((id) => Message(arb, id, false)).toList(growable: false);
   for (var message in messages) {
@@ -105,12 +104,6 @@ class CrowdinLocalization extends AppLocalizations {
     }
     buffer.writeln('');
   }
-
-  // for (String key in keys) {
-  //   buffer.writeln('  @override');
-  //   buffer.writeln("  String get $key => Crowdin.getText('$key') ?? _fallbackTexts.$key;");
-  //   buffer.writeln('');
-  // }
 
   buffer.writeln(''' 
 }
@@ -135,9 +128,31 @@ class _CrowdinLocalizationsDelegate extends LocalizationsDelegate<AppLocalizatio
 
 List<String> _generateMethodParameters(Message message) {
   assert(message.placeholders.isNotEmpty);
-  final countPlaceholder = message.isPlural ? message.getCountPlaceholder() : Object;
+  final pluralPlaceholder = message.isPlural ? message.getCountPlaceholder() : null;
   return message.placeholders.values.map((Placeholder placeholder) {
-    final type = placeholder == countPlaceholder ? 'num' : placeholder.type;
+    final type = placeholder.type == pluralPlaceholder?.type
+        ? specifyPluralType(pluralPlaceholder?.type, Platform.version)
+        : placeholder.type;
     return '${type ?? Object} ${placeholder.name}';
   }).toList();
+}
+
+
+//need specifying plural types since changes in gen_l10n from Flutter 3.7.0
+//https://docs.flutter.dev/development/tools/sdk/release-notes/release-notes-3.7.0
+@visibleForTesting
+String? specifyPluralType(String? type, String dartVersion) {
+  List<String> dartVersionNumbers = dartVersion.split('.');
+  var major = int.tryParse(dartVersionNumbers[0]);
+  var minor = int.tryParse(dartVersionNumbers[1]);
+
+  if (major == null || minor == null) {
+    return type;
+  }
+
+  if (major > 2 || (major == 2 && minor >= 19)) {
+    return type;
+  } else {
+    return 'num';
+  }
 }

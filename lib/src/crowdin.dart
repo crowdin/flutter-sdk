@@ -7,6 +7,7 @@ import 'package:crowdin_sdk/crowdin_sdk.dart';
 import 'package:crowdin_sdk/src/crowdin_storage.dart';
 import 'package:crowdin_sdk/src/crowdin_extractor.dart';
 import 'package:crowdin_sdk/src/crowdin_mapper.dart';
+import 'package:flutter/widgets.dart';
 
 import 'common/gen_l10n_types.dart';
 
@@ -33,6 +34,8 @@ class Crowdin {
   static final CrowdinStorage _storage = CrowdinStorage();
 
   static late int? _timestampCached;
+
+  static final _api = CrowdinApi();
 
   static Future<void> init({
     required String distributionHash,
@@ -65,7 +68,7 @@ class Crowdin {
     log('-=Crowdin=- connectionType $_connectionType');
 
     /// fetch manifest file to get certain paths for each locale distribution
-    var manifest = await CrowdinApi.getManifest(distributionHash: _distributionHash);
+    var manifest = await _api.getManifest(distributionHash: _distributionHash);
 
     if (manifest != null) {
       _distributionsMap = manifest['content'];
@@ -83,7 +86,7 @@ class Crowdin {
       return; // return from function if connection type is forbidden for downloading translations
     }
 
-    bool canUpdate = !_canUseCachedDistribution(
+    bool canUpdate = !canUseCachedTranslation(
       distributionTimeToUpdate: _translationTimeToUpdate,
       translationTimestamp: _timestamp,
       cachedTranslationTimestamp: _timestampCached,
@@ -102,7 +105,7 @@ class Crowdin {
       // by GlobalMaterialLocalizations class for some countries
       Locale mappedLocale = CrowdinMapper.mapLocale(locale);
 
-      distribution = await CrowdinApi.loadTranslations(
+      distribution = await _api.loadTranslations(
           path: _distributionsMap[mappedLocale.toLanguageTag()][0] as String,
           distributionHash: _distributionHash);
       if (distribution != null) {
@@ -154,7 +157,8 @@ class Crowdin {
   }
 }
 
-bool _canUseCachedDistribution({
+@visibleForTesting
+bool canUseCachedTranslation({
   DateTime? distributionTimeToUpdate,
   int? translationTimestamp,
   int? cachedTranslationTimestamp,
