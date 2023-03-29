@@ -130,7 +130,7 @@ After receiving translations change the app locale as usual and translations fro
 
 ## Notes
 
-Since some languages have different language codes maintained by intl package and by Crowdin (for example for Spanish intl use "es" and Crowdin use "es-ES"). For following language codes maintained by intl Crowdin SDK use equivalent language codes :
+Since some languages have different language codes maintained by the intl package and by Crowdin (for example, intl uses "es" for the Spanish language, and Crowdin uses "es-ES"). For the following intl language codes Crowdin SDK uses equivalent language codes:
 
 - Armenian - 'hy': 'hy-AM'
 - Chinese Simplified -'zh': 'zh-CN'
