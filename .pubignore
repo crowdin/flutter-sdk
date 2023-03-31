@@ -1,0 +1,19 @@
+# Build artifacts and temporary files
+build/
+.dart_tool/
+pubspec.lock
+pubspec.yaml.lock
+
+# IDE-specific files
+.idea/
+.vscode/
+
+# Configuration files
+.gitignore
+.github/
+
+# Test files and directories
+test/
+
+# Examples or sample code
+example/
