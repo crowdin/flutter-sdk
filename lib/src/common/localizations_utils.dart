@@ -170,30 +170,6 @@ class LocaleInfo implements Comparable<LocaleInfo> {
   }
 }
 
-// See also //master/tools/gen_locale.dart in the engine repo.
-Map<String, List<String>> _parseSection(String section) {
-  final Map<String, List<String>> result = <String, List<String>>{};
-  late List<String> lastHeading;
-  for (final String line in section.split('\n')) {
-    if (line == '') {
-      continue;
-    }
-    if (line.startsWith('  ')) {
-      lastHeading[lastHeading.length - 1] = '${lastHeading.last}${line.substring(1)}';
-      continue;
-    }
-    final int colon = line.indexOf(':');
-    if (colon <= 0) {
-      throw Exception('not sure how to deal with "$line"');
-    }
-    final String name = line.substring(0, colon);
-    final String value = line.substring(colon + 2);
-    lastHeading = result.putIfAbsent(name, () => <String>[]);
-    result[name]!.add(value);
-  }
-  return result;
-}
-
 final Map<String, String> _languages = <String, String>{};
 final Map<String, String> _regions = <String, String>{};
 final Map<String, String> _scripts = <String, String>{};
