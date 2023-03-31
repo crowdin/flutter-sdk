@@ -22,7 +22,7 @@ jobs:
           channel: 'stable'
 
       - run: flutter --version
-      - run: flutter analyze --no-fatal-infos
+      - run: flutter analyze
       - run: flutter test
 
   android-example:
