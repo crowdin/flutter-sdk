@@ -10,8 +10,8 @@ import 'common/gen_l10n_types.dart';
 class CrowdinGenerator1 {
   static Future<void> generate() async {
     final String projectDirectory = Directory.current.path;
-    File genFile = File(path.join(
-        projectDirectory, '.dart_tool', 'flutter_gen', 'gen_l10n', 'crowdin_localizations.dart'));
+    File genFile = File(path.join(projectDirectory, '.dart_tool', 'flutter_gen',
+        'gen_l10n', 'crowdin_localizations.dart'));
     await genFile.create(recursive: true);
 
     final arbPath = await getTemplateDirPath();
@@ -19,12 +19,14 @@ class CrowdinGenerator1 {
     final arbStr = await arbFile.readAsString();
 
     List<String> keys = getKeys(jsonDecode(arbStr));
-    var content = generationContent(keys: keys, arbResource: jsonDecode(arbStr));
+    var content =
+        generationContent(keys: keys, arbResource: jsonDecode(arbStr));
     await genFile.writeAsString(content, mode: FileMode.writeOnly, flush: true);
   }
 
   static List<String> getKeys(Map<String, Object?> arb) {
-    List<String> keys = arb.keys.where((element) => !element.startsWith('@')).toList();
+    List<String> keys =
+        arb.keys.where((element) => !element.startsWith('@')).toList();
     return keys;
   }
 }
@@ -53,7 +55,8 @@ Future<String> getTemplateDirPath() async {
   }
 }
 
-String generationContent({required List<String> keys, required Map<String, Object?> arbResource}) {
+String generationContent(
+    {required List<String> keys, required Map<String, Object?> arbResource}) {
   StringBuffer buffer = StringBuffer();
   buffer.writeln('''import 'dart:convert';
 
@@ -84,7 +87,9 @@ class CrowdinLocalization extends AppLocalizations {
  ''');
 
   var arb = AppResourceBundle(arbResource);
-  var messages = arb.resourceIds.map((id) => Message(arb, id, false)).toList(growable: false);
+  var messages = arb.resourceIds
+      .map((id) => Message(arb, id, false))
+      .toList(growable: false);
   for (var message in messages) {
     var key = message.resourceId;
     var placeholders = message.placeholders.values;
@@ -95,7 +100,8 @@ class CrowdinLocalization extends AppLocalizations {
           "  String get $key => Crowdin.getText(localeName, '$key') ?? _fallbackTexts.$key;");
     } else {
       var params = _generateMethodParameters(message).join(', ');
-      var values = placeholders.map((placeholder) => placeholder.name).join(', ');
+      var values =
+          placeholders.map((placeholder) => placeholder.name).join(', ');
       var args = placeholders
           .map((placeholder) => '\'${placeholder.name}\':${placeholder.name}')
           .join(', ');
@@ -128,7 +134,8 @@ class _CrowdinLocalizationsDelegate extends LocalizationsDelegate<AppLocalizatio
 
 List<String> _generateMethodParameters(Message message) {
   assert(message.placeholders.isNotEmpty);
-  final pluralPlaceholder = message.isPlural ? message.getCountPlaceholder() : null;
+  final pluralPlaceholder =
+      message.isPlural ? message.getCountPlaceholder() : null;
   return message.placeholders.values.map((Placeholder placeholder) {
     final type = placeholder.type == pluralPlaceholder?.type
         ? specifyPluralType(pluralPlaceholder?.type, Platform.version)
@@ -136,7 +143,6 @@ List<String> _generateMethodParameters(Message message) {
     return '${type ?? Object} ${placeholder.name}';
   }).toList();
 }
-
 
 //need specifying plural types since changes in gen_l10n from Flutter 3.7.0
 //https://docs.flutter.dev/development/tools/sdk/release-notes/release-notes-3.7.0

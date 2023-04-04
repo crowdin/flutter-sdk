@@ -12,6 +12,6 @@ void main() {
   });
 
   test('should return same locale when language tag is not in map', () {
-    expect(CrowdinMapper.mapLocale(const Locale('ja')),const Locale('ja'));
+    expect(CrowdinMapper.mapLocale(const Locale('ja')), const Locale('ja'));
   });
 }

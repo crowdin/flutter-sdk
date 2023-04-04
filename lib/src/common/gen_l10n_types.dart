@@ -151,8 +151,8 @@ class L10nException implements Exception {
 }
 
 class L10nParserException extends L10nException {
-  L10nParserException(
-      this.error, this.fileName, this.messageId, this.messageString, this.charNumber)
+  L10nParserException(this.error, this.fileName, this.messageId,
+      this.messageString, this.charNumber)
       : super('''
 [$fileName:$messageId] $error
     $messageString
@@ -246,7 +246,8 @@ class Placeholder {
         type = _stringAttribute(resourceId, name, attributes, 'type'),
         format = _stringAttribute(resourceId, name, attributes, 'format'),
         optionalParameters = _optionalParameters(resourceId, name, attributes),
-        isCustomDateFormat = _boolAttribute(resourceId, name, attributes, 'isCustomDateFormat');
+        isCustomDateFormat =
+            _boolAttribute(resourceId, name, attributes, 'isCustomDateFormat');
 
   final String resourceId;
   final String name;
@@ -260,7 +261,8 @@ class Placeholder {
   bool isPlural = false;
   bool isSelect = false;
 
-  bool get requiresFormatting => requiresDateFormatting || requiresNumFormatting;
+  bool get requiresFormatting =>
+      requiresDateFormatting || requiresNumFormatting;
 
   bool get requiresDateFormatting => type == 'DateTime';
 
@@ -269,7 +271,8 @@ class Placeholder {
 
   bool get hasValidNumberFormat => _validNumberFormats.contains(format);
 
-  bool get hasNumberFormatWithParameters => _numberFormatsWithNamedParameters.contains(format);
+  bool get hasNumberFormatWithParameters =>
+      _numberFormatsWithNamedParameters.contains(format);
 
   bool get hasValidDateFormat => _validDateFormats.contains(format);
 
@@ -322,13 +325,16 @@ class Placeholder {
       return <OptionalParameter>[];
     }
     if (value is! Map<String, Object?>) {
-      throw CrowdinException( 'The "optionalParameters" value of the "$name" placeholder in message '
-              '$resourceId is not a properly formatted Map. Ensure that it is a map '
-              'with keys that are strings.');
+      throw CrowdinException(
+          'The "optionalParameters" value of the "$name" placeholder in message '
+          '$resourceId is not a properly formatted Map. Ensure that it is a map '
+          'with keys that are strings.');
     }
     final Map<String, Object?> optionalParameterMap = value;
-    return optionalParameterMap.keys.map<OptionalParameter>((String parameterName) {
-      return OptionalParameter(parameterName, optionalParameterMap[parameterName]!);
+    return optionalParameterMap.keys
+        .map<OptionalParameter>((String parameterName) {
+      return OptionalParameter(
+          parameterName, optionalParameterMap[parameterName]!);
     }).toList();
   }
 }
@@ -356,13 +362,14 @@ class Message {
     this.useEscaping = false,
   })  : assert(resourceId.isNotEmpty),
         value = _value(templateBundle.resources, resourceId),
-        description =
-            _description(templateBundle.resources, resourceId, isResourceAttributeRequired),
-        placeholders =
-            _placeholders(templateBundle.resources, resourceId, isResourceAttributeRequired),
+        description = _description(
+            templateBundle.resources, resourceId, isResourceAttributeRequired),
+        placeholders = _placeholders(
+            templateBundle.resources, resourceId, isResourceAttributeRequired),
         messages = <LocaleInfo, String?>{},
         parsedMessages = <LocaleInfo, Node?>{},
-        _pluralMatch = _pluralRE.firstMatch(_value(templateBundle.resources, resourceId));
+        _pluralMatch =
+            _pluralRE.firstMatch(_value(templateBundle.resources, resourceId));
 
   // {
   //   // Filenames for error handling.
@@ -415,13 +422,15 @@ class Message {
     final Object? attributes = bundle['@$resourceId'];
     if (isResourceAttributeRequired) {
       if (attributes == null) {
-        throw L10nException('Resource attribute "@$resourceId" was not found. Please '
+        throw L10nException(
+            'Resource attribute "@$resourceId" was not found. Please '
             'ensure that each resource has a corresponding @resource.');
       }
     }
 
     if (attributes != null && attributes is! Map<String, Object?>) {
-      throw L10nException('The resource attribute "@$resourceId" is not a properly formatted Map. '
+      throw L10nException(
+          'The resource attribute "@$resourceId" is not a properly formatted Map. '
           'Ensure that it is a map with keys that are strings.');
     }
 
@@ -444,7 +453,8 @@ class Message {
       return null;
     }
     if (value is! String) {
-      throw L10nException('The description for "@$resourceId" is not a properly formatted String.');
+      throw L10nException(
+          'The description for "@$resourceId" is not a properly formatted String.');
     }
     return value;
   }
@@ -456,8 +466,8 @@ class Message {
   Placeholder getCountPlaceholder() {
     assert(isPlural);
     final String countPlaceholderName = _pluralMatch![1]!;
-    return placeholders.values.firstWhere((Placeholder p) => p.name == countPlaceholderName,
-        orElse: () {
+    return placeholders.values.firstWhere(
+        (Placeholder p) => p.name == countPlaceholderName, orElse: () {
       throw L10nException(
           'Cannot find the $countPlaceholderName placeholder in plural message "$resourceId".');
     });
@@ -478,7 +488,8 @@ class Message {
       return <String, Placeholder>{};
     }
     if (allPlaceholdersMap is! Map<String, Object?>) {
-      throw L10nException('The "placeholders" attribute for message $resourceId, is not '
+      throw L10nException(
+          'The "placeholders" attribute for message $resourceId, is not '
           'properly formatted. Ensure that it is a map with string valued keys.');
     }
     return Map<String, Placeholder>.fromEntries(
@@ -503,14 +514,17 @@ class AppResourceBundle {
     String? localeString = resources['@@locale'] as String?;
 
     if (localeString == null) {
-      throw L10nException("The following .arb file's locale could not be determined: \n"
+      throw L10nException(
+          "The following .arb file's locale could not be determined: \n"
           '{file.path} \n'
           "Make sure that the locale is specified in the file's '@@locale' "
           'property or as part of the filename (e.g. file_en.arb)');
     }
 
-    final Iterable<String> ids = resources.keys.where((String key) => !key.startsWith('@'));
-    return AppResourceBundle._(LocaleInfo.fromString(localeString), resources, ids);
+    final Iterable<String> ids =
+        resources.keys.where((String key) => !key.startsWith('@'));
+    return AppResourceBundle._(
+        LocaleInfo.fromString(localeString), resources, ids);
   }
 
   const AppResourceBundle._(this.locale, this.resources, this.resourceIds);

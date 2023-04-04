@@ -40,7 +40,7 @@ import 'gen_l10n_types.dart';
 typedef HeaderGenerator = String Function(String regenerateInstructions);
 typedef ConstructorGenerator = String Function(LocaleInfo locale);
 
-int sortFilesByPath (File a, File b) {
+int sortFilesByPath(File a, File b) {
   return a.path.compareTo(b.path);
 }
 
@@ -63,7 +63,8 @@ class LocaleInfo implements Comparable<LocaleInfo> {
   ///
   /// When `deriveScriptCode` is true, if [scriptCode] was unspecified, it will
   /// be derived from the [languageCode] and [countryCode] if possible.
-  factory LocaleInfo.fromString(String locale, { bool deriveScriptCode = false }) {
+  factory LocaleInfo.fromString(String locale,
+      {bool deriveScriptCode = false}) {
     final List<String> codes = locale.split('_'); // [language, script, country]
     assert(codes.isNotEmpty && codes.length < 4);
     final String languageCode = codes[0];
@@ -90,29 +91,31 @@ class LocaleInfo implements Comparable<LocaleInfo> {
     /// script, so it is safe to apply (Hant) to Taiwanese languages.
     if (deriveScriptCode && scriptCode == null) {
       switch (languageCode) {
-        case 'zh': {
-          if (countryCode == null) {
-            scriptCode = 'Hans';
-          }
-          switch (countryCode) {
-            case 'CN':
-            case 'SG':
+        case 'zh':
+          {
+            if (countryCode == null) {
               scriptCode = 'Hans';
-              break;
-            case 'TW':
-            case 'HK':
-            case 'MO':
-              scriptCode = 'Hant';
-              break;
+            }
+            switch (countryCode) {
+              case 'CN':
+              case 'SG':
+                scriptCode = 'Hans';
+                break;
+              case 'TW':
+              case 'HK':
+              case 'MO':
+                scriptCode = 'Hant';
+                break;
+            }
+            break;
           }
-          break;
-        }
-        case 'sr': {
-          if (countryCode == null) {
-            scriptCode = 'Cyrl';
+        case 'sr':
+          {
+            if (countryCode == null) {
+              scriptCode = 'Cyrl';
+            }
+            break;
           }
-          break;
-        }
       }
       // Increment length if we were able to assume a scriptCode.
       if (scriptCode != null) {
@@ -140,20 +143,21 @@ class LocaleInfo implements Comparable<LocaleInfo> {
   final String languageCode;
   final String? scriptCode;
   final String? countryCode;
-  final int length;             // The number of fields. Ranges from 1-3.
-  final String originalString;  // Original un-parsed locale string.
+  final int length; // The number of fields. Ranges from 1-3.
+  final String originalString; // Original un-parsed locale string.
 
   String camelCase() {
     return originalString
         .split('_')
-        .map<String>((String part) => part.substring(0, 1).toUpperCase() + part.substring(1).toLowerCase())
+        .map<String>((String part) =>
+            part.substring(0, 1).toUpperCase() +
+            part.substring(1).toLowerCase())
         .join();
   }
 
   @override
   bool operator ==(Object other) {
-    return other is LocaleInfo
-        && other.originalString == originalString;
+    return other is LocaleInfo && other.originalString == originalString;
   }
 
   @override
@@ -223,8 +227,8 @@ String describeLocale(String tag) {
   if (!_languages.containsKey(languageCode)) {
     throw L10nException(
       '"$languageCode" is not a supported language code.\n'
-          'See https://www.iana.org/assignments/language-subtag-registry/language-subtag-registry '
-          'for the supported list.',
+      'See https://www.iana.org/assignments/language-subtag-registry/language-subtag-registry '
+      'for the supported list.',
     );
   }
   final String language = _languages[languageCode]!;
@@ -274,15 +278,14 @@ String describeLocale(String tag) {
 String generateString(String value) {
   const String backslash = '__BACKSLASH__';
   assert(
-  !value.contains(backslash),
-  'Input string cannot contain the sequence: '
+      !value.contains(backslash),
+      'Input string cannot contain the sequence: '
       '"__BACKSLASH__", as it is used as part of '
-      'backslash character processing.'
-  );
+      'backslash character processing.');
 
   value = value
-  // Replace backslashes with a placeholder for now to properly parse
-  // other special characters.
+      // Replace backslashes with a placeholder for now to properly parse
+      // other special characters.
       .replaceAll(r'\', backslash)
       .replaceAll(r'$', r'\$')
       .replaceAll("'", r"\'")
@@ -292,7 +295,7 @@ String generateString(String value) {
       .replaceAll('\t', r'\t')
       .replaceAll('\r', r'\r')
       .replaceAll('\b', r'\b')
-  // Reintroduce escaped backslashes into generated Dart string.
+      // Reintroduce escaped backslashes into generated Dart string.
       .replaceAll(backslash, r'\\');
 
   return value;
@@ -302,19 +305,22 @@ String generateString(String value) {
 /// them into one expression to be returned.
 ///
 /// If `isSingleStringVar` is passed, then we want to convert "'$expr'" to "expr".
-String generateReturnExpr(List<String> expressions, { bool isSingleStringVar = false }) {
+String generateReturnExpr(List<String> expressions,
+    {bool isSingleStringVar = false}) {
   if (expressions.isEmpty) {
     return "''";
   } else if (isSingleStringVar) {
     // If our expression is "$varName" where varName is a String, this is equivalent to just varName.
     return expressions[0].substring(1);
   } else {
-    final String string = expressions.reversed.fold<String>('', (String string, String expression) {
+    final String string = expressions.reversed.fold<String>('',
+        (String string, String expression) {
       if (expression[0] != r'$') {
         return generateString(expression) + string;
       }
       final RegExp alphanumeric = RegExp(r'^([0-9a-zA-Z]|_)+$');
-      if (alphanumeric.hasMatch(expression.substring(1)) && !(string.isNotEmpty && alphanumeric.hasMatch(string[0]))) {
+      if (alphanumeric.hasMatch(expression.substring(1)) &&
+          !(string.isNotEmpty && alphanumeric.hasMatch(string[0]))) {
         return '$expression$string';
       } else {
         return '\${${expression.substring(1)}}$string';
@@ -442,21 +448,25 @@ LocalizationOptions parseLocalizationsOptions({
   final YamlNode yamlNode = loadYamlNode(file.readAsStringSync());
   if (yamlNode is! YamlMap) {
     // logger.printError('Expected ${file.path} to contain a map, instead was $yamlNode');
-    throw CrowdinException('Expected ${file.path} to contain a map, instead was $yamlNode');
+    throw CrowdinException(
+        'Expected ${file.path} to contain a map, instead was $yamlNode');
   }
   return LocalizationOptions(
     arbDirectory: _tryReadUri(yamlNode, 'arb-dir'),
     templateArbFile: _tryReadUri(yamlNode, 'template-arb-file'),
     outputLocalizationsFile: _tryReadUri(yamlNode, 'output-localization-file'),
-    untranslatedMessagesFile: _tryReadUri(yamlNode, 'untranslated-messages-file'),
+    untranslatedMessagesFile:
+        _tryReadUri(yamlNode, 'untranslated-messages-file'),
     header: _tryReadString(yamlNode, 'header'),
     outputClass: _tryReadString(yamlNode, 'output-class'),
     outputDirectory: _tryReadUri(yamlNode, 'output-dir'),
-    preferredSupportedLocales: _tryReadStringList(yamlNode, 'preferred-supported-locales'),
+    preferredSupportedLocales:
+        _tryReadStringList(yamlNode, 'preferred-supported-locales'),
     headerFile: _tryReadUri(yamlNode, 'header-file'),
     deferredLoading: _tryReadBool(yamlNode, 'use-deferred-loading'),
     useSyntheticPackage: _tryReadBool(yamlNode, 'synthetic-package') ?? true,
-    areResourceAttributesRequired: _tryReadBool(yamlNode, 'required-resource-attributes') ?? false,
+    areResourceAttributesRequired:
+        _tryReadBool(yamlNode, 'required-resource-attributes') ?? false,
     usesNullableGetter: _tryReadBool(yamlNode, 'nullable-getter') ?? true,
     format: _tryReadBool(yamlNode, 'format') ?? false,
     useEscaping: _tryReadBool(yamlNode, 'use-escaping') ?? false,
@@ -465,14 +475,18 @@ LocalizationOptions parseLocalizationsOptions({
 }
 
 // Try to read a `bool` value or null from `yamlMap`, otherwise throw.
-bool? _tryReadBool(YamlMap yamlMap, String key,) {
+bool? _tryReadBool(
+  YamlMap yamlMap,
+  String key,
+) {
   final Object? value = yamlMap[key];
   if (value == null) {
     return null;
   }
   if (value is! bool) {
     // logger.printError('Expected "$key" to have a bool value, instead was "$value"');
-    throw CrowdinException('Expected "$key" to have a bool value, instead was "$value"');
+    throw CrowdinException(
+        'Expected "$key" to have a bool value, instead was "$value"');
   }
   return value;
 }
@@ -485,12 +499,16 @@ String? _tryReadString(YamlMap yamlMap, String key) {
   }
   if (value is! String) {
     // logger.printError('Expected "$key" to have a String value, instead was "$value"');
-    throw CrowdinException('Expected "$key" to have a String value, instead was "$value"');
+    throw CrowdinException(
+        'Expected "$key" to have a String value, instead was "$value"');
   }
   return value;
 }
 
-List<String>? _tryReadStringList(YamlMap yamlMap, String key,) {
+List<String>? _tryReadStringList(
+  YamlMap yamlMap,
+  String key,
+) {
   final Object? value = yamlMap[key];
   if (value == null) {
     return null;
@@ -507,7 +525,10 @@ List<String>? _tryReadStringList(YamlMap yamlMap, String key,) {
 
 // Try to read a valid `Uri` or null from `yamlMap`, otherwise throw.
 Uri? _tryReadUri(YamlMap yamlMap, String key) {
-  final String? value = _tryReadString(yamlMap, key,);
+  final String? value = _tryReadString(
+    yamlMap,
+    key,
+  );
   if (value == null) {
     return null;
   }

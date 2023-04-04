@@ -105,7 +105,8 @@ class _MainScreenState extends State<MainScreen> {
                   context,
                   MaterialPageRoute(
                     builder: (context) => SettingsScreen(
-                      onLanguageChanged: (locale) => widget.changeLocale(locale),
+                      onLanguageChanged: (locale) =>
+                          widget.changeLocale(locale),
                     ),
                   ),
                 );

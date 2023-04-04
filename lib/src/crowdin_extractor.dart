@@ -28,15 +28,19 @@ class Extractor {
     Map<String, dynamic> args = const {},
   ]) {
     if (buffer == null) return null;
-    final countPlaceholder = message.isPlural ? message.getCountPlaceholder() : null;
+    final countPlaceholder =
+        message.isPlural ? message.getCountPlaceholder() : null;
     var placeholders = message.placeholders;
     for (var i = 0; i < placeholders.length; i++) {
       final placeholder = placeholders.values.toList()[i];
       final value = args[placeholder.name];
-      final optionals = {for (final op in placeholder.optionalParameters) op.name: op.value};
+      final optionals = {
+        for (final op in placeholder.optionalParameters) op.name: op.value
+      };
       String result;
       if (placeholder.isDate) {
-        result = intl.DateFormat(placeholder.format, locale).format(value as DateTime);
+        result = intl.DateFormat(placeholder.format, locale)
+            .format(value as DateTime);
       } else if (placeholder.isNumber || placeholder == countPlaceholder) {
         result = _findNumberPlaceholder(
           optionals: optionals,
@@ -64,7 +68,8 @@ class Extractor {
     final customPattern = optionals['customPattern'] as String?;
     switch (placeholder.format) {
       case 'compact':
-        return intl.NumberFormat.compact(locale: locale).format(placeholderValue);
+        return intl.NumberFormat.compact(locale: locale)
+            .format(placeholderValue);
       case 'compactCurrency':
         return intl.NumberFormat.compactCurrency(
           locale: locale,
@@ -79,7 +84,8 @@ class Extractor {
           decimalDigits: decimalDigits,
         ).format(placeholderValue);
       case 'compactLong':
-        return intl.NumberFormat.compactLong(locale: locale).format(placeholderValue);
+        return intl.NumberFormat.compactLong(locale: locale)
+            .format(placeholderValue);
       case 'currency':
         return intl.NumberFormat.currency(
           locale: locale,
@@ -127,15 +133,16 @@ class Extractor {
 
     var messageValue = message.value;
     for (final placeholder in message.placeholders.values) {
-      messageValue = messageValue.replaceAll('{${placeholder.name}}', '#${placeholder.name}#');
+      messageValue = messageValue.replaceAll(
+          '{${placeholder.name}}', '#${placeholder.name}#');
     }
 
     final extractedPlurals = List.generate(pluralIds.length, (i) {
       final extracted = findPlural(messageValue, pluralIds[i]);
       var formattedMessage = message.placeholders.values.fold<String?>(
         extracted,
-        (extracted, placeholder) =>
-            extracted?.replaceAll('#${placeholder.name}#', '{${placeholder.name}}'),
+        (extracted, placeholder) => extracted?.replaceAll(
+            '#${placeholder.name}#', '{${placeholder.name}}'),
       );
       return _findPlaceholders(locale, message, formattedMessage, args);
     });
@@ -157,6 +164,7 @@ class Extractor {
 @visibleForTesting
 String? findPlural(String formattedMessage, String pluralKey) {
   final startIndex = formattedMessage.indexOf(pluralKey);
+
   /// Returns -1 if no match is found
   if (startIndex == -1) {
     return null;
