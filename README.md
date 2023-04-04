@@ -10,6 +10,8 @@ The Crowdin Flutter SDK delivers all new translations from Crowdin project to th
 [**`Crowdin Docs`**](https://support.crowdin.com/content-delivery)  &nbsp;|&nbsp;
 [**`Crowdin Enterprise Docs`**](https://support.crowdin.com/enterprise/content-delivery/)
 
+[![Pub Version](https://img.shields.io/pub/v/crowdin_sdk?cacheSeconds=9000)](https://pub.dev/packages/crowdin_sdk)
+[![Pub Points](https://img.shields.io/pub/points/crowdin_sdk?cacheSeconds=1000)](https://pub.dev/packages/crowdin_sdk)
 [![GitHub issues](https://img.shields.io/github/issues/crowdin/flutter-sdk?cacheSeconds=9000)](https://github.com/crowdin/flutter-sdk/issues)
 [![GitHub contributors](https://img.shields.io/github/contributors/crowdin/flutter-sdk?cacheSeconds=9000)](https://github.com/crowdin/flutter-sdk/graphs/contributors)
 [![GitHub](https://img.shields.io/github/license/crowdin/flutter-sdk?cacheSeconds=20000)](https://github.com/crowdin/flutter-sdk/blob/master/LICENSE)
