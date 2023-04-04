@@ -11,8 +11,9 @@ The Crowdin Flutter SDK delivers all new translations from Crowdin project to th
 [**`Crowdin Enterprise Docs`**](https://support.crowdin.com/enterprise/content-delivery/)
 
 [![Pub Version](https://img.shields.io/pub/v/crowdin_sdk?cacheSeconds=9000)](https://pub.dev/packages/crowdin_sdk)
+[![Pub Likes](https://img.shields.io/pub/likes/crowdin_sdk)](https://pub.dev/packages/crowdin_sdk)
 [![Pub Points](https://img.shields.io/pub/points/crowdin_sdk?cacheSeconds=1000)](https://pub.dev/packages/crowdin_sdk)
-[![GitHub issues](https://img.shields.io/github/issues/crowdin/flutter-sdk?cacheSeconds=9000)](https://github.com/crowdin/flutter-sdk/issues)
+[![Build](https://github.com/crowdin/flutter-sdk/actions/workflows/build.yml/badge.svg)](https://github.com/crowdin/flutter-sdk/actions/workflows/build.yml)
 [![GitHub contributors](https://img.shields.io/github/contributors/crowdin/flutter-sdk?cacheSeconds=9000)](https://github.com/crowdin/flutter-sdk/graphs/contributors)
 [![GitHub](https://img.shields.io/github/license/crowdin/flutter-sdk?cacheSeconds=20000)](https://github.com/crowdin/flutter-sdk/blob/master/LICENSE)
 
@@ -120,7 +121,7 @@ To manage distributions open the needed project and go to *Over-The-Air Content 
   await Crowdin.loadTranslations(Locale('en'));
   ```
 
-After receiving translations change the app locale as usual and translations from Crowdin will be applied.
+After receiving the translations, change the app locale as usual and the translations from Crowdin will be applied.
 
 ## Configuration
 
@@ -134,24 +135,24 @@ After receiving translations change the app locale as usual and translations fro
 
 Since some languages have different language codes maintained by the intl package and by Crowdin (for example, intl uses "es" for the Spanish language, and Crowdin uses "es-ES"). For the following intl language codes Crowdin SDK uses equivalent language codes:
 
-- Armenian - 'hy': 'hy-AM'
-- Chinese Simplified -'zh': 'zh-CN'
-- Gujarati - 'gu': 'gu-IN'
-- Nepali - 'ne': 'ne-NP'
-- Portuguese -'pt': 'pt-PT'
-- Punjabi - 'pa': 'pa-IN'
-- Sinhala - 'si': 'si-LK'
-- Spanish -'es': 'es-ES'
-- Swedish - 'sv': 'sv-SE'
-- Urdu (India) -'ur': 'ur-IN'
+- Armenian - `hy`: `hy-AM`
+- Chinese Simplified - `zh`: `zh-CN`
+- Gujarati - `gu`: `gu-IN`
+- Nepali - `ne`: `ne-NP`
+- Portuguese - `pt`: `pt-PT`
+- Punjabi - `pa`: `pa-IN`
+- Sinhala - `si`: `si-LK`
+- Spanish - `es`: `es-ES`
+- Swedish - `sv`: `sv-SE`
+- Urdu (India) - `ur`: `ur-IN`
 
 ## Contributing
 
-If you want to contribute please read the [Contributing](/CONTRIBUTING.md) guidelines.
+If you would like to contribute, please read the [Contributing Guidelines](https://github.com/crowdin/flutter-sdk/blob/main/CONTRIBUTING.md).
 
 ## Seeking Assistance
 
-If you find any problems or would like to suggest a feature, please feel free to file an issue on GitHub at [Issues Page](https://github.com/crowdin/flutter-sdk/issues).
+If you find any problems or would like to suggest a feature, please feel free to submit an issue on GitHub at the [Issues Page](https://github.com/crowdin/flutter-sdk/issues).
 
 ## Security
 
