@@ -118,7 +118,7 @@ class Crowdin {
         );
         _arb = AppResourceBundle(distribution);
 
-        /// set initial value for _translationTimeToUpdate
+        // set initial value for _translationTimeToUpdate
         if (_updatesInterval != null) {
           _translationTimeToUpdate = DateTime.now().add(_updatesInterval!);
         }
