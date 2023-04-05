@@ -41,13 +41,7 @@ To configure Flutter SDK integration you need to:
 
 **Distribution** is a CDN vault that mirrors the translated content of your project and is required for integration with the Flutter app.
 
-To manage distributions open the needed project and go to *Over-The-Air Content Delivery*. You can create as many distributions as you need and choose different files for each. You’ll need to click the *Release* button next to the necessary distribution every time you want to send new translations to the app.
-
-**Notes:**
-
-- The CDN feature does not update the localization files. if you want to add new translations to the localization files you need to do it yourself.
-- Once SDK receives the translations, it's stored on the device as application files for further sessions to minimize requests the next time the app starts. Storage time can be configured.
-- CDN caches all the translations in release and even when new translations are released in Crowdin, CDN may return them with a delay.
+To manage distributions, open the Crowdin project and go to the *Translations* > *Over-The-Air Content Delivery* section. You can create as many distributions as you need and select different files for each. You'll need to click the *Release* button next to the distribution each time you want to send new translations to the app.
 
 **To integrate SDK with your application you need to follow the step-by-step instructions:**
 
@@ -134,18 +128,21 @@ After receiving the translations, change the app locale as usual and the transla
 
 ## Notes
 
-Since some languages have different language codes maintained by the intl package and by Crowdin (for example, intl uses "es" for the Spanish language, and Crowdin uses "es-ES"). For the following intl language codes Crowdin SDK uses equivalent language codes:
+- The CDN feature does not update the localization files. if you want to add new translations to the localization files you need to do it yourself.
+- Once SDK receives the translations, it's stored on the device as application files for further sessions to minimize requests the next time the app starts. Storage time can be configured.
+- CDN caches all the translations in release and even when new translations are released in Crowdin, CDN may return them with a delay.
+- Since some languages have different language codes maintained by the intl package and by Crowdin (for example, intl uses "es" for the Spanish language, and Crowdin uses "es-ES"). For the following intl language codes Crowdin SDK uses equivalent language codes:
 
-- Armenian - `hy`: `hy-AM`
-- Chinese Simplified - `zh`: `zh-CN`
-- Gujarati - `gu`: `gu-IN`
-- Nepali - `ne`: `ne-NP`
-- Portuguese - `pt`: `pt-PT`
-- Punjabi - `pa`: `pa-IN`
-- Sinhala - `si`: `si-LK`
-- Spanish - `es`: `es-ES`
-- Swedish - `sv`: `sv-SE`
-- Urdu (India) - `ur`: `ur-IN`
+  - Armenian - `hy`: `hy-AM`
+  - Chinese Simplified - `zh`: `zh-CN`
+  - Gujarati - `gu`: `gu-IN`
+  - Nepali - `ne`: `ne-NP`
+  - Portuguese - `pt`: `pt-PT`
+  - Punjabi - `pa`: `pa-IN`
+  - Sinhala - `si`: `si-LK`
+  - Spanish - `es`: `es-ES`
+  - Swedish - `sv`: `sv-SE`
+  - Urdu (India) - `ur`: `ur-IN`
 
 ## Contributing
 
