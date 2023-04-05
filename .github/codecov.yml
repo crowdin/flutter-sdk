@@ -1,0 +1,4 @@
+# https://docs.codecov.com/docs/codecovyml-reference
+
+ignore:
+  - "lib/src/common/*.dart"
