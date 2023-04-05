@@ -36,7 +36,7 @@ class Crowdin {
 
   static final _api = CrowdinApi();
 
-  ///initialisation with provided parameters
+  /// Crowdin SDK initialization
   static Future<void> init({
     required String distributionHash,
     Duration? updatesInterval,
@@ -78,7 +78,7 @@ class Crowdin {
     }
   }
 
-  /// load translations from Crowdin
+  /// Load translations from Crowdin for a specific locale
   static Future<void> loadTranslations(Locale locale) async {
     Map<String, dynamic>? distribution;
 
@@ -137,7 +137,7 @@ class Crowdin {
 
   static final Extractor _extractor = Extractor();
 
-  /// return text for provided key
+  /// Returns translation for a given key and locale
   static String? getText(
     String locale,
     String key, [
