@@ -29,7 +29,7 @@ The Crowdin Flutter SDK delivers all new translations from Crowdin project to th
 
 ## Requirements
 
-* Dart >=2.12.0
+* Dart >=2.17.0
 
 ## Setup
 
