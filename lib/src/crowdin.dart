@@ -2,7 +2,7 @@ import 'dart:convert';
 import 'dart:developer';
 
 import 'package:connectivity_plus/connectivity_plus.dart';
-import 'package:crowdin_sdk/crowdin_sdk.dart';
+import 'package:crowdin_sdk/src/crowdin_api.dart';
 import 'package:crowdin_sdk/src/crowdin_storage.dart';
 import 'package:crowdin_sdk/src/crowdin_extractor.dart';
 import 'package:crowdin_sdk/src/crowdin_mapper.dart';
@@ -36,6 +36,7 @@ class Crowdin {
 
   static final _api = CrowdinApi();
 
+  ///initialisation with provided parameters
   static Future<void> init({
     required String distributionHash,
     Duration? updatesInterval,
@@ -77,6 +78,7 @@ class Crowdin {
     }
   }
 
+  /// load translations from Crowdin
   static Future<void> loadTranslations(Locale locale) async {
     Map<String, dynamic>? distribution;
 
@@ -116,7 +118,7 @@ class Crowdin {
         );
         _arb = AppResourceBundle(distribution);
 
-        ///set initial value for _translationTimeToUpdate
+        /// set initial value for _translationTimeToUpdate
         if (_updatesInterval != null) {
           _translationTimeToUpdate = DateTime.now().add(_updatesInterval!);
         }
@@ -135,6 +137,7 @@ class Crowdin {
 
   static final Extractor _extractor = Extractor();
 
+  /// return text for provided key
   static String? getText(
     String locale,
     String key, [
