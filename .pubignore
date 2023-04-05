@@ -11,6 +11,8 @@ pubspec.yaml.lock
 # Configuration files
 .gitignore
 .github/
+analysis_options.yaml
 
 # Test files and directories
 test/
+test-results.json
