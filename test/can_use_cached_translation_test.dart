@@ -3,7 +3,9 @@ import 'package:flutter_test/flutter_test.dart';
 
 void main() {
   group('canUseCachedDistribution', () {
-    test('returns true when distributionTimeToUpdate is null and translationTimestamp and cachedTranslationTimestamp match', () {
+    test(
+        'returns true when distributionTimeToUpdate is null and translationTimestamp and cachedTranslationTimestamp match',
+        () {
       const translationTimestamp = 123;
       const cachedTranslationTimestamp = 123;
 
@@ -16,7 +18,9 @@ void main() {
       expect(result, isTrue);
     });
 
-    test('returns false when distributionTimeToUpdate is null and translationTimestamp and cachedTranslationTimestamp do not match', () {
+    test(
+        'returns false when distributionTimeToUpdate is null and translationTimestamp and cachedTranslationTimestamp do not match',
+        () {
       const translationTimestamp = 123;
       const cachedTranslationTimestamp = 456;
 
@@ -29,8 +33,10 @@ void main() {
       expect(result, isFalse);
     });
 
-    test('returns true when distributionTimeToUpdate is after the current time', () {
-      final distributionTimeToUpdate = DateTime.now().add(const Duration(minutes: 1));
+    test('returns true when distributionTimeToUpdate is after the current time',
+        () {
+      final distributionTimeToUpdate =
+          DateTime.now().add(const Duration(minutes: 1));
 
       final result = canUseCachedTranslation(
         distributionTimeToUpdate: distributionTimeToUpdate,
@@ -41,8 +47,11 @@ void main() {
       expect(result, isTrue);
     });
 
-    test('returns false when distributionTimeToUpdate is before the current time', () {
-      final distributionTimeToUpdate = DateTime.now().subtract(const Duration(minutes: 1));
+    test(
+        'returns false when distributionTimeToUpdate is before the current time',
+        () {
+      final distributionTimeToUpdate =
+          DateTime.now().subtract(const Duration(minutes: 1));
 
       final result = canUseCachedTranslation(
         distributionTimeToUpdate: distributionTimeToUpdate,

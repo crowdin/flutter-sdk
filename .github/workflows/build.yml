@@ -24,6 +24,7 @@ jobs:
       - run: flutter --version
       - run: flutter analyze
       - run: flutter test
+      - run: dart format . --set-exit-if-changed
 
   android-example:
     runs-on: ubuntu-latest
