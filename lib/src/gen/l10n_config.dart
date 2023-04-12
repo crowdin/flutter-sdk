@@ -6,7 +6,7 @@ import 'package:yaml/yaml.dart' as yaml;
 
 class L10nConfig {
   String arbDir;
-  String outputDir;
+  String? outputDir;
   String outputLocalizationFile;
   String templateArbFile;
   String outputClass;
@@ -21,6 +21,9 @@ class L10nConfig {
     this.syntheticPackage = true,
   });
 
+  String get finalOutputDir =>
+      syntheticPackage ? '.dart_tool/flutter_gen/gen_l10n' : outputDir ?? arbDir;
+
   static Future<L10nConfig> getL10nConfig() async {
     if (await File('l10n.yaml').exists()) {
       File l10nFile = File('l10n.yaml');
@@ -33,7 +36,7 @@ class L10nConfig {
       String outputLocalizationFile =
           yamlGenConfig['output-localization-file'] ?? 'app_localizations.dart';
 
-      String outputDir = yamlGenConfig['output-dir'] ?? '.dart_tool/flutter_gen/gen_l10n';
+      String? outputDir = yamlGenConfig['output-dir'];
 
       String outputClass = yamlGenConfig['output-class'] ?? 'AppLocalizations';
 

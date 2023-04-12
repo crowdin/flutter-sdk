@@ -12,9 +12,8 @@ class CrowdinGenerator {
     final String projectDirectory = Directory.current.path;
 
     L10nConfig l10nConfig = await L10nConfig.getL10nConfig();
-
-    File genFile = File(path.join(
-        projectDirectory, '.dart_tool', 'flutter_gen', 'gen_l10n', 'crowdin_localizations.dart'));
+    File genFile =
+        File(path.join(projectDirectory, l10nConfig.finalOutputDir, 'crowdin_localizations.dart'));
     await genFile.create(recursive: true);
 
     final arbPath = path.join(l10nConfig.arbDir, l10nConfig.templateArbFile);
