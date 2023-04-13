@@ -21,8 +21,9 @@ class L10nConfig {
     this.syntheticPackage = true,
   });
 
-  String get finalOutputDir =>
-      syntheticPackage ? '.dart_tool/flutter_gen/gen_l10n' : outputDir ?? arbDir;
+  String get finalOutputDir => syntheticPackage
+      ? '.dart_tool/flutter_gen/gen_l10n'
+      : outputDir ?? arbDir;
 
   static Future<L10nConfig> getL10nConfig() async {
     if (await File('l10n.yaml').exists()) {

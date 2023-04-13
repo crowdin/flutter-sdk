@@ -4,16 +4,16 @@ import 'dart:convert';
 import 'package:meta/meta.dart';
 import 'package:path/path.dart' as path;
 
-import 'common/gen_l10n_types.dart';
-import 'gen/l10n_config.dart';
+import '../common/gen_l10n_types.dart';
+import 'l10n_config.dart';
 
 class CrowdinGenerator {
   static Future<void> generate() async {
     final String projectDirectory = Directory.current.path;
 
     L10nConfig l10nConfig = await L10nConfig.getL10nConfig();
-    File genFile =
-        File(path.join(projectDirectory, l10nConfig.finalOutputDir, 'crowdin_localizations.dart'));
+    File genFile = File(path.join(projectDirectory, l10nConfig.finalOutputDir,
+        'crowdin_localizations.dart'));
     await genFile.create(recursive: true);
 
     final arbPath = path.join(l10nConfig.arbDir, l10nConfig.templateArbFile);
@@ -30,7 +30,8 @@ class CrowdinGenerator {
   }
 
   static List<String> getKeys(Map<String, Object?> arb) {
-    List<String> keys = arb.keys.where((element) => !element.startsWith('@')).toList();
+    List<String> keys =
+        arb.keys.where((element) => !element.startsWith('@')).toList();
     return keys;
   }
 }
@@ -69,7 +70,9 @@ class CrowdinLocalization extends ${l10nConfig.outputClass} {
  ''');
 
   var arb = AppResourceBundle(arbResource);
-  var messages = arb.resourceIds.map((id) => Message(arb, id, false)).toList(growable: false);
+  var messages = arb.resourceIds
+      .map((id) => Message(arb, id, false))
+      .toList(growable: false);
   for (var message in messages) {
     var key = message.resourceId;
     var placeholders = message.placeholders.values;
@@ -80,7 +83,8 @@ class CrowdinLocalization extends ${l10nConfig.outputClass} {
           "  String get $key => Crowdin.getText(localeName, '$key') ?? _fallbackTexts.$key;");
     } else {
       var params = _generateMethodParameters(message).join(', ');
-      var values = placeholders.map((placeholder) => placeholder.name).join(', ');
+      var values =
+          placeholders.map((placeholder) => placeholder.name).join(', ');
       var args = placeholders
           .map((placeholder) => '\'${placeholder.name}\':${placeholder.name}')
           .join(', ');
@@ -113,7 +117,8 @@ class _CrowdinLocalizationsDelegate extends LocalizationsDelegate<${l10nConfig.o
 
 List<String> _generateMethodParameters(Message message) {
   assert(message.placeholders.isNotEmpty);
-  final pluralPlaceholder = message.isPlural ? message.getCountPlaceholder() : null;
+  final pluralPlaceholder =
+      message.isPlural ? message.getCountPlaceholder() : null;
   return message.placeholders.values.map((Placeholder placeholder) {
     final type = placeholder.type == pluralPlaceholder?.type
         ? specifyPluralType(pluralPlaceholder?.type, Platform.version)
