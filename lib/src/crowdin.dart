@@ -22,6 +22,10 @@ class Crowdin {
   /// keeps app resource bundle for the last received distribution
   static AppResourceBundle? _arb;
 
+  set  arb (AppResourceBundle? value) {
+    _arb = value;
+  }
+
   static DateTime? _translationTimeToUpdate;
 
   /// contains certain distribution file paths for locales
@@ -50,14 +54,7 @@ class Crowdin {
     log('-=Crowdin=- distributionHash $_distributionHash');
 
     if (updatesInterval != null) {
-      ///minimum updates interval is 15 minutes
-      if (updatesInterval.inMinutes < 15) {
-        _updatesInterval = const Duration(minutes: 15);
-
-        /// TODO add log to inform that updates interval was settled to the default minimum value
-      } else {
-        _updatesInterval = updatesInterval;
-      }
+      _updatesInterval = setUpdateInterval(updatesInterval);
 
       ///set initial value for _translationTimeToUpdate
       _translationTimeToUpdate = DateTime.now();
@@ -185,4 +182,18 @@ Future<bool> _isConnectionTypeAllowed(
     case InternetConnectionType.ethernet:
       return connectionStatus == ConnectivityResult.ethernet;
   }
+}
+
+@visibleForTesting
+Duration setUpdateInterval(Duration updatesInterval) {
+  ///minimum updates interval is 15 minutes
+  Duration updInterval;
+  if (updatesInterval.inMinutes < 15) {
+    updInterval = const Duration(minutes: 15);
+
+    /// TODO add log to inform that updates interval was settled to the default minimum value
+  } else {
+    updInterval = updatesInterval;
+  }
+  return updInterval;
 }
