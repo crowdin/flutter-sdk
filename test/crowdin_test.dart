@@ -31,7 +31,9 @@ void main() {
 
   group('getText', () {
     Crowdin sdk = Crowdin();
-    setUp(() {});
+    setUp(() {
+      sdk.arb = AppResourceBundle(_testArb);
+    });
     test('should return null if arb is null', () async {
       sdk.arb = null;
 
@@ -41,7 +43,6 @@ void main() {
     });
 
     test('should return null if wrong key specified', () async {
-      sdk.arb = AppResourceBundle(testArb);
 
       String? result = Crowdin.getText('en', 'wrong key');
 
@@ -49,20 +50,50 @@ void main() {
     });
 
     test('should return value if all arguments specified right', () async {
-      sdk.arb = AppResourceBundle(testArb);
 
       String? result = Crowdin.getText('en', 'example');
 
       expect(result, 'Example');
     });
-  });
 
+    test('should return value with a single parameter', () async {
+
+      String? result = Crowdin.getText('en', 'hello', {'userName': 'test name'});
+
+      expect(result, 'Hello test name');
+    });
+
+    test('should return value with a plurals', () async {
+
+      String? zeroPluralResult =
+          Crowdin.getText('en', 'nThings', {'count': 0, 'thing': 'test_thing'});
+      String? pluralResult = Crowdin.getText('en', 'nThings', {'count': 1, 'thing': 'test_thing'});
+
+      expect(zeroPluralResult, 'no test_things');
+      expect(pluralResult, '1 test_things');
+    });
+
+    test('should return value with a count format param', () async {
+
+      String? resultValue = Crowdin.getText('en', 'counter', {'value': 10});
+      String? resultThousand = Crowdin.getText('en', 'counter', {'value': 1000});
+      String? resultMillion = Crowdin.getText('en', 'counter', {'value': 1000000});
+      String? resultBillion = Crowdin.getText('en', 'counter', {'value': 1000000000});
+      String? resultTrillion = Crowdin.getText('en', 'counter', {'value': 1000000000000});
+
+      expect(resultValue, 'Counter: 10');
+      expect(resultThousand, 'Counter: 1 thousand');
+      expect(resultMillion, 'Counter: 1 million');
+      expect(resultBillion, 'Counter: 1 billion');
+      expect(resultTrillion, 'Counter: 1 trillion');
+    });
+  });
 }
 
-var testArb = {
+var _testArb = {
   "@@locale": "en",
   "example": "Example",
-  "hello": "_Hello {userName}",
+  "hello": "Hello {userName}",
   "@hello": {
     "description": "A message with a single parameter",
     "placeholders": {
@@ -77,9 +108,6 @@ var testArb = {
       "thing": {"example": "wombat"}
     }
   },
-  "settings": "Settings",
-  "language": "Language",
-  "main": "Main",
   "counter": "Counter: {value}",
   "@counter": {
     "description": "A message with a formatted int parameter",
