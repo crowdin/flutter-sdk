@@ -82,7 +82,7 @@ class CrowdinLocalization extends ${l10nConfig.outputClass} {
       buffer.writeln(
           "  String get $key => Crowdin.getText(localeName, '$key') ?? _fallbackTexts.$key;");
     } else {
-      var params = _generateMethodParameters(message).join(', ');
+      var params = generateMethodParameters(message).join(', ');
       var values =
           placeholders.map((placeholder) => placeholder.name).join(', ');
       var args = placeholders
@@ -115,7 +115,8 @@ class _CrowdinLocalizationsDelegate extends LocalizationsDelegate<${l10nConfig.o
   return buffer.toString();
 }
 
-List<String> _generateMethodParameters(Message message) {
+@visibleForTesting
+List<String> generateMethodParameters(Message message) {
   assert(message.placeholders.isNotEmpty);
   final pluralPlaceholder =
       message.isPlural ? message.getCountPlaceholder() : null;
