@@ -1,8 +1,8 @@
 import 'dart:developer';
 
-import 'package:crowdin_sdk/src/crowdin_generator.dart' as gen;
+import 'package:crowdin_sdk/src/gen/crowdin_generator.dart' as gen;
 
 void main(List<String> arg) {
-  gen.CrowdinGenerator1.generate();
+  gen.CrowdinGenerator.generate();
   log('generation done');
 }

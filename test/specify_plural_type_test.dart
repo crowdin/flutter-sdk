@@ -1,4 +1,4 @@
-import 'package:crowdin_sdk/src/crowdin_generator.dart';
+import 'package:crowdin_sdk/src/gen/crowdin_generator.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
