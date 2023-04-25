@@ -15,13 +15,14 @@ class Extractor {
     if (message.isPlural) {
       return _getPlural(locale, message, args);
     } else if (message.placeholders.isNotEmpty) {
-      return _findPlaceholders(locale, message, message.value, args);
+      return findPlaceholders(locale, message, message.value, args);
     } else {
       return message.value;
     }
   }
 
-  String? _findPlaceholders(
+  @visibleForTesting
+  String? findPlaceholders(
     String locale,
     Message message,
     String? buffer, [
@@ -144,7 +145,7 @@ class Extractor {
         (extracted, placeholder) => extracted?.replaceAll(
             '#${placeholder.name}#', '{${placeholder.name}}'),
       );
-      return _findPlaceholders(locale, message, formattedMessage, args);
+      return findPlaceholders(locale, message, formattedMessage, args);
     });
 
     int howMany = args[message.getCountPlaceholder().name];

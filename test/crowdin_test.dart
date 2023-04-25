@@ -2,6 +2,8 @@ import 'package:crowdin_sdk/src/common/gen_l10n_types.dart';
 import 'package:crowdin_sdk/src/crowdin.dart';
 import 'package:flutter_test/flutter_test.dart';
 
+import 'test_arb.dart';
+
 void main() {
   group('setUpdateInterval', () {
     test('when updatesInterval is greater than 15 minutes, returns updatesInterval', () {
@@ -32,7 +34,7 @@ void main() {
   group('getText', () {
     Crowdin sdk = Crowdin();
     setUp(() {
-      sdk.arb = AppResourceBundle(_testArb);
+      sdk.arb = AppResourceBundle(testArb);
     });
     test('should return null if arb is null', () async {
       sdk.arb = null;
@@ -89,30 +91,3 @@ void main() {
     });
   });
 }
-
-var _testArb = {
-  "@@locale": "en",
-  "example": "Example",
-  "hello": "Hello {userName}",
-  "@hello": {
-    "description": "A message with a single parameter",
-    "placeholders": {
-      "userName": {"type": "String", "example": "Bob"}
-    }
-  },
-  "nThings": "{count,plural, =0{no {thing}s} other{{count} {thing}s}}",
-  "@nThings": {
-    "description": "A plural message with an additional parameter",
-    "placeholders": {
-      "count": {"type": "int"},
-      "thing": {"example": "wombat"}
-    }
-  },
-  "counter": "Counter: {value}",
-  "@counter": {
-    "description": "A message with a formatted int parameter",
-    "placeholders": {
-      "value": {"type": "int", "format": "compactLong"}
-    }
-  }
-};

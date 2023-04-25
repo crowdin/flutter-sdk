@@ -22,7 +22,8 @@ class Crowdin {
   /// keeps app resource bundle for the last received distribution
   static AppResourceBundle? _arb;
 
-  set  arb (AppResourceBundle? value) {
+  @visibleForTesting
+  set arb(AppResourceBundle? value) {
     _arb = value;
   }
 
@@ -169,8 +170,7 @@ bool canUseCachedTranslation({
   }
 }
 
-Future<bool> _isConnectionTypeAllowed(
-    InternetConnectionType connectionType) async {
+Future<bool> _isConnectionTypeAllowed(InternetConnectionType connectionType) async {
   var connectionStatus = await Connectivity().checkConnectivity();
   switch (connectionType) {
     case InternetConnectionType.any:
