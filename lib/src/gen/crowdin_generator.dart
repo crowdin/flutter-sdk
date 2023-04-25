@@ -3,24 +3,29 @@ import 'dart:convert';
 
 import 'package:meta/meta.dart';
 import 'package:path/path.dart' as path;
-import 'package:yaml/yaml.dart' as yaml;
 
-import 'common/gen_l10n_types.dart';
+import '../common/gen_l10n_types.dart';
+import 'l10n_config.dart';
 
-class CrowdinGenerator1 {
+class CrowdinGenerator {
   static Future<void> generate() async {
     final String projectDirectory = Directory.current.path;
-    File genFile = File(path.join(projectDirectory, '.dart_tool', 'flutter_gen',
-        'gen_l10n', 'crowdin_localizations.dart'));
+
+    L10nConfig l10nConfig = await L10nConfig.getL10nConfig();
+    File genFile = File(path.join(projectDirectory, l10nConfig.finalOutputDir,
+        'crowdin_localizations.dart'));
     await genFile.create(recursive: true);
 
-    final arbPath = await getTemplateDirPath();
+    final arbPath = path.join(l10nConfig.arbDir, l10nConfig.templateArbFile);
     final arbFile = File(arbPath);
     final arbStr = await arbFile.readAsString();
 
     List<String> keys = getKeys(jsonDecode(arbStr));
-    var content =
-        generationContent(keys: keys, arbResource: jsonDecode(arbStr));
+    var content = generationContent(
+      keys: keys,
+      arbResource: jsonDecode(arbStr),
+      l10nConfig: l10nConfig,
+    );
     await genFile.writeAsString(content, mode: FileMode.writeOnly, flush: true);
   }
 
@@ -31,36 +36,14 @@ class CrowdinGenerator1 {
   }
 }
 
-///todo implement configurations accordingly to https://docs.google.com/document/d/10e0saTfAv32OZLRmONy866vnaw0I2jwL8zukykpgWBc/edit#heading=h.upij01jgi58m
-class L10nConfig {
-  String arbDir;
-
-  L10nConfig({
-    required this.arbDir,
-  });
-}
-
-Future<String> getTemplateDirPath() async {
-  if (await File('l10n.yaml').exists()) {
-    File l10nFile = File('l10n.yaml');
-    String l10nFileString = await l10nFile.readAsString();
-
-    var yamlGenConfig = yaml.loadYaml(l10nFileString);
-    String arbDir = yamlGenConfig['arb-dir'];
-    String templateArbFile = yamlGenConfig['template-arb-file'];
-    String templateDirPat = path.join(arbDir, templateArbFile);
-    return templateDirPat;
-  } else {
-    throw Exception('No l10n.yaml file');
-  }
-}
-
 String generationContent(
-    {required List<String> keys, required Map<String, Object?> arbResource}) {
+    {required List<String> keys,
+    required Map<String, Object?> arbResource,
+    required L10nConfig l10nConfig}) {
   StringBuffer buffer = StringBuffer();
   buffer.writeln('''import 'dart:convert';
 
-import 'app_localizations.dart';
+import '${l10nConfig.outputLocalizationFile}';
 
 import 'package:crowdin_sdk/crowdin_sdk.dart';
 
@@ -68,12 +51,12 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 
-class CrowdinLocalization extends AppLocalizations {
-  final AppLocalizations _fallbackTexts;
+class CrowdinLocalization extends ${l10nConfig.outputClass} {
+  final ${l10nConfig.outputClass} _fallbackTexts;
   
-  CrowdinLocalization(String locale, AppLocalizations fallbackTexts) : _fallbackTexts = fallbackTexts, super(locale);
+  CrowdinLocalization(String locale, ${l10nConfig.outputClass} fallbackTexts) : _fallbackTexts = fallbackTexts, super(locale);
 
-  static const LocalizationsDelegate<AppLocalizations> delegate = _CrowdinLocalizationsDelegate();
+  static const LocalizationsDelegate<${l10nConfig.outputClass}> delegate = _CrowdinLocalizationsDelegate();
 
   static const List<LocalizationsDelegate<dynamic>> localizationsDelegates = <
       LocalizationsDelegate<dynamic>>[
@@ -83,7 +66,7 @@ class CrowdinLocalization extends AppLocalizations {
     GlobalWidgetsLocalizations.delegate,
   ];
 
-  static const List<Locale> supportedLocales = AppLocalizations.supportedLocales;
+  static const List<Locale> supportedLocales = ${l10nConfig.outputClass}.supportedLocales;
  ''');
 
   var arb = AppResourceBundle(arbResource);
@@ -114,16 +97,16 @@ class CrowdinLocalization extends AppLocalizations {
   buffer.writeln(''' 
 }
 
-class _CrowdinLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {
+class _CrowdinLocalizationsDelegate extends LocalizationsDelegate<${l10nConfig.outputClass}> {
   const _CrowdinLocalizationsDelegate();
 
   @override
-  Future<AppLocalizations> load(Locale locale) =>
-      AppLocalizations.delegate.load(locale)
+  Future<${l10nConfig.outputClass}> load(Locale locale) =>
+      ${l10nConfig.outputClass}.delegate.load(locale)
           .then((fallback) => CrowdinLocalization(locale.toString(), fallback));
 
   @override
-  bool isSupported(Locale locale) => AppLocalizations.supportedLocales.contains(locale);
+  bool isSupported(Locale locale) => ${l10nConfig.outputClass}.supportedLocales.contains(locale);
 
   @override
   bool shouldReload(_CrowdinLocalizationsDelegate old) => false;
