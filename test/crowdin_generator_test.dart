@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:crowdin_sdk/src/common/gen_l10n_types.dart';
 import 'package:crowdin_sdk/src/gen/crowdin_generator.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -15,7 +17,9 @@ void main() {
       AppResourceBundle resourceBundle = AppResourceBundle(testArb);
       Message message = Message(resourceBundle, 'nThings', false);
       var result = generateMethodParameters(message);
-      expect(result, ['int count', 'Object thing']);
+      var platformVersion = Platform.version;
+      String? pluralType = specifyPluralType('int', platformVersion);
+      expect(result, ['$pluralType count', 'Object thing']);
     });
   });
 }
