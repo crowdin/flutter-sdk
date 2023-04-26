@@ -77,8 +77,8 @@ void main() {
     test('should return correct placeholders for number param', () {
       Message message = Message(AppResourceBundle(testArb), 'counter', true);
       var counterValue = 10;
-      var result =
-          extractor.findPlaceholders('en', message, message.value, {'value': counterValue});
+      var result = extractor.findPlaceholders(
+          'en', message, message.value, {'value': counterValue});
       expect(result, "Counter: $counterValue");
     });
   });

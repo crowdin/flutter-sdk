@@ -11,7 +11,6 @@ void main() {
       expect(keys, ['example', 'hello', 'nThings', 'counter']);
     });
 
-
     test('should return list of method parameters', () {
       AppResourceBundle resourceBundle = AppResourceBundle(testArb);
       Message message = Message(resourceBundle, 'nThings', false);

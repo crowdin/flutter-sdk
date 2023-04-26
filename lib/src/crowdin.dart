@@ -173,7 +173,8 @@ bool canUseCachedTranslation({
   }
 }
 
-Future<bool> _isConnectionTypeAllowed(InternetConnectionType connectionType) async {
+Future<bool> _isConnectionTypeAllowed(
+    InternetConnectionType connectionType) async {
   var connectionStatus = await Connectivity().checkConnectivity();
   switch (connectionType) {
     case InternetConnectionType.any:
@@ -193,7 +194,8 @@ Duration setUpdateInterval(Duration updatesInterval) {
   Duration updInterval;
   if (updatesInterval.inMinutes < 15) {
     updInterval = const Duration(minutes: 15);
-    CrowdinLogger.printLog('updates interval was settled to the default minimum value 15 minutes');
+    CrowdinLogger.printLog(
+        'updates interval was settled to the default minimum value 15 minutes');
   } else {
     updInterval = updatesInterval;
   }

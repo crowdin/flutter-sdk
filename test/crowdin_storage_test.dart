@@ -6,7 +6,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-
 void main() {
   group('CrowdinStorage', () {
     late CrowdinStorage crowdinStorage;
@@ -26,13 +25,16 @@ void main() {
     test('set and get translation timestamp', () async {
       const int timestamp = 123456;
       await crowdinStorage.setTranslationTimeStampStorage(timestamp);
-      final int? retrievedTimestamp = crowdinStorage.getTranslationTimestampFromStorage();
+      final int? retrievedTimestamp =
+          crowdinStorage.getTranslationTimestampFromStorage();
       expect(retrievedTimestamp, equals(timestamp));
     });
 
     test('set and get distribution', () async {
-      const String distributionJson = '{"@@locale": "en_US", "hello_world": "Hello, world!"}';
-      final Map<String, dynamic> expectedDistribution = jsonDecode(distributionJson);
+      const String distributionJson =
+          '{"@@locale": "en_US", "hello_world": "Hello, world!"}';
+      final Map<String, dynamic> expectedDistribution =
+          jsonDecode(distributionJson);
 
       await crowdinStorage.setDistributionToStorage(distributionJson);
 
@@ -45,12 +47,15 @@ void main() {
     test('get exception in case of empty distribution ', () async {
       await crowdinStorage.setDistributionToStorage('');
 
-      expect(() => crowdinStorage.getTranslationFromStorage(const Locale('en', 'US')),
+      expect(
+          () => crowdinStorage
+              .getTranslationFromStorage(const Locale('en', 'US')),
           throwsA(const TypeMatcher<CrowdinException>()));
     });
 
     test('get null if timestamp is missed', () async {
-      final int? retrievedTimestamp = crowdinStorage.getTranslationTimestampFromStorage();
+      final int? retrievedTimestamp =
+          crowdinStorage.getTranslationTimestampFromStorage();
 
       expect(retrievedTimestamp, isNull);
     });
@@ -63,7 +68,8 @@ void main() {
     });
 
     test('get null if distribution locale mismatched', () async {
-      const String distributionJson = '{"@@locale": "en_US", "hello_world": "Hello, world!"}';
+      const String distributionJson =
+          '{"@@locale": "en_US", "hello_world": "Hello, world!"}';
       await crowdinStorage.setDistributionToStorage(distributionJson);
 
       final Map<String, dynamic>? retrievedDistribution =
@@ -71,6 +77,5 @@ void main() {
 
       expect(retrievedDistribution, isNull);
     });
-
   });
 }
