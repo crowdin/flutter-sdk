@@ -1,5 +1,4 @@
 import 'dart:convert';
-import 'dart:developer';
 
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:crowdin_sdk/src/crowdin_api.dart';
@@ -9,6 +8,7 @@ import 'package:crowdin_sdk/src/crowdin_mapper.dart';
 import 'package:flutter/widgets.dart';
 
 import 'common/gen_l10n_types.dart';
+import 'crowdin_logger.dart';
 
 enum InternetConnectionType { wifi, mobileData, ethernet, any }
 
@@ -21,6 +21,11 @@ class Crowdin {
 
   /// keeps app resource bundle for the last received distribution
   static AppResourceBundle? _arb;
+
+  @visibleForTesting
+  set arb(AppResourceBundle? value) {
+    _arb = value;
+  }
 
   static DateTime? _translationTimeToUpdate;
 
@@ -47,25 +52,20 @@ class Crowdin {
     _timestampCached = _storage.getTranslationTimestampFromStorage();
 
     _distributionHash = distributionHash;
-    log('-=Crowdin=- distributionHash $_distributionHash');
+    CrowdinLogger.printLog('distributionHash $_distributionHash');
 
     if (updatesInterval != null) {
-      ///minimum updates interval is 15 minutes
-      if (updatesInterval.inMinutes < 15) {
-        _updatesInterval = const Duration(minutes: 15);
-
-        /// TODO add log to inform that updates interval was settled to the default minimum value
-      } else {
-        _updatesInterval = updatesInterval;
-      }
+      _updatesInterval = setUpdateInterval(updatesInterval);
 
       ///set initial value for _translationTimeToUpdate
       _translationTimeToUpdate = DateTime.now();
+      CrowdinLogger.printLog('updatesInterval $_updatesInterval');
     }
-    log('-=Crowdin=- updatesInterval $_updatesInterval');
 
-    if (connectionType != null) _connectionType = connectionType;
-    log('-=Crowdin=- connectionType $_connectionType');
+    if (connectionType != null) {
+      _connectionType = connectionType;
+      CrowdinLogger.printLog('connectionType $_connectionType');
+    }
 
     /// fetch manifest file to get certain paths for each locale distribution
     var manifest = await _api.getManifest(distributionHash: _distributionHash);
@@ -129,7 +129,8 @@ class Crowdin {
         }
       }
     } catch (ex) {
-      ///todo add log, fallback is used
+      CrowdinLogger.printLog(
+          "something went wrong. Crowdin couldn't download translation for '$locale' locale. Next exception occurred: $ex");
       _arb = null;
       return;
     }
@@ -185,4 +186,18 @@ Future<bool> _isConnectionTypeAllowed(
     case InternetConnectionType.ethernet:
       return connectionStatus == ConnectivityResult.ethernet;
   }
+}
+
+@visibleForTesting
+Duration setUpdateInterval(Duration updatesInterval) {
+  ///minimum updates interval is 15 minutes
+  Duration updInterval;
+  if (updatesInterval.inMinutes < 15) {
+    updInterval = const Duration(minutes: 15);
+    CrowdinLogger.printLog(
+        'updates interval was settled to the default minimum value 15 minutes');
+  } else {
+    updInterval = updatesInterval;
+  }
+  return updInterval;
 }
