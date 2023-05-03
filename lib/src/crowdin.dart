@@ -5,6 +5,7 @@ import 'package:crowdin_sdk/src/crowdin_api.dart';
 import 'package:crowdin_sdk/src/crowdin_storage.dart';
 import 'package:crowdin_sdk/src/crowdin_extractor.dart';
 import 'package:crowdin_sdk/src/crowdin_mapper.dart';
+import 'package:crowdin_sdk/src/real_time_preview/auth_manager.dart';
 import 'package:flutter/widgets.dart';
 
 import 'common/gen_l10n_types.dart';
@@ -46,6 +47,7 @@ class Crowdin {
     required String distributionHash,
     Duration? updatesInterval,
     InternetConnectionType? connectionType,
+    CrowdinPreviewConfig? withRealTimeUpdates,
   }) async {
     await _storage.init();
 
@@ -65,6 +67,11 @@ class Crowdin {
     if (connectionType != null) {
       _connectionType = connectionType;
       CrowdinLogger.printLog('connectionType $_connectionType');
+    }
+
+    if (withRealTimeUpdates != null) {
+      CrowdinPreviewManager(config: withRealTimeUpdates, distributionHash: _distributionHash)
+          .authenticate();
     }
 
     /// fetch manifest file to get certain paths for each locale distribution

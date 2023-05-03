@@ -34,4 +34,23 @@ class CrowdinApi {
       return null;
     }
   }
+
+  Future<String?> getWebSocket({
+    required String accessToken,
+    required String distributionHash,
+    String? organizationName,
+  }) async {
+    try {
+      String organizationDomain = organizationName != null ? '$organizationName.' : '';
+      var response = await http.get(
+          Uri.parse(
+              'https://${organizationDomain}api.crowdin.com/api/v2/distributions/metadata?hash=$distributionHash'),
+          headers: {'Authorization': 'Bearer $accessToken'});
+      Map<String, dynamic> responseDecoded = jsonDecode(utf8.decode(response.bodyBytes));
+      String wsUrl = responseDecoded['data']['wsUrl'];
+      return wsUrl;
+    } catch (ex) {
+      return null;
+    }
+  }
 }
