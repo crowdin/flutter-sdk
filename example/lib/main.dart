@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:crowdin_sdk/crowdin_sdk.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
@@ -8,10 +10,14 @@ import 'package:intl/intl.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Crowdin.init(
-    distributionHash: 'your distribution hash', //your distribution hash
-    connectionType: InternetConnectionType.any,
-    updatesInterval: const Duration(minutes: 25),
-  );
+      distributionHash: 'distributionHash', //your distribution hash
+      connectionType: InternetConnectionType.any,
+      updatesInterval: const Duration(minutes: 25),
+      withRealTimeUpdates: CrowdinPreviewConfig(
+        clientId: 'clientId',// your clientId from Crowdin OAuth app
+        clientSecret: 'clientSecret',//your client secret from Crowdin OAuth app
+        redirectUri: 'redirectUri',//your redirect uri from Crowdin OAuth app
+      ));
   runApp(const MyHomePage());
 }
 
@@ -36,26 +42,28 @@ class _MyHomePageState extends State<MyHomePage> {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      locale: currentLocale,
-      localizationsDelegates: CrowdinLocalization.localizationsDelegates,
-      supportedLocales: AppLocalizations.supportedLocales,
-      theme: ThemeData(
-        primarySwatch: Colors.blue,
-      ),
-      home: isLoading
-          ? const Material(
-              child: Center(
-                child: CircularProgressIndicator(),
+    return CrowdinRealTimePreviewWidget(
+      child: MaterialApp(
+        locale: currentLocale,
+        localizationsDelegates: CrowdinLocalization.localizationsDelegates,
+        supportedLocales: AppLocalizations.supportedLocales,
+        theme: ThemeData(
+          primarySwatch: Colors.blue,
+        ),
+        home: isLoading
+            ? const Material(
+                child: Center(
+                  child: CircularProgressIndicator(),
+                ),
+              )
+            : MainScreen(
+                changeLocale: (locale) => {
+                  setState(() {
+                    currentLocale = locale;
+                  })
+                },
               ),
-            )
-          : MainScreen(
-              changeLocale: (locale) => {
-                setState(() {
-                  currentLocale = locale;
-                })
-              },
-            ),
+      ),
     );
   }
 }
@@ -83,6 +91,7 @@ class _MainScreenState extends State<MainScreen> {
 
   @override
   Widget build(BuildContext context) {
+    print('-----main rebuild');
     return Scaffold(
       drawer: Drawer(
         child: ListView(
