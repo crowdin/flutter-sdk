@@ -5,7 +5,7 @@ import 'package:crowdin_sdk/src/crowdin_api.dart';
 import 'package:crowdin_sdk/src/crowdin_storage.dart';
 import 'package:crowdin_sdk/src/crowdin_extractor.dart';
 import 'package:crowdin_sdk/src/crowdin_mapper.dart';
-import 'package:crowdin_sdk/src/real_time_preview/auth_manager.dart';
+import 'package:crowdin_sdk/src/real_time_preview/crowdin_preview_manager.dart';
 import 'package:flutter/widgets.dart';
 
 import 'common/gen_l10n_types.dart';
@@ -36,11 +36,18 @@ class Crowdin {
   /// contains certain distribution file paths for locales
   static int? _timestamp;
 
+  static List<String> _mappingFilePaths = [];
+
   static final CrowdinStorage _storage = CrowdinStorage();
 
   static late int? _timestampCached;
 
   static final _api = CrowdinApi();
+
+  static bool  _withRealTimeUpdates = false;
+
+  static late CrowdinPreviewManager crowdinPreviewManager;
+
 
   /// Crowdin SDK initialization
   static Future<void> init({
@@ -69,11 +76,6 @@ class Crowdin {
       CrowdinLogger.printLog('connectionType $_connectionType');
     }
 
-    if (withRealTimeUpdates != null) {
-      CrowdinPreviewManager(config: withRealTimeUpdates, distributionHash: _distributionHash)
-          .authenticate();
-    }
-
     /// fetch manifest file to get certain paths for each locale distribution
     var manifest = await _api.getManifest(distributionHash: _distributionHash);
 
@@ -82,6 +84,19 @@ class Crowdin {
 
       /// fetch manifest file to check if new updates available
       _timestamp = manifest['timestamp'];
+
+      var a = manifest['mapping'] as List<dynamic>;
+      _mappingFilePaths = a.map((e) => e.toString()).toList();
+    }
+
+    if (withRealTimeUpdates != null) {
+      _withRealTimeUpdates = true;
+      crowdinPreviewManager = CrowdinPreviewManager(
+        config: withRealTimeUpdates,
+        distributionHash: _distributionHash,
+        mappingFilePaths: _mappingFilePaths ?? [],
+      // )..init();
+      );
     }
   }
 
@@ -151,6 +166,10 @@ class Crowdin {
     String key, [
     Map<String, dynamic> args = const {},
   ]) {
+    if(_withRealTimeUpdates && crowdinPreviewManager.updatedTranslations.containsKey(key) ) {
+      print('-----getText preview');
+      return crowdinPreviewManager.updatedTranslations[key];
+    }
     if (_arb != null) {
       try {
         return _extractor.getText(
@@ -180,8 +199,7 @@ bool canUseCachedTranslation({
   }
 }
 
-Future<bool> _isConnectionTypeAllowed(
-    InternetConnectionType connectionType) async {
+Future<bool> _isConnectionTypeAllowed(InternetConnectionType connectionType) async {
   var connectionStatus = await Connectivity().checkConnectivity();
   switch (connectionType) {
     case InternetConnectionType.any:
@@ -201,8 +219,7 @@ Duration setUpdateInterval(Duration updatesInterval) {
   Duration updInterval;
   if (updatesInterval.inMinutes < 15) {
     updInterval = const Duration(minutes: 15);
-    CrowdinLogger.printLog(
-        'updates interval was settled to the default minimum value 15 minutes');
+    CrowdinLogger.printLog('updates interval was settled to the default minimum value 15 minutes');
   } else {
     updInterval = updatesInterval;
   }

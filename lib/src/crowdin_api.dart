@@ -11,8 +11,7 @@ class CrowdinApi {
       var response = await http.get(
         Uri.parse('https://distributions.crowdin.net/$distributionHash$path'),
       );
-      Map<String, dynamic> responseDecoded =
-          jsonDecode(utf8.decode(response.bodyBytes));
+      Map<String, dynamic> responseDecoded = jsonDecode(utf8.decode(response.bodyBytes));
       return responseDecoded;
     } catch (_) {
       return null;
@@ -24,18 +23,34 @@ class CrowdinApi {
   }) async {
     try {
       var response = await http.get(
-        Uri.parse(
-            'https://distributions.crowdin.net/$distributionHash/manifest.json'),
+        Uri.parse('https://distributions.crowdin.net/$distributionHash/manifest.json'),
       );
-      Map<String, dynamic> responseDecoded =
-          jsonDecode(utf8.decode(response.bodyBytes));
+      Map<String, dynamic> responseDecoded = jsonDecode(utf8.decode(response.bodyBytes));
       return responseDecoded;
     } catch (_) {
       return null;
     }
   }
 
-  Future<String?> getWebSocket({
+  Future<Map<String, dynamic>?> getMapping({
+    required String distributionHash,
+    required String mappingFilePath,
+  }) async {
+    print('-----distributionHash $distributionHash');
+    print('-----mappingFilePath $mappingFilePath');
+    try {
+      var response = await http.get(Uri.parse(
+          // 'https://distributions.crowdin.net/$distributionHash/manifest.json'),
+          'https://distributions.crowdin.net/$distributionHash$mappingFilePath'));
+      Map<String, dynamic> responseDecoded = jsonDecode(utf8.decode(response.bodyBytes));
+      return responseDecoded;
+    } catch (ex) {
+      rethrow;
+      // return null;
+    }
+  }
+
+  Future<Map<String, dynamic>?> getMetadata({
     required String accessToken,
     required String distributionHash,
     String? organizationName,
@@ -47,8 +62,7 @@ class CrowdinApi {
               'https://${organizationDomain}api.crowdin.com/api/v2/distributions/metadata?hash=$distributionHash'),
           headers: {'Authorization': 'Bearer $accessToken'});
       Map<String, dynamic> responseDecoded = jsonDecode(utf8.decode(response.bodyBytes));
-      String wsUrl = responseDecoded['data']['wsUrl'];
-      return wsUrl;
+      return responseDecoded;
     } catch (ex) {
       return null;
     }

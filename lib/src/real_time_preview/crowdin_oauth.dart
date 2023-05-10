@@ -50,7 +50,6 @@ class CrowdinOauth {
         print('------client.credentials ${client.credentials.accessToken}');
         dispose();
         onAuthenticated(_client.credentials);
-        // _connectWebSocket();
       }
     });
 
