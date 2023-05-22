@@ -44,17 +44,19 @@ class Crowdin {
 
   static final _api = CrowdinApi();
 
-  static bool  _withRealTimeUpdates = false;
+  static bool _withRealTimeUpdates = false;
 
   static late CrowdinPreviewManager crowdinPreviewManager;
 
+  static late CrowdinAuthConfig? _authConfig;
 
   /// Crowdin SDK initialization
   static Future<void> init({
     required String distributionHash,
     Duration? updatesInterval,
     InternetConnectionType? connectionType,
-    CrowdinPreviewConfig? withRealTimeUpdates,
+    bool withRealTimeUpdates = false,
+    CrowdinAuthConfig? authConfigurations,
   }) async {
     await _storage.init();
 
@@ -85,20 +87,20 @@ class Crowdin {
       /// fetch manifest file to check if new updates available
       _timestamp = manifest['timestamp'];
 
-      var a = manifest['mapping'] as List<dynamic>;
-      _mappingFilePaths = a.map((e) => e.toString()).toList();
+      _mappingFilePaths = (manifest['mapping'] as List<dynamic>).map((e) => e.toString()).toList();
+      print('-----mapping files $_mappingFilePaths');
     }
 
-    if (withRealTimeUpdates != null) {
-      _withRealTimeUpdates = true;
-      crowdinPreviewManager = CrowdinPreviewManager(
-        config: withRealTimeUpdates,
-        distributionHash: _distributionHash,
-        mappingFilePaths: _mappingFilePaths ?? [],
-      // )..init();
-      );
+      _withRealTimeUpdates = withRealTimeUpdates;
+
+    _authConfig = authConfigurations;
+
+    if (withRealTimeUpdates && _authConfig != null) {
+      setUpRealTimePreviewManager(_authConfig!);
     }
   }
+
+
 
   /// Load translations from Crowdin for a specific locale
   static Future<void> loadTranslations(Locale locale) async {
@@ -158,6 +160,14 @@ class Crowdin {
     }
   }
 
+  static void setUpRealTimePreviewManager (CrowdinAuthConfig authConfig) {
+    crowdinPreviewManager = CrowdinPreviewManager(
+      config: _authConfig!,
+      distributionHash: _distributionHash,
+      mappingFilePaths: _mappingFilePaths,
+    );
+  }
+
   static final Extractor _extractor = Extractor();
 
   /// Returns translation for a given key and locale
@@ -166,7 +176,7 @@ class Crowdin {
     String key, [
     Map<String, dynamic> args = const {},
   ]) {
-    if(_withRealTimeUpdates && crowdinPreviewManager.updatedTranslations.containsKey(key) ) {
+    if (_withRealTimeUpdates && crowdinPreviewManager.updatedTranslations.containsKey(key)) {
       print('-----getText preview');
       return crowdinPreviewManager.updatedTranslations[key];
     }

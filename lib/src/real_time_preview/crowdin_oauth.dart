@@ -11,7 +11,7 @@ const String _kTokenEndpoint = 'https://accounts.crowdin.com/oauth/token';
 
 class CrowdinOauth {
 
-  final CrowdinPreviewConfig config;
+  final CrowdinAuthConfig config;
   final Future<void> Function(oauth2.Credentials) onAuthenticated;
 
   CrowdinOauth(this.config, this.onAuthenticated);

@@ -3,24 +3,21 @@ import 'dart:convert';
 
 import 'package:crowdin_sdk/src/crowdin_api.dart';
 import 'package:crowdin_sdk/src/exceptions/crowdin_exceptions.dart';
-import 'package:flutter/material.dart';
-import 'package:flutter/rendering.dart';
 import 'package:oauth2/oauth2.dart' as oauth2;
 import 'package:web_socket_channel/web_socket_channel.dart';
 
-import '../crowdin.dart';
 import 'crowdin_oauth.dart';
 
 const String _kAuthorizationEndpoint = 'https://accounts.crowdin.com/oauth/authorize';
 const String _kTokenEndpoint = 'https://accounts.crowdin.com/oauth/token';
 
-class CrowdinPreviewConfig {
+class CrowdinAuthConfig {
   final String clientId;
   final String clientSecret;
   final String redirectUri;
   final String? organizationName;
 
-  CrowdinPreviewConfig({
+  CrowdinAuthConfig({
     required this.clientId,
     required this.clientSecret,
     required this.redirectUri,
@@ -31,7 +28,7 @@ class CrowdinPreviewConfig {
 class CrowdinPreviewManager {
   final authorizationEndpoint = Uri.parse(_kAuthorizationEndpoint);
 
-  final CrowdinPreviewConfig config;
+  final CrowdinAuthConfig config;
   final String distributionHash;
   final List<String> mappingFilePaths;
   late Function(String key) _onTranslationUpdate;
@@ -96,17 +93,19 @@ class CrowdinPreviewManager {
     print('-----webSocket creation');
     var channel = WebSocketChannel.connect(Uri.parse(metadata.wsUrl));
     crowdinStream = channel.stream;
-    crowdinStream.listen((message) {
-      Map<String, dynamic> messageDecoded = jsonDecode(message);
-      Map<String, dynamic> data = messageDecoded['data'];
-      String event = messageDecoded['event'];
-      String textId = event.split(':').last;
-      addToUpdated(id: textId, text: data['text'] ?? '');
-      // _onTranslationUpdate();
-      print('-----message $message');
-    }, onError: (er) {
-    }, onDone: () {
-    });
+    crowdinStream.listen(
+      (message) {
+        Map<String, dynamic> messageDecoded = jsonDecode(message);
+        Map<String, dynamic> data = messageDecoded['data'];
+        String event = messageDecoded['event'];
+        String textId = event.split(':').last;
+        addToUpdated(id: textId, text: data['text'] ?? '');
+        // _onTranslationUpdate();
+        print('-----message $message');
+      },
+      // onError: (er) {},
+      // onDone: () {},
+    );
 
     subscribeToAllTranslations(
       channel: channel,
@@ -136,15 +135,12 @@ class CrowdinPreviewManager {
   void addToUpdated({required String id, required String text}) {
     // updatedTranslations.update(id.toString(), (value) => text, ifAbsent: () => text);
     String textKey = finalMappingMap.keys.firstWhere((key) => finalMappingMap[key] == id);
-    updatedTranslations.update(
-        textKey, (value) => text,
-        ifAbsent: () => text);
+    updatedTranslations.update(textKey, (value) => text, ifAbsent: () => text);
     print('------updatedTranslations $updatedTranslations');
     _onTranslationUpdate(textKey);
   }
 
-  void getTextIdFromEvent() {
-  }
+  void getTextIdFromEvent() {}
 }
 
 class UpdatedTranslation {
@@ -174,63 +170,5 @@ class CrowdinMetadata {
     wsHash = json['data']['project']['wsHash'] ?? '';
     userId = json['data']['user']['id'] ?? '';
     wsUrl = json['data']['wsUrl'] ?? '';
-  }
-}
-
-class CrowdinRealTimePreviewWidget extends StatefulWidget {
-  final Widget child;
-
-  const CrowdinRealTimePreviewWidget({
-    Key? key,
-    required this.child,
-  }) : super(key: key);
-
-  @override
-  State<CrowdinRealTimePreviewWidget> createState() => _CrowdinRealTimePreviewWidgetState();
-}
-
-class _CrowdinRealTimePreviewWidgetState extends State<CrowdinRealTimePreviewWidget> {
-  final GlobalKey<_CrowdinRealTimePreviewWidgetState> childKey =
-      GlobalKey<_CrowdinRealTimePreviewWidgetState>();
-
-  @override
-  void initState() {
-    super.initState();
-    Crowdin.crowdinPreviewManager.init((key) {
-      _rebuildTree(key);
-    });
-  }
-
-  void _rebuildTree(String textKey) {
-    (context as Element).visitChildElements((element) => _elementRebuildVisitor(element, textKey));
-  }
-
-  void _elementRebuildVisitor(Element element, String textKey) {
-    ///todo find certain text widget and rebuild his ancestors
-    // if(element.renderObject is RenderParagraph) {
-    //   RenderParagraph rObj = element.renderObject as RenderParagraph;
-    //   String crowdinText = Crowdin.getText('en', textKey) ?? '';
-    //   // if(rObj.text.toPlainText() == Crowdin.getText('en', textKey)) {
-    //     element.visitAncestorElements((element) {
-    //       print('------markNeedsBuild');
-    //
-    //       element.markNeedsBuild();
-    //       return true;
-    //     });
-    //   // }
-    //   // print(rObj.text.toPlainText());
-    // }
-
-    element
-      ..markNeedsBuild()
-      ..visitChildren((element) => _elementRebuildVisitor(element, textKey));
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Builder(
-      key: childKey,
-      builder: (context) => widget.child,
-    );
   }
 }
