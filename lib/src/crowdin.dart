@@ -10,6 +10,7 @@ import 'package:flutter/widgets.dart';
 
 import 'common/gen_l10n_types.dart';
 import 'crowdin_logger.dart';
+import 'real_time_preview/crowdin_auth_config.dart';
 
 enum InternetConnectionType { wifi, mobileData, ethernet, any }
 
@@ -24,7 +25,7 @@ class Crowdin {
   static AppResourceBundle? _arb;
 
   @visibleForTesting
-  set arb(AppResourceBundle? value) {
+  static set arb(AppResourceBundle? value) {
     _arb = value;
   }
 
@@ -91,7 +92,7 @@ class Crowdin {
       print('-----mapping files $_mappingFilePaths');
     }
 
-      _withRealTimeUpdates = withRealTimeUpdates;
+    _withRealTimeUpdates = withRealTimeUpdates;
 
     _authConfig = authConfigurations;
 
@@ -99,8 +100,6 @@ class Crowdin {
       setUpRealTimePreviewManager(_authConfig!);
     }
   }
-
-
 
   /// Load translations from Crowdin for a specific locale
   static Future<void> loadTranslations(Locale locale) async {
@@ -122,6 +121,10 @@ class Crowdin {
         distribution = _storage.getTranslationFromStorage(locale);
         if (distribution != null) {
           _arb = AppResourceBundle(distribution);
+          //reset previewArb for new locale
+          if(_withRealTimeUpdates) {
+            crowdinPreviewManager.setPreviewArb(_arb!);
+          }
           return;
         }
       }
@@ -141,7 +144,9 @@ class Crowdin {
           jsonEncode(distribution),
         );
         _arb = AppResourceBundle(distribution);
-
+        if(_withRealTimeUpdates) {
+          crowdinPreviewManager.setPreviewArb(_arb!);
+        }
         // set initial value for _translationTimeToUpdate
         if (_updatesInterval != null) {
           _translationTimeToUpdate = DateTime.now().add(_updatesInterval!);
@@ -160,7 +165,7 @@ class Crowdin {
     }
   }
 
-  static void setUpRealTimePreviewManager (CrowdinAuthConfig authConfig) {
+  static void setUpRealTimePreviewManager(CrowdinAuthConfig authConfig) {
     crowdinPreviewManager = CrowdinPreviewManager(
       config: _authConfig!,
       distributionHash: _distributionHash,
@@ -176,15 +181,11 @@ class Crowdin {
     String key, [
     Map<String, dynamic> args = const {},
   ]) {
-    if (_withRealTimeUpdates && crowdinPreviewManager.updatedTranslations.containsKey(key)) {
-      print('-----getText preview');
-      return crowdinPreviewManager.updatedTranslations[key];
-    }
     if (_arb != null) {
       try {
         return _extractor.getText(
           locale,
-          _arb!,
+          _withRealTimeUpdates ? crowdinPreviewManager.previewArb : _arb!,
           key,
           args,
         );

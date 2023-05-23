@@ -1,29 +1,18 @@
 import 'dart:async';
 import 'dart:convert';
 
+import 'package:crowdin_sdk/src/common/gen_l10n_types.dart';
 import 'package:crowdin_sdk/src/crowdin_api.dart';
 import 'package:crowdin_sdk/src/exceptions/crowdin_exceptions.dart';
 import 'package:oauth2/oauth2.dart' as oauth2;
 import 'package:web_socket_channel/web_socket_channel.dart';
 
+import 'crowdin_auth_config.dart';
 import 'crowdin_oauth.dart';
 
 const String _kAuthorizationEndpoint = 'https://accounts.crowdin.com/oauth/authorize';
 const String _kTokenEndpoint = 'https://accounts.crowdin.com/oauth/token';
 
-class CrowdinAuthConfig {
-  final String clientId;
-  final String clientSecret;
-  final String redirectUri;
-  final String? organizationName;
-
-  CrowdinAuthConfig({
-    required this.clientId,
-    required this.clientSecret,
-    required this.redirectUri,
-    this.organizationName,
-  });
-}
 
 class CrowdinPreviewManager {
   final authorizationEndpoint = Uri.parse(_kAuthorizationEndpoint);
@@ -33,18 +22,28 @@ class CrowdinPreviewManager {
   final List<String> mappingFilePaths;
   late Function(String key) _onTranslationUpdate;
 
+  late final WebSocketChannel _channel;
+  late final CrowdinMetadata _metadata;
+
   CrowdinPreviewManager({
     required this.config,
     required this.distributionHash,
     required this.mappingFilePaths,
   });
 
+  late AppResourceBundle previewArb;
+
+  void setPreviewArb(AppResourceBundle distributionArb) {
+    previewArb = distributionArb;
+
+    subscribeToAllTranslations();
+  }
+
   final tokenEndpoint = Uri.parse(_kTokenEndpoint);
 
   late CrowdinOauth auth;
   late CrowdinApi api;
   Map<String, String> finalMappingMap = {};
-  Map<String, String> updatedTranslations = {};
   late Stream crowdinStream;
 
   Future<void> init(Function(String key) onTranslationUpdate) async {
@@ -76,23 +75,20 @@ class CrowdinPreviewManager {
   }
 
   Future<void> _connectWebSocket({required oauth2.Credentials credentials}) async {
-    var metadataResp = await CrowdinApi().getMetadata(
+    var metadataResp = await api.getMetadata(
       accessToken: credentials.accessToken,
       distributionHash: distributionHash,
     );
-    late CrowdinMetadata metadata;
-
     if (metadataResp != null) {
-      metadata = CrowdinMetadata.fromJson(metadataResp);
-      print('-----metadata $metadata');
+      _metadata = CrowdinMetadata.fromJson(metadataResp);
+      print('-----metadata $_metadata');
     } else {
       throw CrowdinException("Can't receive metadata. Real-time preview will be unavailable");
     }
 
-    // if (metadata != null) {
     print('-----webSocket creation');
-    var channel = WebSocketChannel.connect(Uri.parse(metadata.wsUrl));
-    crowdinStream = channel.stream;
+    _channel = WebSocketChannel.connect(Uri.parse(_metadata.wsUrl));
+    crowdinStream = _channel.stream;
     crowdinStream.listen(
       (message) {
         Map<String, dynamic> messageDecoded = jsonDecode(message);
@@ -100,47 +96,34 @@ class CrowdinPreviewManager {
         String event = messageDecoded['event'];
         String textId = event.split(':').last;
         addToUpdated(id: textId, text: data['text'] ?? '');
-        // _onTranslationUpdate();
-        print('-----message $message');
       },
-      // onError: (er) {},
-      // onDone: () {},
+      onError: (e) {
+        CrowdinException(
+            'Something went wrong during receiving translation ( for real time preview');
+      },
     );
 
-    subscribeToAllTranslations(
-      channel: channel,
-      finalMappingMap: finalMappingMap,
-      metadata: metadata,
-    );
-    // }
+    subscribeToAllTranslations();
   }
 
-  void subscribeToAllTranslations({
-    required CrowdinMetadata metadata,
-    required Map<String, String> finalMappingMap,
-    required WebSocketChannel channel,
-  }) {
-    // for (var mappingData in mappingDataList) {
+  void subscribeToAllTranslations() {
+    String langCode = previewArb.locale.languageCode;
     for (var id in finalMappingMap.values) {
       var data = jsonEncode({
         'action': 'subscribe',
-        'event': 'update-draft:${metadata.wsHash}:${metadata.projectId}:${metadata.userId}:en:$id'
+        'event':
+            'update-draft:${_metadata.wsHash}:${_metadata.projectId}:${_metadata.userId}:$langCode:$id',
       });
       print('-----data $data');
-      channel.sink.add(data);
+      _channel.sink.add(data);
     }
-    // }
   }
 
   void addToUpdated({required String id, required String text}) {
-    // updatedTranslations.update(id.toString(), (value) => text, ifAbsent: () => text);
     String textKey = finalMappingMap.keys.firstWhere((key) => finalMappingMap[key] == id);
-    updatedTranslations.update(textKey, (value) => text, ifAbsent: () => text);
-    print('------updatedTranslations $updatedTranslations');
+    previewArb.resources[textKey] = text;
     _onTranslationUpdate(textKey);
   }
-
-  void getTextIdFromEvent() {}
 }
 
 class UpdatedTranslation {

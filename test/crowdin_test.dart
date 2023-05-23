@@ -37,12 +37,11 @@ void main() {
   });
 
   group('getText', () {
-    Crowdin sdk = Crowdin();
     setUp(() {
-      sdk.arb = AppResourceBundle(testArb);
+      Crowdin.arb = AppResourceBundle(testArb);
     });
     test('should return null if arb is null', () async {
-      sdk.arb = null;
+      Crowdin.arb = null;
 
       String? result = Crowdin.getText('en', 'example');
 

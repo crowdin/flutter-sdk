@@ -36,17 +36,13 @@ class CrowdinApi {
     required String distributionHash,
     required String mappingFilePath,
   }) async {
-    print('-----distributionHash $distributionHash');
-    print('-----mappingFilePath $mappingFilePath');
     try {
-      var response = await http.get(Uri.parse(
-          // 'https://distributions.crowdin.net/$distributionHash/manifest.json'),
-          'https://distributions.crowdin.net/$distributionHash$mappingFilePath'));
+      var response = await http
+          .get(Uri.parse('https://distributions.crowdin.net/$distributionHash$mappingFilePath'));
       Map<String, dynamic> responseDecoded = jsonDecode(utf8.decode(response.bodyBytes));
       return responseDecoded;
     } catch (ex) {
       rethrow;
-      // return null;
     }
   }
 
