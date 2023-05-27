@@ -1,18 +1,18 @@
 import 'dart:async';
 import 'dart:convert';
 
+import 'package:crowdin_sdk/crowdin_sdk.dart';
 import 'package:crowdin_sdk/src/common/gen_l10n_types.dart';
 import 'package:crowdin_sdk/src/crowdin_api.dart';
 import 'package:crowdin_sdk/src/exceptions/crowdin_exceptions.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:oauth2/oauth2.dart' as oauth2;
 import 'package:web_socket_channel/web_socket_channel.dart';
 
-import 'crowdin_auth_config.dart';
 import 'crowdin_oauth.dart';
 
 const String _kAuthorizationEndpoint = 'https://accounts.crowdin.com/oauth/authorize';
-const String _kTokenEndpoint = 'https://accounts.crowdin.com/oauth/token';
-
+// const String _kTokenEndpoint = 'https://accounts.crowdin.com/oauth/token';
 
 class CrowdinPreviewManager {
   final authorizationEndpoint = Uri.parse(_kAuthorizationEndpoint);
@@ -22,8 +22,14 @@ class CrowdinPreviewManager {
   final List<String> mappingFilePaths;
   late Function(String key) _onTranslationUpdate;
 
+  late CrowdinOauth _auth;
+  late CrowdinApi _api;
+
   late final WebSocketChannel _channel;
-  late final CrowdinMetadata _metadata;
+
+  Map<String, String> finalMapping = {};
+
+  _CrowdinMetadata? _metadata;
 
   CrowdinPreviewManager({
     required this.config,
@@ -36,66 +42,73 @@ class CrowdinPreviewManager {
   void setPreviewArb(AppResourceBundle distributionArb) {
     previewArb = distributionArb;
 
-    subscribeToAllTranslations();
+    if (_metadata != null) {
+      _subscribeToAllTranslations(_metadata!);
+    }
   }
-
-  final tokenEndpoint = Uri.parse(_kTokenEndpoint);
-
-  late CrowdinOauth auth;
-  late CrowdinApi api;
-  Map<String, String> finalMappingMap = {};
-  late Stream crowdinStream;
 
   Future<void> init(Function(String key) onTranslationUpdate) async {
     _onTranslationUpdate = onTranslationUpdate;
-    api = CrowdinApi();
-    auth = CrowdinOauth(config, (onAuthenticated))..authenticate();
+    _api = CrowdinApi();
+    _auth = CrowdinOauth(config, (_onAuthenticated))..authenticate();
 
     for (String path in mappingFilePaths) {
-      var mappingData = await api.getMapping(
+      var mappingData = await _api.getMapping(
         distributionHash: distributionHash,
         mappingFilePath: path,
       );
       if (mappingData != null) {
-        mappingData.removeWhere((key, value) => key.startsWith('@'));
-        mappingData.forEach((key, value) {
-          finalMappingMap[key] = value.toString();
-        });
+        finalMapping = getFinalMappingData(mappingData, finalMapping);
       }
-      print('-----finalMappingMap $finalMappingMap');
     }
   }
 
-  Future<void> authenticate() async {
-    auth.authenticate();
+  Map<String, String> getFinalMappingData(
+      Map<String, dynamic> mappingData, Map<String, String> currentMap) {
+    var data = mappingData;
+    Map<String, String> finalMappingData = currentMap;
+    data.removeWhere((key, value) => key.startsWith('@'));
+    data.forEach((key, value) {
+      finalMappingData[key] = value.toString();
+    });
+    return finalMappingData;
   }
 
-  Future<void> onAuthenticated(oauth2.Credentials credentials) async {
+  Future<void> authenticate() async {
+    _auth.authenticate();
+  }
+
+  Future<void> _onAuthenticated(oauth2.Credentials credentials) async {
+    _metadata = await _getMetadata(credentials: credentials);
     _connectWebSocket(credentials: credentials);
   }
 
-  Future<void> _connectWebSocket({required oauth2.Credentials credentials}) async {
-    var metadataResp = await api.getMetadata(
+  Future<_CrowdinMetadata> _getMetadata({required oauth2.Credentials credentials}) async {
+    var metadataResp = await _api.getMetadata(
       accessToken: credentials.accessToken,
       distributionHash: distributionHash,
     );
     if (metadataResp != null) {
-      _metadata = CrowdinMetadata.fromJson(metadataResp);
-      print('-----metadata $_metadata');
+      var metadata = _CrowdinMetadata.fromJson(metadataResp);
+      return metadata;
     } else {
       throw CrowdinException("Can't receive metadata. Real-time preview will be unavailable");
     }
+  }
 
-    print('-----webSocket creation');
-    _channel = WebSocketChannel.connect(Uri.parse(_metadata.wsUrl));
-    crowdinStream = _channel.stream;
+  Future<void> _connectWebSocket({required oauth2.Credentials credentials}) async {
+    _channel = WebSocketChannel.connect(Uri.parse(_metadata!.wsUrl));
+    Stream crowdinStream = _channel.stream;
     crowdinStream.listen(
       (message) {
         Map<String, dynamic> messageDecoded = jsonDecode(message);
         Map<String, dynamic> data = messageDecoded['data'];
         String event = messageDecoded['event'];
         String textId = event.split(':').last;
-        addToUpdated(id: textId, text: data['text'] ?? '');
+        updatePreviewArb(
+            id: textId,
+            text: data['text'] ?? '',
+            onPreviewArbUpdated: (textKey) => _onTranslationUpdate(textKey));
       },
       onError: (e) {
         CrowdinException(
@@ -103,52 +116,48 @@ class CrowdinPreviewManager {
       },
     );
 
-    subscribeToAllTranslations();
+    if (_metadata != null) {
+      _subscribeToAllTranslations(_metadata!);
+    }
   }
 
-  void subscribeToAllTranslations() {
+  void _subscribeToAllTranslations(_CrowdinMetadata metadata) {
     String langCode = previewArb.locale.languageCode;
-    for (var id in finalMappingMap.values) {
+    for (var id in finalMapping.values) {
       var data = jsonEncode({
         'action': 'subscribe',
         'event':
-            'update-draft:${_metadata.wsHash}:${_metadata.projectId}:${_metadata.userId}:$langCode:$id',
+            'update-draft:${metadata.wsHash}:${metadata.projectId}:${metadata.userId}:$langCode:$id',
       });
-      print('-----data $data');
       _channel.sink.add(data);
     }
   }
 
-  void addToUpdated({required String id, required String text}) {
-    String textKey = finalMappingMap.keys.firstWhere((key) => finalMappingMap[key] == id);
+  @visibleForTesting
+  void updatePreviewArb(
+      {required String id,
+      required String text,
+      required Function(String textKey) onPreviewArbUpdated}) {
+    String textKey = finalMapping.keys.firstWhere((key) => finalMapping[key] == id);
     previewArb.resources[textKey] = text;
-    _onTranslationUpdate(textKey);
+    onPreviewArbUpdated(textKey);
   }
 }
 
-class UpdatedTranslation {
-  final String key;
-  final String text;
-  final int id;
-  final String pluralForm;
-
-  UpdatedTranslation({
-    required this.key,
-    required this.text,
-    required this.id,
-    required this.pluralForm,
-  });
-}
-
-class CrowdinMetadata {
+class _CrowdinMetadata {
   late String projectId;
   late String wsHash;
   late String userId;
   late String wsUrl;
 
-  CrowdinMetadata(this.projectId, this.wsHash, this.userId, this.wsUrl);
+  _CrowdinMetadata(
+    this.projectId,
+    this.wsHash,
+    this.userId,
+    this.wsUrl,
+  );
 
-  CrowdinMetadata.fromJson(Map<String, dynamic> json) {
+  _CrowdinMetadata.fromJson(Map<String, dynamic> json) {
     projectId = json['data']['project']['id'] ?? '';
     wsHash = json['data']['project']['wsHash'] ?? '';
     userId = json['data']['user']['id'] ?? '';

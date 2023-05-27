@@ -47,6 +47,11 @@ class Crowdin {
 
   static bool _withRealTimeUpdates = false;
 
+  @visibleForTesting
+  static set withRealTimeUpdates(bool value) {
+    _withRealTimeUpdates = value;
+  }
+
   static late CrowdinPreviewManager crowdinPreviewManager;
 
   static late CrowdinAuthConfig? _authConfig;
@@ -89,7 +94,6 @@ class Crowdin {
       _timestamp = manifest['timestamp'];
 
       _mappingFilePaths = (manifest['mapping'] as List<dynamic>).map((e) => e.toString()).toList();
-      print('-----mapping files $_mappingFilePaths');
     }
 
     _withRealTimeUpdates = withRealTimeUpdates;
@@ -97,7 +101,7 @@ class Crowdin {
     _authConfig = authConfigurations;
 
     if (withRealTimeUpdates && _authConfig != null) {
-      setUpRealTimePreviewManager(_authConfig!);
+      _setUpRealTimePreviewManager(_authConfig!);
     }
   }
 
@@ -121,7 +125,6 @@ class Crowdin {
         distribution = _storage.getTranslationFromStorage(locale);
         if (distribution != null) {
           _arb = AppResourceBundle(distribution);
-          //reset previewArb for new locale
           if(_withRealTimeUpdates) {
             crowdinPreviewManager.setPreviewArb(_arb!);
           }
@@ -144,9 +147,7 @@ class Crowdin {
           jsonEncode(distribution),
         );
         _arb = AppResourceBundle(distribution);
-        if(_withRealTimeUpdates) {
-          crowdinPreviewManager.setPreviewArb(_arb!);
-        }
+
         // set initial value for _translationTimeToUpdate
         if (_updatesInterval != null) {
           _translationTimeToUpdate = DateTime.now().add(_updatesInterval!);
@@ -163,11 +164,14 @@ class Crowdin {
       _arb = null;
       return;
     }
+    if(_withRealTimeUpdates) {
+      crowdinPreviewManager.setPreviewArb(_arb!);
+    }
   }
 
-  static void setUpRealTimePreviewManager(CrowdinAuthConfig authConfig) {
+  static void _setUpRealTimePreviewManager(CrowdinAuthConfig authConfig) {
     crowdinPreviewManager = CrowdinPreviewManager(
-      config: _authConfig!,
+      config: authConfig,
       distributionHash: _distributionHash,
       mappingFilePaths: _mappingFilePaths,
     );

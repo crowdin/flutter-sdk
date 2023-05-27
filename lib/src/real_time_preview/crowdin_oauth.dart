@@ -25,7 +25,6 @@ class CrowdinOauth {
     final tokenEndpoint = Uri.parse(_kTokenEndpoint);
 
     var grant = oauth2.AuthorizationCodeGrant(
-
       config.clientId,
       authorizationEndpoint,
       tokenEndpoint,
