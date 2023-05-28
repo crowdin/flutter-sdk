@@ -44,7 +44,7 @@ void main() {
           equals('New Text 2'));
     });
 
-    test('getFinalMappingData returns map ', () {
+    test('getFinalMappingData returns updated map ', () {
       Map<String, String> currentMap = {
         'example': 'test_example',
         'test_key': 'test_text'
@@ -69,7 +69,7 @@ void main() {
             clientSecret: 'clientSecret',
             redirectUri: 'redirectUri',
           ));
-      Crowdin.arb = AppResourceBundle(testArb);
+      Crowdin.arb = AppResourceBundle(testPreviewArb);
       Crowdin.crowdinPreviewManager
           .setPreviewArb(AppResourceBundle(testPreviewArb));
     });
