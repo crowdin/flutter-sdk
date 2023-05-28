@@ -10,14 +10,19 @@ import 'package:intl/intl.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Crowdin.init(
-      distributionHash: 'distributionHash', //your distribution hash
-      connectionType: InternetConnectionType.any,
-      updatesInterval: const Duration(minutes: 25),
-      withRealTimeUpdates: CrowdinPreviewConfig(
-        clientId: 'clientId',// your clientId from Crowdin OAuth app
-        clientSecret: 'clientSecret',//your client secret from Crowdin OAuth app
-        redirectUri: 'redirectUri',//your redirect uri from Crowdin OAuth app
-      ));
+    distributionHash: 'distributionHash', //your distribution hash
+    connectionType: InternetConnectionType.any,
+    updatesInterval: const Duration(minutes: 25),
+
+    //uncomment next lines to enable real-time preview feature
+
+    // withRealTimeUpdates: true,
+    // authConfigurations: CrowdinAuthConfig(
+    //   clientId: 'clientId', // your clientId from Crowdin OAuth app
+    //   clientSecret: 'clientSecret', // your client secret from Crowdin OAuth app
+    //   redirectUri: 'redirectUri', // your redirect uri from Crowdin OAuth app
+    // ),
+  );
   runApp(const MyHomePage());
 }
 
@@ -42,7 +47,7 @@ class _MyHomePageState extends State<MyHomePage> {
 
   @override
   Widget build(BuildContext context) {
-    return CrowdinRealTimePreviewWidget(
+    // return CrowdinRealTimePreviewWidget(  //uncomment to enable real-time preview feature
       child: MaterialApp(
         locale: currentLocale,
         localizationsDelegates: CrowdinLocalization.localizationsDelegates,
@@ -63,7 +68,7 @@ class _MyHomePageState extends State<MyHomePage> {
                   })
                 },
               ),
-      ),
+      // ), //uncomment to enable real-time preview feature
     );
   }
 }
@@ -91,7 +96,6 @@ class _MainScreenState extends State<MainScreen> {
 
   @override
   Widget build(BuildContext context) {
-    print('-----main rebuild');
     return Scaffold(
       drawer: Drawer(
         child: ListView(
@@ -114,8 +118,7 @@ class _MainScreenState extends State<MainScreen> {
                   context,
                   MaterialPageRoute(
                     builder: (context) => SettingsScreen(
-                      onLanguageChanged: (locale) =>
-                          widget.changeLocale(locale),
+                      onLanguageChanged: (locale) => widget.changeLocale(locale),
                     ),
                   ),
                 );
@@ -152,6 +155,11 @@ class _MainScreenState extends State<MainScreen> {
             const SizedBox(height: 16),
             Text(
               AppLocalizations.of(context)!.counter(_counter),
+              style: const TextStyle(fontSize: 30),
+            ),
+            const SizedBox(height: 16),
+            Text(
+              AppLocalizations.of(context)!.nThings(_counter, 'Plural example'),
               style: const TextStyle(fontSize: 30),
             ),
           ],
