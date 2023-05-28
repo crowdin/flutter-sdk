@@ -144,6 +144,115 @@ After receiving the translations, change the app locale as usual and the transla
   - Swedish - `sv`: `sv-SE`
   - Urdu (India) - `ur`: `ur-IN`
 
+## Real-Time Preview
+All translations done in the Crowdin Editor can be displayed in your version of the application in real-time. See the translations that have already been done and the ones you're typing.
+(Currently available for Android and iOS)
+
+### Setup
+Add the following code to the Crowdin initialization:
+
+   ```dart
+   void main() async {
+     WidgetsFlutterBinding.ensureInitialized();
+
+     await Crowdin.init(
+       distributionHash: 'distribution_hash',
+       connectionType: InternetConnectionType.any,
+       updatesInterval: const Duration(minutes: 15),
+       withRealTimeUpdates: true, // use this parameter for enable/disable real-time preview functionality 
+       authConfigurations: CrowdinAuthConfig(
+        clientId: 'clientId', // your clientId from Crowdin OAuth app
+        clientSecret: 'clientSecret', //your client secret from Crowdin OAuth app
+        redirectUri: 'redirectUri', //your redirect uri from Crowdin OAuth app
+        organizationName: 'organizationName' // optional
+       ),
+     );
+
+     // ...
+   }
+   ```
+
+Wrap your app root widget with CrowdinRealTimePreviewWidget:
+
+  ```dart
+  @override
+  Widget build(BuildContext context) {
+    return CrowdinRealTimePreviewWidget(
+      child: MaterialApp(
+        // ...
+
+        localizationsDelegates: CrowdinLocalization.localizationsDelegates,
+        supportedLocales: AppLocalizations.supportedLocales,
+        ),
+
+        // ...
+      );
+    }
+  }
+  ```
+
+For [OAuth App](https://support.crowdin.com/creating-oauth-app/) redirect URL should match your App scheme.
+E.g., for scheme ```<data android:scheme="crowdintest" />``` redirect URL in Crowdin should be ```crowdintest://```.
+
+For Android add declare next intent filter in ```android/app/src/main/AndroidManifest.xml``` :
+
+  ```xml
+  <manifest ...>
+  <!-- ... other tags -->
+  <application ...>
+    <activity ...>
+      <!-- ... other tags -->
+
+      <intent-filter android:autoVerify="true">
+        <action android:name="android.intent.action.VIEW" />
+        <category android:name="android.intent.category.DEFAULT" />
+        <category android:name="android.intent.category.BROWSABLE" />
+        <!-- Accepts URIs that begin with https://YOUR_HOST -->
+        <data
+          android:scheme="[YOUR_SCHEME]"
+      </intent-filter>
+      
+    </activity>
+  </application>
+</manifest>
+  ```
+
+For iOS declare the scheme in ```ios/Runner/Info.plist``` :
+
+
+  ```
+  <?xml ...>
+  <!-- ... other tags -->
+  <plist>
+  <dict>
+    <!-- ... other tags -->
+    
+  <key>CFBundleURLTypes</key>
+     <array>
+       <dict>
+         <key>CFBundleURLSchemes</key>
+         <array>
+           <string>[YOUR_SCHEME]</string>
+         </array>
+       </dict>
+     </array>
+     
+    <!-- ... other tags -->
+  </dict>
+  </plist>
+  ```
+
+## Real-time preview config options
+
+| Config option      | Description                                                                                                                                                                                           |
+|--------------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| `withRealTimeUpdates` | Enable Real-Time Preview feature.                                                                                                                                                                           |
+| `authConfigurations`   | `CrowdinAuthConfig` class that contains parameters for OAuth authorization                                                                                  |
+| `clientId`  | Crowdin OAuth Client ID|
+| `clientSecret`  | Crowdin OAuth Client Secret|
+| `redirectUri`  | Crowdin OAuth redirect URL|
+| `organizationName`  | An Organization domain name(for Crowdin Enterprise users only)|
+
 ## Contributing
 
 If you would like to contribute, please read the [Contributing Guidelines](https://github.com/crowdin/flutter-sdk/blob/main/CONTRIBUTING.md).
