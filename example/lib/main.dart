@@ -48,26 +48,27 @@ class _MyHomePageState extends State<MyHomePage> {
   @override
   Widget build(BuildContext context) {
     // return CrowdinRealTimePreviewWidget(  //uncomment to enable real-time preview feature
-      child: MaterialApp(
-        locale: currentLocale,
-        localizationsDelegates: CrowdinLocalization.localizationsDelegates,
-        supportedLocales: AppLocalizations.supportedLocales,
-        theme: ThemeData(
-          primarySwatch: Colors.blue,
-        ),
-        home: isLoading
-            ? const Material(
-                child: Center(
-                  child: CircularProgressIndicator(),
-                ),
-              )
-            : MainScreen(
-                changeLocale: (locale) => {
-                  setState(() {
-                    currentLocale = locale;
-                  })
-                },
+    child:
+    MaterialApp(
+      locale: currentLocale,
+      localizationsDelegates: CrowdinLocalization.localizationsDelegates,
+      supportedLocales: AppLocalizations.supportedLocales,
+      theme: ThemeData(
+        primarySwatch: Colors.blue,
+      ),
+      home: isLoading
+          ? const Material(
+              child: Center(
+                child: CircularProgressIndicator(),
               ),
+            )
+          : MainScreen(
+              changeLocale: (locale) => {
+                setState(() {
+                  currentLocale = locale;
+                })
+              },
+            ),
       // ), //uncomment to enable real-time preview feature
     );
   }
@@ -118,7 +119,8 @@ class _MainScreenState extends State<MainScreen> {
                   context,
                   MaterialPageRoute(
                     builder: (context) => SettingsScreen(
-                      onLanguageChanged: (locale) => widget.changeLocale(locale),
+                      onLanguageChanged: (locale) =>
+                          widget.changeLocale(locale),
                     ),
                   ),
                 );

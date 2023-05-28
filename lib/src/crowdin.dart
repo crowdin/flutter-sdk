@@ -93,7 +93,9 @@ class Crowdin {
       /// fetch manifest file to check if new updates available
       _timestamp = manifest['timestamp'];
 
-      _mappingFilePaths = (manifest['mapping'] as List<dynamic>).map((e) => e.toString()).toList();
+      _mappingFilePaths = (manifest['mapping'] as List<dynamic>)
+          .map((e) => e.toString())
+          .toList();
     }
 
     _withRealTimeUpdates = withRealTimeUpdates;
@@ -125,7 +127,7 @@ class Crowdin {
         distribution = _storage.getTranslationFromStorage(locale);
         if (distribution != null) {
           _arb = AppResourceBundle(distribution);
-          if(_withRealTimeUpdates) {
+          if (_withRealTimeUpdates) {
             crowdinPreviewManager.setPreviewArb(_arb!);
           }
           return;
@@ -164,7 +166,7 @@ class Crowdin {
       _arb = null;
       return;
     }
-    if(_withRealTimeUpdates) {
+    if (_withRealTimeUpdates) {
       crowdinPreviewManager.setPreviewArb(_arb!);
     }
   }
@@ -214,7 +216,8 @@ bool canUseCachedTranslation({
   }
 }
 
-Future<bool> _isConnectionTypeAllowed(InternetConnectionType connectionType) async {
+Future<bool> _isConnectionTypeAllowed(
+    InternetConnectionType connectionType) async {
   var connectionStatus = await Connectivity().checkConnectivity();
   switch (connectionType) {
     case InternetConnectionType.any:
@@ -234,7 +237,8 @@ Duration setUpdateInterval(Duration updatesInterval) {
   Duration updInterval;
   if (updatesInterval.inMinutes < 15) {
     updInterval = const Duration(minutes: 15);
-    CrowdinLogger.printLog('updates interval was settled to the default minimum value 15 minutes');
+    CrowdinLogger.printLog(
+        'updates interval was settled to the default minimum value 15 minutes');
   } else {
     updInterval = updatesInterval;
   }

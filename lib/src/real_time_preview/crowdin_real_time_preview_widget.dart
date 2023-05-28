@@ -11,12 +11,14 @@ class CrowdinRealTimePreviewWidget extends StatefulWidget {
   }) : super(key: key);
 
   @override
-  State<CrowdinRealTimePreviewWidget> createState() => _CrowdinRealTimePreviewWidgetState();
+  State<CrowdinRealTimePreviewWidget> createState() =>
+      _CrowdinRealTimePreviewWidgetState();
 }
 
-class _CrowdinRealTimePreviewWidgetState extends State<CrowdinRealTimePreviewWidget> {
+class _CrowdinRealTimePreviewWidgetState
+    extends State<CrowdinRealTimePreviewWidget> {
   final GlobalKey<_CrowdinRealTimePreviewWidgetState> childKey =
-  GlobalKey<_CrowdinRealTimePreviewWidgetState>();
+      GlobalKey<_CrowdinRealTimePreviewWidgetState>();
 
   @override
   void initState() {
@@ -27,7 +29,8 @@ class _CrowdinRealTimePreviewWidgetState extends State<CrowdinRealTimePreviewWid
   }
 
   void _rebuildTree(String textKey) {
-    (context as Element).visitChildElements((element) => _elementRebuildVisitor(element, textKey));
+    (context as Element).visitChildElements(
+        (element) => _elementRebuildVisitor(element, textKey));
   }
 
   void _elementRebuildVisitor(Element element, String textKey) {

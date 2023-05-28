@@ -35,7 +35,8 @@ var testPreviewArb = {
       "userName": {"type": "String", "example": "Bob"}
     }
   },
-  "nThings": "{count,plural, =0{no preview_{thing}s} other{{count} preview_{thing}s}}",
+  "nThings":
+      "{count,plural, =0{no preview_{thing}s} other{{count} preview_{thing}s}}",
   "@nThings": {
     "description": "A plural message with an additional parameter",
     "placeholders": {

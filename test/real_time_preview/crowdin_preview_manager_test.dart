@@ -15,7 +15,8 @@ void main() {
     setUp(() async {
       WidgetsFlutterBinding.ensureInitialized();
       crowdinPreviewManager = CrowdinPreviewManager(
-        config: CrowdinAuthConfig(clientId: '', clientSecret: '', redirectUri: ''),
+        config:
+            CrowdinAuthConfig(clientId: '', clientSecret: '', redirectUri: ''),
         distributionHash: 'distributionHash',
         mappingFilePaths: ['mappingFilePath1', 'mappingFilePath2'],
       );
@@ -29,12 +30,18 @@ void main() {
       };
 
       crowdinPreviewManager.updatePreviewArb(
-          id: 'id1', text: 'New Text 1', onPreviewArbUpdated: (String textKey) {});
+          id: 'id1',
+          text: 'New Text 1',
+          onPreviewArbUpdated: (String textKey) {});
       crowdinPreviewManager.updatePreviewArb(
-          id: 'id2', text: 'New Text 2', onPreviewArbUpdated: (String textKey) {});
+          id: 'id2',
+          text: 'New Text 2',
+          onPreviewArbUpdated: (String textKey) {});
 
-      expect(crowdinPreviewManager.previewArb.resources['example'], equals('New Text 1'));
-      expect(crowdinPreviewManager.previewArb.resources['hello'], equals('New Text 2'));
+      expect(crowdinPreviewManager.previewArb.resources['example'],
+          equals('New Text 1'));
+      expect(crowdinPreviewManager.previewArb.resources['hello'],
+          equals('New Text 2'));
     });
 
     test('getFinalMappingData returns map ', () {
@@ -44,7 +51,8 @@ void main() {
       };
       var mappingData = testArb;
 
-      var resultMap = crowdinPreviewManager.getFinalMappingData(mappingData, currentMap);
+      var resultMap =
+          crowdinPreviewManager.getFinalMappingData(mappingData, currentMap);
       expect(resultMap['example'], mappingData['example']);
       expect(resultMap['test_text'], currentMap['test_text']);
     });
@@ -62,7 +70,8 @@ void main() {
             redirectUri: 'redirectUri',
           ));
       Crowdin.arb = AppResourceBundle(testArb);
-      Crowdin.crowdinPreviewManager.setPreviewArb(AppResourceBundle(testPreviewArb));
+      Crowdin.crowdinPreviewManager
+          .setPreviewArb(AppResourceBundle(testPreviewArb));
     });
     test('should return values from previewArb', () async {
       String? simpleText = Crowdin.getText('en', 'example');
@@ -70,7 +79,8 @@ void main() {
       String? zeroPluralResult =
           Crowdin.getText('en', 'nThings', {'count': 0, 'thing': 'test_thing'});
 
-      String? pluralResult = Crowdin.getText('en', 'nThings', {'count': 1, 'thing': 'test_thing'});
+      String? pluralResult =
+          Crowdin.getText('en', 'nThings', {'count': 1, 'thing': 'test_thing'});
 
       expect(simpleText, 'preview_Example');
       expect(zeroPluralResult, 'no preview_test_things');

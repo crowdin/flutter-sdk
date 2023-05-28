@@ -6,11 +6,11 @@ import 'package:url_launcher/url_launcher.dart';
 
 import 'crowdin_auth_config.dart';
 
-const String _kAuthorizationEndpoint = 'https://accounts.crowdin.com/oauth/authorize';
+const String _kAuthorizationEndpoint =
+    'https://accounts.crowdin.com/oauth/authorize';
 const String _kTokenEndpoint = 'https://accounts.crowdin.com/oauth/token';
 
 class CrowdinOauth {
-
   final CrowdinAuthConfig config;
   final Future<void> Function(oauth2.Credentials) onAuthenticated;
 
@@ -20,7 +20,6 @@ class CrowdinOauth {
   StreamSubscription? _sub;
 
   Future<void> authenticate() async {
-
     final authorizationEndpoint = Uri.parse(_kAuthorizationEndpoint);
     final tokenEndpoint = Uri.parse(_kTokenEndpoint);
 
@@ -32,13 +31,14 @@ class CrowdinOauth {
       basicAuth: false,
     );
 
-    var authorizationUrl =
-    grant.getAuthorizationUrl(Uri.parse(config.redirectUri), scopes: ['project', 'tm']);
+    var authorizationUrl = grant.getAuthorizationUrl(
+        Uri.parse(config.redirectUri),
+        scopes: ['project', 'tm']);
 
     _sub = uriLinkStream.listen((Uri? uri) async {
       if (uri != null && uri.toString().startsWith(config.redirectUri)) {
-
-        var client = await grant.handleAuthorizationResponse(uri.queryParameters);
+        var client =
+            await grant.handleAuthorizationResponse(uri.queryParameters);
 
         _client = client;
         dispose();

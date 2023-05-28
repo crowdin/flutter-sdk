@@ -11,7 +11,8 @@ class CrowdinApi {
       var response = await http.get(
         Uri.parse('https://distributions.crowdin.net/$distributionHash$path'),
       );
-      Map<String, dynamic> responseDecoded = jsonDecode(utf8.decode(response.bodyBytes));
+      Map<String, dynamic> responseDecoded =
+          jsonDecode(utf8.decode(response.bodyBytes));
       return responseDecoded;
     } catch (_) {
       return null;
@@ -23,9 +24,11 @@ class CrowdinApi {
   }) async {
     try {
       var response = await http.get(
-        Uri.parse('https://distributions.crowdin.net/$distributionHash/manifest.json'),
+        Uri.parse(
+            'https://distributions.crowdin.net/$distributionHash/manifest.json'),
       );
-      Map<String, dynamic> responseDecoded = jsonDecode(utf8.decode(response.bodyBytes));
+      Map<String, dynamic> responseDecoded =
+          jsonDecode(utf8.decode(response.bodyBytes));
       return responseDecoded;
     } catch (_) {
       return null;
@@ -37,9 +40,10 @@ class CrowdinApi {
     required String mappingFilePath,
   }) async {
     try {
-      var response = await http
-          .get(Uri.parse('https://distributions.crowdin.net/$distributionHash$mappingFilePath'));
-      Map<String, dynamic> responseDecoded = jsonDecode(utf8.decode(response.bodyBytes));
+      var response = await http.get(Uri.parse(
+          'https://distributions.crowdin.net/$distributionHash$mappingFilePath'));
+      Map<String, dynamic> responseDecoded =
+          jsonDecode(utf8.decode(response.bodyBytes));
       return responseDecoded;
     } catch (ex) {
       rethrow;
@@ -52,12 +56,14 @@ class CrowdinApi {
     String? organizationName,
   }) async {
     try {
-      String organizationDomain = organizationName != null ? '$organizationName.' : '';
+      String organizationDomain =
+          organizationName != null ? '$organizationName.' : '';
       var response = await http.get(
           Uri.parse(
               'https://${organizationDomain}api.crowdin.com/api/v2/distributions/metadata?hash=$distributionHash'),
           headers: {'Authorization': 'Bearer $accessToken'});
-      Map<String, dynamic> responseDecoded = jsonDecode(utf8.decode(response.bodyBytes));
+      Map<String, dynamic> responseDecoded =
+          jsonDecode(utf8.decode(response.bodyBytes));
       return responseDecoded;
     } catch (ex) {
       return null;

@@ -11,7 +11,8 @@ import 'package:web_socket_channel/web_socket_channel.dart';
 
 import 'crowdin_oauth.dart';
 
-const String _kAuthorizationEndpoint = 'https://accounts.crowdin.com/oauth/authorize';
+const String _kAuthorizationEndpoint =
+    'https://accounts.crowdin.com/oauth/authorize';
 // const String _kTokenEndpoint = 'https://accounts.crowdin.com/oauth/token';
 
 class CrowdinPreviewManager {
@@ -83,7 +84,8 @@ class CrowdinPreviewManager {
     _connectWebSocket(credentials: credentials);
   }
 
-  Future<_CrowdinMetadata> _getMetadata({required oauth2.Credentials credentials}) async {
+  Future<_CrowdinMetadata> _getMetadata(
+      {required oauth2.Credentials credentials}) async {
     var metadataResp = await _api.getMetadata(
       accessToken: credentials.accessToken,
       distributionHash: distributionHash,
@@ -92,11 +94,13 @@ class CrowdinPreviewManager {
       var metadata = _CrowdinMetadata.fromJson(metadataResp);
       return metadata;
     } else {
-      throw CrowdinException("Can't receive metadata. Real-time preview will be unavailable");
+      throw CrowdinException(
+          "Can't receive metadata. Real-time preview will be unavailable");
     }
   }
 
-  Future<void> _connectWebSocket({required oauth2.Credentials credentials}) async {
+  Future<void> _connectWebSocket(
+      {required oauth2.Credentials credentials}) async {
     _channel = WebSocketChannel.connect(Uri.parse(_metadata!.wsUrl));
     Stream crowdinStream = _channel.stream;
     crowdinStream.listen(
@@ -138,7 +142,8 @@ class CrowdinPreviewManager {
       {required String id,
       required String text,
       required Function(String textKey) onPreviewArbUpdated}) {
-    String textKey = finalMapping.keys.firstWhere((key) => finalMapping[key] == id);
+    String textKey =
+        finalMapping.keys.firstWhere((key) => finalMapping[key] == id);
     previewArb.resources[textKey] = text;
     onPreviewArbUpdated(textKey);
   }
