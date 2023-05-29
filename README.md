@@ -23,9 +23,10 @@ The Crowdin Flutter SDK delivers all new translations from Crowdin project to th
 ## Features
 
 - Load remote strings from Crowdin Over-The-Air Content Delivery Network
-- Built-in translations caching mechanism (enabled by default, can be disabled)
-- Network usage configuration (All, only Wi-Fi or Cellular)
-- Load static strings from the bundled ARB files (usable as a fallback for the CDN strings)
+  - Built-in translations caching mechanism (enabled by default, can be disabled)
+  - Network usage configuration (All, only Wi-Fi or Cellular)
+  - Load static strings from the bundled ARB files (usable as a fallback for the CDN strings)
+- Real-Time Preview – all the translations that are done in the Editor can be shown in your version of the application in real-time. View the translations already made and the ones you're currently typing in.
 
 ## Requirements
 
@@ -126,75 +127,61 @@ After receiving the translations, change the app locale as usual and the transla
 | `connectionType`   | Network type to be used for translations download. Supported values are `any`, `wifi`, `mobileData`, `ethernet`                                                                                       |
 | `updatesInterval`  | Translations update interval. Translations will not be updated more frequently than the designated time interval (default minimum is 15 minutes). Instead, it will use previously cached translations |
 
-## Notes
-
-- The CDN feature does not update the localization files. if you want to add new translations to the localization files you need to do it yourself.
-- Once SDK receives the translations, it's stored on the device as application files for further sessions to minimize requests the next time the app starts. Storage time can be configured.
-- CDN caches all the translations in release and even when new translations are released in Crowdin, CDN may return them with a delay.
-- Since some languages have different language codes maintained by the intl package and by Crowdin (for example, intl uses "es" for the Spanish language, and Crowdin uses "es-ES"). For the following intl language codes Crowdin SDK uses equivalent language codes:
-
-  - Armenian - `hy`: `hy-AM`
-  - Chinese Simplified - `zh`: `zh-CN`
-  - Gujarati - `gu`: `gu-IN`
-  - Nepali - `ne`: `ne-NP`
-  - Portuguese - `pt`: `pt-PT`
-  - Punjabi - `pa`: `pa-IN`
-  - Sinhala - `si`: `si-LK`
-  - Spanish - `es`: `es-ES`
-  - Swedish - `sv`: `sv-SE`
-  - Urdu (India) - `ur`: `ur-IN`
-
 ## Real-Time Preview
+
 All translations done in the Crowdin Editor can be displayed in your version of the application in real-time. See the translations that have already been done and the ones you're typing.
-(Currently available for Android and iOS)
+
+> **Note:** Real-Time Preview feature should not be used in production builds.
+> Currently, this feature is available only for Android and iOS applications.
 
 ### Setup
+
 Add the following code to the Crowdin initialization:
 
-   ```dart
-   void main() async {
-     WidgetsFlutterBinding.ensureInitialized();
+ ```dart
+ void main() async {
+   WidgetsFlutterBinding.ensureInitialized();
 
-     await Crowdin.init(
-       distributionHash: 'distribution_hash',
-       connectionType: InternetConnectionType.any,
-       updatesInterval: const Duration(minutes: 15),
-       withRealTimeUpdates: true, // use this parameter for enable/disable real-time preview functionality 
-       authConfigurations: CrowdinAuthConfig(
-        clientId: 'clientId', // your clientId from Crowdin OAuth app
-        clientSecret: 'clientSecret', //your client secret from Crowdin OAuth app
-        redirectUri: 'redirectUri', //your redirect uri from Crowdin OAuth app
-        organizationName: 'organizationName' // optional
-       ),
-     );
+   await Crowdin.init(
+     distributionHash: 'distribution_hash',
+     connectionType: InternetConnectionType.any,
+     updatesInterval: const Duration(minutes: 15),
+     withRealTimeUpdates: true, // use this parameter for enable/disable real-time preview functionality
+     authConfigurations: CrowdinAuthConfig(
+      clientId: 'clientId', // your clientId from Crowdin OAuth app
+      clientSecret: 'clientSecret', // your client secret from Crowdin OAuth app
+      redirectUri: 'redirectUri', // your redirect uri from Crowdin OAuth app
+      organizationName: 'organizationName' // optional (only for Crowdin Enterprise)
+     ),
+   );
 
-     // ...
-   }
-   ```
+   // ...
+ }
+ ```
 
-Wrap your app root widget with CrowdinRealTimePreviewWidget:
+Wrap your app root widget with the `CrowdinRealTimePreviewWidget`:
 
-  ```dart
-  @override
-  Widget build(BuildContext context) {
-    return CrowdinRealTimePreviewWidget(
-      child: MaterialApp(
-        // ...
+```dart
+@override
+Widget build(BuildContext context) {
+  return CrowdinRealTimePreviewWidget(
+    child: MaterialApp(
+      // ...
 
-        localizationsDelegates: CrowdinLocalization.localizationsDelegates,
-        supportedLocales: AppLocalizations.supportedLocales,
-        ),
+      localizationsDelegates: CrowdinLocalization.localizationsDelegates,
+      supportedLocales: AppLocalizations.supportedLocales,
+      ),
 
-        // ...
-      );
-    }
+      // ...
+    );
   }
-  ```
+}
+```
 
-For [OAuth App](https://support.crowdin.com/creating-oauth-app/) redirect URL should match your App scheme.
-E.g., for scheme ```<data android:scheme="crowdintest" />``` redirect URL in Crowdin should be ```crowdintest://```.
+For [OAuth App](https://support.crowdin.com/creating-oauth-app/) the redirect URL should match your app scheme.
+For example, for scheme `<data android:scheme="crowdintest" />`, redirect URL in Crowdin should be `crowdintest://`.
 
-For Android add declare next intent filter in ```android/app/src/main/AndroidManifest.xml``` :
+For Android app, declare the following intent filter in `android/app/src/main/AndroidManifest.xml`:
 
   ```xml
   <manifest ...>
@@ -217,41 +204,62 @@ For Android add declare next intent filter in ```android/app/src/main/AndroidMan
 </manifest>
   ```
 
-For iOS declare the scheme in ```ios/Runner/Info.plist``` :
+For iOS app, declare the scheme in `ios/Runner/Info.plist`:
 
-
-  ```
-  <?xml ...>
-  <!-- ... other tags -->
-  <plist>
+```xml
+<?xml ...>
+<!-- ... other tags -->
+<plist>
   <dict>
     <!-- ... other tags -->
-    
-  <key>CFBundleURLTypes</key>
-     <array>
-       <dict>
-         <key>CFBundleURLSchemes</key>
-         <array>
-           <string>[YOUR_SCHEME]</string>
-         </array>
-       </dict>
-     </array>
-     
+
+    <key>CFBundleURLTypes</key>
+    <array>
+      <dict>
+        <key>CFBundleURLSchemes</key>
+        <array>
+          <string>[YOUR_SCHEME]</string>
+        </array>
+      </dict>
+    </array>
+
     <!-- ... other tags -->
   </dict>
-  </plist>
-  ```
+</plist>
+```
 
-## Real-time preview config options
+### Config options
 
-| Config option      | Description                                                                                                                                                                                           |
-|--------------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| `withRealTimeUpdates` | Enable Real-Time Preview feature.                                                                                                                                                                           |
-| `authConfigurations`   | `CrowdinAuthConfig` class that contains parameters for OAuth authorization                                                                                  |
-| `clientId`  | Crowdin OAuth Client ID|
-| `clientSecret`  | Crowdin OAuth Client Secret|
-| `redirectUri`  | Crowdin OAuth redirect URL|
-| `organizationName`  | An Organization domain name(for Crowdin Enterprise users only)|
+| Config option         | Description                                                                |
+|-----------------------|----------------------------------------------------------------------------|
+| `withRealTimeUpdates` | Enable Real-Time Preview feature                                           |
+| `authConfigurations`  | `CrowdinAuthConfig` class that contains parameters for OAuth authorization |
+| `clientId`            | Crowdin OAuth Client ID                                                    |
+| `clientSecret`        | Crowdin OAuth Client Secret                                                |
+| `redirectUri`         | Crowdin OAuth redirect URL                                                 |
+| `organizationName`    | An Organization domain name (for Crowdin Enterprise users only)            |
+
+For more information about OAuth authorization in Crowdin, please check [this article](https://support.crowdin.com/creating-oauth-app/).
+
+> **Note:** To easily run your app in the Crowdin Editor, you can use [Crowdin Appetize integration](https://store.crowdin.com/appetize-app). It allows your translators to run this app in the Editor, see more context, and provide better translations.
+
+## Notes
+
+- The CDN feature does not update the localization files. if you want to add new translations to the localization files you need to do it yourself.
+- Once SDK receives the translations, it's stored on the device as application files for further sessions to minimize requests the next time the app starts. Storage time can be configured.
+- CDN caches all the translations in release and even when new translations are released in Crowdin, CDN may return them with a delay.
+- Since some languages have different language codes maintained by the intl package and by Crowdin (for example, intl uses "es" for the Spanish language, and Crowdin uses "es-ES"). For the following intl language codes Crowdin SDK uses equivalent language codes:
+
+  - Armenian - `hy`: `hy-AM`
+  - Chinese Simplified - `zh`: `zh-CN`
+  - Gujarati - `gu`: `gu-IN`
+  - Nepali - `ne`: `ne-NP`
+  - Portuguese - `pt`: `pt-PT`
+  - Punjabi - `pa`: `pa-IN`
+  - Sinhala - `si`: `si-LK`
+  - Spanish - `es`: `es-ES`
+  - Swedish - `sv`: `sv-SE`
+  - Urdu (India) - `ur`: `ur-IN`
 
 ## Contributing
 
