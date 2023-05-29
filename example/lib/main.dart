@@ -48,8 +48,8 @@ class _MyHomePageState extends State<MyHomePage> {
   @override
   Widget build(BuildContext context) {
     return
-      // CrowdinRealTimePreviewWidget(child:  //uncomment to enable real-time preview feature
-    MaterialApp(
+        // CrowdinRealTimePreviewWidget(child:  //uncomment to enable real-time preview feature
+        MaterialApp(
       locale: currentLocale,
       localizationsDelegates: CrowdinLocalization.localizationsDelegates,
       supportedLocales: AppLocalizations.supportedLocales,
