@@ -13,7 +13,6 @@ import 'crowdin_oauth.dart';
 
 const String _kAuthorizationEndpoint =
     'https://accounts.crowdin.com/oauth/authorize';
-// const String _kTokenEndpoint = 'https://accounts.crowdin.com/oauth/token';
 
 class CrowdinPreviewManager {
   final authorizationEndpoint = Uri.parse(_kAuthorizationEndpoint);
