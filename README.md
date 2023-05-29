@@ -195,8 +195,7 @@ For Android app, declare the following intent filter in `android/app/src/main/An
         <category android:name="android.intent.category.DEFAULT" />
         <category android:name="android.intent.category.BROWSABLE" />
         <!-- Accepts URIs that begin with https://YOUR_HOST -->
-        <data
-          android:scheme="[YOUR_SCHEME]"
+        <data android:scheme="[YOUR_SCHEME]"/>
       </intent-filter>
       
     </activity>
