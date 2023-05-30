@@ -30,13 +30,13 @@ void main() {
       };
 
       crowdinPreviewManager.updatePreviewArb(
-          id: 'id1',
-          text: 'New Text 1',
-          onPreviewArbUpdated: (String textKey) {});
+        id: 'id1',
+        text: 'New Text 1',
+      );
       crowdinPreviewManager.updatePreviewArb(
-          id: 'id2',
-          text: 'New Text 2',
-          onPreviewArbUpdated: (String textKey) {});
+        id: 'id2',
+        text: 'New Text 2',
+      );
 
       expect(crowdinPreviewManager.previewArb.resources['example'],
           equals('New Text 1'));

@@ -103,7 +103,7 @@ class Crowdin {
     _authConfig = authConfigurations;
 
     if (withRealTimeUpdates && _authConfig != null) {
-      _setUpRealTimePreviewManager(_authConfig!);
+      setUpRealTimePreviewManager(_authConfig!);
     }
   }
 
@@ -171,7 +171,8 @@ class Crowdin {
     }
   }
 
-  static void _setUpRealTimePreviewManager(CrowdinAuthConfig authConfig) {
+  @visibleForTesting
+  static void setUpRealTimePreviewManager(CrowdinAuthConfig authConfig) {
     crowdinPreviewManager = CrowdinPreviewManager(
       config: authConfig,
       distributionHash: _distributionHash,

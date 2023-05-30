@@ -109,9 +109,9 @@ class CrowdinPreviewManager {
         String event = messageDecoded['event'];
         String textId = event.split(':').last;
         updatePreviewArb(
-            id: textId,
-            text: data['text'] ?? '',
-            onPreviewArbUpdated: (textKey) => _onTranslationUpdate(textKey));
+          id: textId,
+          text: data['text'] ?? '',
+        );
       },
       onError: (e) {
         CrowdinException(
@@ -137,14 +137,14 @@ class CrowdinPreviewManager {
   }
 
   @visibleForTesting
-  void updatePreviewArb(
-      {required String id,
-      required String text,
-      required Function(String textKey) onPreviewArbUpdated}) {
+  void updatePreviewArb({
+    required String id,
+    required String text,
+  }) {
     String textKey =
         finalMapping.keys.firstWhere((key) => finalMapping[key] == id);
     previewArb.resources[textKey] = text;
-    onPreviewArbUpdated(textKey);
+    _onTranslationUpdate('');
   }
 }
 
