@@ -20,7 +20,7 @@ class CrowdinPreviewManager {
   final CrowdinAuthConfig config;
   final String distributionHash;
   final List<String> mappingFilePaths;
-  late Function(String key) _onTranslationUpdate;
+  Function(String key)? _onTranslationUpdate;
 
   late CrowdinOauth _auth;
   late CrowdinApi _api;
@@ -144,7 +144,9 @@ class CrowdinPreviewManager {
     String textKey =
         finalMapping.keys.firstWhere((key) => finalMapping[key] == id);
     previewArb.resources[textKey] = text;
-    _onTranslationUpdate('');
+    if (_onTranslationUpdate != null) {
+      _onTranslationUpdate!('');
+    }
   }
 }
 
