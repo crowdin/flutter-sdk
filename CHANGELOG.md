@@ -3,6 +3,10 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## 0.3.0
+
+* Real-Time Preview feature
+
 ## 0.2.0
 
 * Support more l10n.yaml options
