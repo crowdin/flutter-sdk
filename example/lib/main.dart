@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:crowdin_sdk/crowdin_sdk.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
@@ -8,9 +10,18 @@ import 'package:intl/intl.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Crowdin.init(
-    distributionHash: 'your distribution hash', //your distribution hash
+    distributionHash: 'distributionHash', //your distribution hash
     connectionType: InternetConnectionType.any,
     updatesInterval: const Duration(minutes: 25),
+
+    //uncomment next lines to enable real-time preview feature
+
+    // withRealTimeUpdates: true,
+    // authConfigurations: CrowdinAuthConfig(
+    //   clientId: 'clientId', // your clientId from Crowdin OAuth app
+    //   clientSecret: 'clientSecret', // your client secret from Crowdin OAuth app
+    //   redirectUri: 'redirectUri', // your redirect uri from Crowdin OAuth app
+    // ),
   );
   runApp(const MyHomePage());
 }
@@ -23,7 +34,8 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  Locale currentLocale = Locale(Intl.shortLocale(Intl.systemLocale));
+  Locale currentLocale = Locale(Intl.shortLocale(Intl
+      .systemLocale)); //use system locale as default or provide one from your project, e.g. Locale('en')
   bool isLoading = true;
 
   @override
@@ -36,7 +48,9 @@ class _MyHomePageState extends State<MyHomePage> {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
+    return
+        // CrowdinRealTimePreviewWidget(child:  //uncomment to enable real-time preview feature
+        MaterialApp(
       locale: currentLocale,
       localizationsDelegates: CrowdinLocalization.localizationsDelegates,
       supportedLocales: AppLocalizations.supportedLocales,
@@ -56,6 +70,7 @@ class _MyHomePageState extends State<MyHomePage> {
                 })
               },
             ),
+      // ), //uncomment to enable real-time preview feature
     );
   }
 }
@@ -143,6 +158,11 @@ class _MainScreenState extends State<MainScreen> {
             const SizedBox(height: 16),
             Text(
               AppLocalizations.of(context)!.counter(_counter),
+              style: const TextStyle(fontSize: 30),
+            ),
+            const SizedBox(height: 16),
+            Text(
+              AppLocalizations.of(context)!.nThings(_counter, 'Plural example'),
               style: const TextStyle(fontSize: 30),
             ),
           ],

@@ -5,10 +5,12 @@ import 'package:crowdin_sdk/src/crowdin_api.dart';
 import 'package:crowdin_sdk/src/crowdin_storage.dart';
 import 'package:crowdin_sdk/src/crowdin_extractor.dart';
 import 'package:crowdin_sdk/src/crowdin_mapper.dart';
+import 'package:crowdin_sdk/src/real_time_preview/crowdin_preview_manager.dart';
 import 'package:flutter/widgets.dart';
 
 import 'common/gen_l10n_types.dart';
 import 'crowdin_logger.dart';
+import 'real_time_preview/crowdin_auth_config.dart';
 
 enum InternetConnectionType { wifi, mobileData, ethernet, any }
 
@@ -23,7 +25,7 @@ class Crowdin {
   static AppResourceBundle? _arb;
 
   @visibleForTesting
-  set arb(AppResourceBundle? value) {
+  static set arb(AppResourceBundle? value) {
     _arb = value;
   }
 
@@ -35,17 +37,34 @@ class Crowdin {
   /// contains certain distribution file paths for locales
   static int? _timestamp;
 
+  static List<String> _mappingFilePaths = [];
+
   static final CrowdinStorage _storage = CrowdinStorage();
 
   static late int? _timestampCached;
 
   static final _api = CrowdinApi();
 
+  static bool _withRealTimeUpdates = false;
+
+  static bool get withRealTimeUpdates => _withRealTimeUpdates;
+
+  @visibleForTesting
+  static set withRealTimeUpdates(bool value) {
+    _withRealTimeUpdates = value;
+  }
+
+  static late CrowdinPreviewManager crowdinPreviewManager;
+
+  static late CrowdinAuthConfig? _authConfig;
+
   /// Crowdin SDK initialization
   static Future<void> init({
     required String distributionHash,
     Duration? updatesInterval,
     InternetConnectionType? connectionType,
+    bool withRealTimeUpdates = false,
+    CrowdinAuthConfig? authConfigurations,
   }) async {
     await _storage.init();
 
@@ -75,6 +94,21 @@ class Crowdin {
 
       /// fetch manifest file to check if new updates available
       _timestamp = manifest['timestamp'];
+
+      _mappingFilePaths = (manifest['mapping'] as List<dynamic>)
+          .map((e) => e.toString())
+          .toList();
+    } else {
+      CrowdinLogger.printLog(
+          "something went wrong. Crowdin couldn't download manifest file for your project");
+    }
+
+    _withRealTimeUpdates = withRealTimeUpdates;
+
+    _authConfig = authConfigurations;
+
+    if (withRealTimeUpdates && _authConfig != null) {
+      setUpRealTimePreviewManager(_authConfig!);
     }
   }
 
@@ -98,6 +132,10 @@ class Crowdin {
         distribution = _storage.getTranslationFromStorage(locale);
         if (distribution != null) {
           _arb = AppResourceBundle(distribution);
+          if (_withRealTimeUpdates) {
+            crowdinPreviewManager.setPreviewArb(
+                _arb!); // set default translations for real-time preview
+          }
           return;
         }
       }
@@ -134,6 +172,18 @@ class Crowdin {
       _arb = null;
       return;
     }
+    if (_withRealTimeUpdates) {
+      crowdinPreviewManager.setPreviewArb(_arb!);
+    }
+  }
+
+  @visibleForTesting
+  static void setUpRealTimePreviewManager(CrowdinAuthConfig authConfig) {
+    crowdinPreviewManager = CrowdinPreviewManager(
+      config: authConfig,
+      distributionHash: _distributionHash,
+      mappingFilePaths: _mappingFilePaths,
+    );
   }
 
   static final Extractor _extractor = Extractor();
@@ -148,7 +198,7 @@ class Crowdin {
       try {
         return _extractor.getText(
           locale,
-          _arb!,
+          _withRealTimeUpdates ? crowdinPreviewManager.previewArb : _arb!,
           key,
           args,
         );
