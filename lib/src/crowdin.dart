@@ -47,6 +47,8 @@ class Crowdin {
 
   static bool _withRealTimeUpdates = false;
 
+  static bool get withRealTimeUpdates => _withRealTimeUpdates;
+
   @visibleForTesting
   static set withRealTimeUpdates(bool value) {
     _withRealTimeUpdates = value;
@@ -96,6 +98,9 @@ class Crowdin {
       _mappingFilePaths = (manifest['mapping'] as List<dynamic>)
           .map((e) => e.toString())
           .toList();
+    } else {
+      CrowdinLogger.printLog(
+          "something went wrong. Crowdin couldn't download manifest file for your project");
     }
 
     _withRealTimeUpdates = withRealTimeUpdates;
@@ -128,7 +133,8 @@ class Crowdin {
         if (distribution != null) {
           _arb = AppResourceBundle(distribution);
           if (_withRealTimeUpdates) {
-            crowdinPreviewManager.setPreviewArb(_arb!);
+            crowdinPreviewManager.setPreviewArb(
+                _arb!); // set default translations for real-time preview
           }
           return;
         }

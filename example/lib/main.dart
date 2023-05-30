@@ -34,7 +34,8 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  Locale currentLocale = Locale(Intl.shortLocale(Intl.systemLocale));
+  Locale currentLocale = Locale(Intl.shortLocale(Intl
+      .systemLocale)); //use system locale as default or provide one from your project, e.g. Locale('en')
   bool isLoading = true;
 
   @override

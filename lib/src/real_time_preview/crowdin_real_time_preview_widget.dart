@@ -23,9 +23,11 @@ class _CrowdinRealTimePreviewWidgetState
   @override
   void initState() {
     super.initState();
-    Crowdin.crowdinPreviewManager.init((key) {
-      _rebuildTree(key);
-    });
+    if (Crowdin.withRealTimeUpdates) {
+      Crowdin.crowdinPreviewManager.init((key) {
+        _rebuildTree(key);
+      });
+    }
   }
 
   void _rebuildTree(String textKey) {
