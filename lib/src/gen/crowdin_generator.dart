@@ -7,8 +7,6 @@ import 'package:path/path.dart' as path;
 import '../common/gen_l10n_types.dart';
 import 'l10n_config.dart';
 
-///todo refactor to reuse getKeys in real-time preview
-
 class CrowdinGenerator {
   static Future<void> generate() async {
     final String projectDirectory = Directory.current.path;

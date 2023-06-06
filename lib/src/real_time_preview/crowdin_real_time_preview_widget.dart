@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 
 import '../../crowdin_sdk.dart';
 
+/// Wrap your app root widget with the CrowdinRealTimePreviewWidget to provide UI updates after
+/// translation updates receiving
 class CrowdinRealTimePreviewWidget extends StatefulWidget {
   final Widget child;
 
@@ -30,6 +32,7 @@ class _CrowdinRealTimePreviewWidgetState
     }
   }
 
+  // rebuild every widget in the tree without calling setState()
   void _rebuildTree(String textKey) {
     (context as Element).visitChildElements(
         (element) => _elementRebuildVisitor(element, textKey));
