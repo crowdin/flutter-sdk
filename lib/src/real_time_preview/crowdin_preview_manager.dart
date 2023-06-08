@@ -39,6 +39,7 @@ class CrowdinPreviewManager {
 
   late AppResourceBundle previewArb;
 
+  // set preview arb when locale changes
   void setPreviewArb(AppResourceBundle distributionArb) {
     previewArb = distributionArb;
 
@@ -63,6 +64,7 @@ class CrowdinPreviewManager {
     }
   }
 
+  // sort only needed key-value pairs
   Map<String, String> getFinalMappingData(
       Map<String, dynamic> mappingData, Map<String, String> currentMap) {
     var data = mappingData;
@@ -136,6 +138,7 @@ class CrowdinPreviewManager {
     }
   }
 
+  // update preview arb when translation change received
   @visibleForTesting
   void updatePreviewArb({
     required String id,

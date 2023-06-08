@@ -45,6 +45,7 @@ class Crowdin {
 
   static final _api = CrowdinApi();
 
+  /// if _withRealTimeUpdates = true, real-time preview is enabled and authentication is required
   static bool _withRealTimeUpdates = false;
 
   static bool get withRealTimeUpdates => _withRealTimeUpdates;
@@ -54,8 +55,10 @@ class Crowdin {
     _withRealTimeUpdates = value;
   }
 
+  /// contains configuration for real-time preview functionality
   static late CrowdinPreviewManager crowdinPreviewManager;
 
+  /// contains all parameters needed for OAuth authentication
   static late CrowdinAuthConfig? _authConfig;
 
   /// Crowdin SDK initialization
