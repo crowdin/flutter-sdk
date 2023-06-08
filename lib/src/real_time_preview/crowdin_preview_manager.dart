@@ -79,6 +79,7 @@ class CrowdinPreviewManager {
   Future<void> authenticate() async {
     _auth.authenticate();
   }
+
   Future<void> _onAuthenticated(oauth2.Credentials credentials) async {
     _metadata = await _getMetadata(credentials: credentials);
     _connectWebSocket(credentials: credentials);
