@@ -3,6 +3,10 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## 0.3.1
+
+* Update dependencies and add code comments
+
 ## 0.3.0
 
 * Real-Time Preview feature
