@@ -16,6 +16,16 @@ var testArb = {
       "thing": {"example": "wombat"}
     }
   },
+  "variable_nThings":
+      "{variable} {count,plural, =0{no {thing}s} other{{count} {thing}s}}",
+  "@variable_nThings": {
+    "description": "A plural message with an additional parameter",
+    "placeholders": {
+      "count": {"type": "int"},
+      "thing": {"type": "String"},
+      "variable": {"type": "String"}
+    }
+  },
   "counter": "Counter: {value}",
   "@counter": {
     "description": "A message with a formatted int parameter",

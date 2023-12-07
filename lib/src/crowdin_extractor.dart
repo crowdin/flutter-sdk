@@ -145,13 +145,15 @@ class Extractor {
         (extracted, placeholder) => extracted?.replaceAll(
             '#${placeholder.name}#', '{${placeholder.name}}'),
       );
+      String? formattedMessage = formattedPlural != null
+          ? messageValue.replaceRange(messageValue.indexOf('{'),
+              messageValue.lastIndexOf('}') + 1, formattedPlural)
+          : formattedPlural;
 
-      String formattedMessage = messageValue.replaceRange(messageValue.indexOf('{'), messageValue.lastIndexOf('}')+1, formattedPlural ?? '');
       for (final placeholder in message.placeholders.values) {
-        formattedMessage = formattedMessage.replaceAll(
+        formattedMessage = formattedMessage?.replaceAll(
             '#${placeholder.name}#', '{${placeholder.name}}');
       }
-
       return findPlaceholders(locale, message, formattedMessage, args);
     });
 
