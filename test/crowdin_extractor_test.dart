@@ -52,6 +52,42 @@ void main() {
       expect(result, "{count,plural, =0{no nulls} other{null nulls}}");
     });
 
+    test('get correct text for message with plural', () {
+      var thing = "wombat";
+      var result1 = extractor.getText('en', AppResourceBundle(testArb),
+          'nThings', {'count': 0, 'thing': thing});
+      expect(result1, "no wombats");
+      var result2 = extractor.getText('en', AppResourceBundle(testArb),
+          'nThings', {'count': 1, 'thing': thing});
+      expect(result2, "1 wombats");
+      var result3 = extractor.getText('en', AppResourceBundle(testArb),
+          'nThings', {'count': 5, 'thing': thing});
+      expect(result3, "5 wombats");
+    });
+
+    test('get correct text for message with variable and plural', () {
+      var variable = "Some text";
+      var thing = "wombat";
+      var result1 = extractor.getText(
+          'en',
+          AppResourceBundle(testArb),
+          'variable_nThings',
+          {'count': 0, 'variable': variable, 'thing': thing});
+      expect(result1, "Some text no wombats");
+      var result2 = extractor.getText(
+          'en',
+          AppResourceBundle(testArb),
+          'variable_nThings',
+          {'count': 1, 'variable': variable, 'thing': thing});
+      expect(result2, "Some text 1 wombats");
+      var result3 = extractor.getText(
+          'en',
+          AppResourceBundle(testArb),
+          'variable_nThings',
+          {'count': 4, 'variable': variable, 'thing': thing});
+      expect(result3, "Some text 4 wombats");
+    });
+
     test('should return message.value for message without placeholders', () {
       Message message = Message(AppResourceBundle(testArb), 'example', false);
       var result = extractor.findPlaceholders('en', message, message.value);
