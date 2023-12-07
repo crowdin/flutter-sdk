@@ -140,11 +140,18 @@ class Extractor {
 
     final extractedPlurals = List.generate(pluralIds.length, (i) {
       final extracted = findPlural(messageValue, pluralIds[i]);
-      var formattedMessage = message.placeholders.values.fold<String?>(
+      var formattedPlural = message.placeholders.values.fold<String?>(
         extracted,
         (extracted, placeholder) => extracted?.replaceAll(
             '#${placeholder.name}#', '{${placeholder.name}}'),
       );
+
+      String formattedMessage = messageValue.replaceRange(messageValue.indexOf('{'), messageValue.lastIndexOf('}')+1, formattedPlural ?? '');
+      for (final placeholder in message.placeholders.values) {
+        formattedMessage = formattedMessage.replaceAll(
+            '#${placeholder.name}#', '{${placeholder.name}}');
+      }
+
       return findPlaceholders(locale, message, formattedMessage, args);
     });
 
@@ -163,20 +170,20 @@ class Extractor {
 }
 
 @visibleForTesting
-String? findPlural(String formattedMessage, String pluralKey) {
-  final startIndex = formattedMessage.indexOf(pluralKey);
+String? findPlural(String messageValue, String pluralKey) {
+  final startIndex = messageValue.indexOf(pluralKey);
 
   /// Returns -1 if no match is found
   if (startIndex == -1) {
     return null;
   }
-  final openingBraceIndex = formattedMessage.indexOf('{', startIndex);
+  final openingBraceIndex = messageValue.indexOf('{', startIndex);
   if (openingBraceIndex == -1) {
     return null;
   }
-  final closingBraceIndex = formattedMessage.indexOf('}', openingBraceIndex);
+  final closingBraceIndex = messageValue.indexOf('}', openingBraceIndex);
   if (closingBraceIndex == -1) {
     return null;
   }
-  return formattedMessage.substring(openingBraceIndex + 1, closingBraceIndex);
+  return messageValue.substring(openingBraceIndex + 1, closingBraceIndex);
 }
