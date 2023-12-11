@@ -2,6 +2,8 @@ import 'dart:convert';
 
 import 'package:http/http.dart' as http;
 
+import 'crowdin_logger.dart';
+
 class CrowdinApi {
   Future<Map<String, dynamic>?> loadTranslations({
     required String distributionHash,
@@ -14,7 +16,9 @@ class CrowdinApi {
       Map<String, dynamic> responseDecoded =
           jsonDecode(utf8.decode(response.bodyBytes));
       return responseDecoded;
-    } catch (_) {
+    } catch (ex) {
+      CrowdinLogger.printLog(
+          "something went wrong. Crowdin couldn't download mapping file. Next exception occurred: $ex");
       return null;
     }
   }
@@ -30,7 +34,9 @@ class CrowdinApi {
       Map<String, dynamic> responseDecoded =
           jsonDecode(utf8.decode(response.bodyBytes));
       return responseDecoded;
-    } catch (_) {
+    } catch (ex) {
+      CrowdinLogger.printLog(
+          "something went wrong. Crowdin couldn't download manifest file. Next exception occurred: $ex");
       return null;
     }
   }
@@ -46,6 +52,8 @@ class CrowdinApi {
           jsonDecode(utf8.decode(response.bodyBytes));
       return responseDecoded;
     } catch (ex) {
+      CrowdinLogger.printLog(
+          "something went wrong. Crowdin couldn't download mapping file. Next exception occurred: $ex");
       rethrow;
     }
   }
@@ -66,6 +74,8 @@ class CrowdinApi {
           jsonDecode(utf8.decode(response.bodyBytes));
       return responseDecoded;
     } catch (ex) {
+      CrowdinLogger.printLog(
+          "something went wrong. Crowdin couldn't download metadata file. Next exception occurred: $ex");
       return null;
     }
   }
