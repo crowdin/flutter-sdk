@@ -101,9 +101,6 @@ class Crowdin {
       _mappingFilePaths = (manifest['mapping'] as List<dynamic>)
           .map((e) => e.toString())
           .toList();
-    } else {
-      CrowdinLogger.printLog(
-          "something went wrong. Crowdin couldn't download manifest file for your project");
     }
 
     _withRealTimeUpdates = withRealTimeUpdates;
