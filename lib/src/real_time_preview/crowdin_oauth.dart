@@ -33,7 +33,7 @@ class CrowdinOauth {
 
     var authorizationUrl = grant.getAuthorizationUrl(
         Uri.parse(config.redirectUri),
-        scopes: ['project', 'tm']);
+        scopes: ['project.translation']);
 
     _sub = uriLinkStream.listen((Uri? uri) async {
       if (uri != null && uri.toString().startsWith(config.redirectUri)) {

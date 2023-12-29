@@ -186,6 +186,7 @@ Widget build(BuildContext context) {
 
 For [OAuth App](https://support.crowdin.com/creating-oauth-app/) the redirect URL should match your app scheme.
 For example, for scheme `<data android:scheme="crowdintest" />`, redirect URL in Crowdin should be `crowdintest://`.
+Specify `project.translation` scope for the OAuth app on Crowdin.
 
 For Android app, declare the following intent filter in `android/app/src/main/AndroidManifest.xml`:
 
