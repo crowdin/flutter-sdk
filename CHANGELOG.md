@@ -3,6 +3,10 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## 0.5.1
+
+* fix: pass organizationName to the getMetadata method
+
 ## 0.5.0
 
 * Set more precise scopes required for the OAuth application
