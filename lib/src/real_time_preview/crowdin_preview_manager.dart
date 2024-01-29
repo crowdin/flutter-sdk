@@ -90,6 +90,7 @@ class CrowdinPreviewManager {
     var metadataResp = await _api.getMetadata(
       accessToken: credentials.accessToken,
       distributionHash: distributionHash,
+      organizationName: config.organizationName,
     );
     if (metadataResp != null) {
       var metadata = _CrowdinMetadata.fromJson(metadataResp);
