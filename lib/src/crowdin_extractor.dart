@@ -1,7 +1,9 @@
 import 'package:flutter/foundation.dart';
 import 'package:intl/intl.dart' as intl;
+import 'package:crowdin_sdk/src/common/message_parser.dart';
 
 import 'common/gen_l10n_types.dart';
+import 'common/localizations_utils.dart';
 
 ///finds message parameters
 class Extractor {
@@ -49,12 +51,29 @@ class Extractor {
           placeholder: placeholder,
           placeholderValue: value,
         );
+      } else if (placeholder.isSelect) {
+        result = _findSelection(message, locale, value);
+        return result;
       } else {
         result = value.toString();
       }
       buffer = buffer?.replaceAll('{${placeholder.name}}', result);
     }
     return buffer;
+  }
+
+  String _findSelection(Message message, String locale, String select) {
+    final node =
+        message.parsedMessages[LocaleInfo.fromString(locale)]?.children[0];
+
+    final Node selectParts = node!.children[5];
+    final Node selectedPart = selectParts.children.firstWhere(
+        (element) => element.children[0].value == select,
+        orElse: () => selectParts.children
+            .firstWhere((element) => element.children[0].value == 'other'));
+    final String selectedValue =
+        selectedPart.children[2].children[0].value ?? 'other';
+    return selectedValue;
   }
 
   String _findNumberPlaceholder({

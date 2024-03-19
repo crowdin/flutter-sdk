@@ -118,4 +118,25 @@ void main() {
       expect(result, "Counter: $counterValue");
     });
   });
+
+  group('CrowdinFormatter select tests', () {
+    Extractor extractor = Extractor();
+    Message message = Message(AppResourceBundle(testArb), 'select_test', false);
+
+    test('should return proper values for selections', () {
+      var result1 = extractor
+          .findPlaceholders('en', message, message.value, {'choice': 'first'});
+      expect(result1, 'First selection');
+
+      var result2 = extractor
+          .findPlaceholders('en', message, message.value, {'choice': 'second'});
+      expect(result2, 'Second selection');
+    });
+
+    test('should return "other" value for not existing selection', () {
+      var result = extractor.findPlaceholders(
+          'en', message, message.value, {'choice': 'not existing choice'});
+      expect(result, 'No selection chosen');
+    });
+  });
 }

@@ -367,29 +367,27 @@ class Message {
         placeholders = _placeholders(
             templateBundle.resources, resourceId, isResourceAttributeRequired),
         messages = <LocaleInfo, String?>{},
-        parsedMessages = <LocaleInfo, Node?>{},
         _pluralMatch =
-            _pluralRE.firstMatch(_value(templateBundle.resources, resourceId));
-
-  // {
-  //   // Filenames for error handling.
-  //   // final Map<LocaleInfo, String> filenames = <LocaleInfo, String>{};
-  //   // Collect all translations from allBundles and parse them.
-  //   for (final AppResourceBundle bundle in allBundles.bundles) {
-  //     // filenames[bundle.locale] = bundle.file.basename;
-  //     final String? translation = bundle.translationFor(resourceId);
-  //     messages[bundle.locale] = translation;
-  //     parsedMessages[bundle.locale] = translation == null ? null : Parser(
-  //         resourceId,
-  //         bundle.file.basename,
-  //         translation,
-  //         useEscaping: useEscaping,
-  //         // logger: logger
-  //     ).parse();
-  //   }
-  //   // Infer the placeholders
-  //   _inferPlaceholders(filenames);
-  // }
+            _pluralRE.firstMatch(_value(templateBundle.resources, resourceId)),
+        parsedMessages = <LocaleInfo, Node?>{} {
+    // Filenames for error handling.
+    final Map<LocaleInfo, String> filenames = <LocaleInfo, String>{};
+    // Collect all translations from allBundles and parse them.
+    // for (final AppResourceBundle bundle in allBundles.bundles) {
+    // filenames[bundle.locale] = bundle.file.basename;
+    final String? translation = templateBundle.translationFor(resourceId);
+    messages[templateBundle.locale] = translation;
+    parsedMessages[templateBundle.locale] = translation == null
+        ? null
+        : Parser(
+            resourceId,
+            'OTA data',
+            translation,
+            useEscaping: useEscaping,
+          ).parse();
+    // Infer the placeholders
+    _inferPlaceholders(filenames);
+  }
 
   final String resourceId;
   final String value;
@@ -505,6 +503,45 @@ class Message {
             placeholderName, Placeholder(resourceId, placeholderName, value));
       }),
     );
+  }
+
+// Using parsed translations, attempt to infer types of placeholders used by plurals and selects.
+// For undeclared placeholders, create a new placeholder.
+  void _inferPlaceholders(Map<LocaleInfo, String> filenames) {
+    // We keep the undeclared placeholders separate so that we can sort them alphabetically afterwards.
+    final Map<String, Placeholder> undeclaredPlaceholders =
+        <String, Placeholder>{};
+    // Helper for getting placeholder by name.
+    Placeholder? getPlaceholder(String name) =>
+        placeholders[name] ?? undeclaredPlaceholders[name];
+    for (final LocaleInfo locale in parsedMessages.keys) {
+      if (parsedMessages[locale] == null) {
+        continue;
+      }
+      final List<Node> traversalStack = <Node>[parsedMessages[locale]!];
+      while (traversalStack.isNotEmpty) {
+        final Node node = traversalStack.removeLast();
+        if (<ST>[
+          ST.placeholderExpr,
+          ST.pluralExpr,
+          ST.selectExpr,
+        ].contains(node.type)) {
+          final String identifier = node.children[1].value!;
+          Placeholder? placeholder = getPlaceholder(identifier);
+          if (placeholder == null) {
+            placeholder =
+                Placeholder(resourceId, identifier, <String, Object?>{});
+            undeclaredPlaceholders[identifier] = placeholder;
+          }
+          if (node.type == ST.pluralExpr) {
+            placeholder.isPlural = true;
+          } else if (node.type == ST.selectExpr) {
+            placeholder.isSelect = true;
+          }
+        }
+        traversalStack.addAll(node.children);
+      }
+    }
   }
 }
 
