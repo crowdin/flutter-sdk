@@ -94,7 +94,7 @@ class CrowdinLocalization extends ${l10nConfig.outputClass} {
     buffer.writeln('');
   }
 
-  buffer.writeln(''' 
+  buffer.writeln('''
 }
 
 class _CrowdinLocalizationsDelegate extends LocalizationsDelegate<${l10nConfig.outputClass}> {
