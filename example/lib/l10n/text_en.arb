@@ -35,5 +35,13 @@
         "format": "compactLong"
       }
     }
+  },
+  "roamingChoice": "{choice, select, month{_For 1 month} unlimited{_Unlimited} deactivate{_Deactivate} other {}}",
+  "@roamingChoice": {
+    "placeholders": {
+      "choice": {
+        "type": "String"
+      }
+    }
   }
 }

@@ -32,6 +32,13 @@ var testArb = {
     "placeholders": {
       "value": {"type": "int", "format": "compactLong"}
     }
+  },
+  "select_test":
+      "{choice, select, first{First selection} second{Second selection} other{No selection chosen}}",
+  "@select_test": {
+    "placeholders": {
+      "choice": {"type": "String"}
+    }
   }
 };
 
@@ -60,5 +67,5 @@ var testPreviewArb = {
     "placeholders": {
       "value": {"type": "int", "format": "compactLong"}
     }
-  }
+  },
 };

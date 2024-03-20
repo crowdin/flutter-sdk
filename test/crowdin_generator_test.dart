@@ -10,8 +10,14 @@ void main() {
   group('findPlaceholders test', () {
     test('should return list of translation keys', () {
       var keys = CrowdinGenerator.getKeys(testArb);
-      expect(
-          keys, ['example', 'hello', 'nThings', 'variable_nThings', 'counter']);
+      expect(keys, [
+        'example',
+        'hello',
+        'nThings',
+        'variable_nThings',
+        'counter',
+        'select_test',
+      ]);
     });
 
     test('should return list of method parameters', () {
