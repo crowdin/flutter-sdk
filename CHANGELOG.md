@@ -3,6 +3,10 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## 0.6.1
+
+* fix: Pass static analysis. crowdin_generator.dart format
+
 ## 0.6.0
 
 * fix: Select options in Flutter ARB translation languages not working when using CDN
