@@ -14,7 +14,7 @@ jobs:
   test:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
       - uses: subosito/flutter-action@v2
         with:
@@ -30,7 +30,7 @@ jobs:
     runs-on: ubuntu-latest
     needs: test
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
       - uses: subosito/flutter-action@v2
         with:
@@ -41,7 +41,7 @@ jobs:
       - run: flutter pub get
       - run: flutter test --coverage --machine > test-results.json
 
-      - uses: actions/upload-artifact@v3
+      - uses: actions/upload-artifact@v4
         with:
           name: test-results
           path: test-results.json
@@ -55,14 +55,14 @@ jobs:
           reporter: dart-json
 
       - name: Upload coverage report to Codecov
-        uses: codecov/codecov-action@v3
+        uses: codecov/codecov-action@v4
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
 
   android-example:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
       - uses: subosito/flutter-action@v2
         with:
@@ -81,7 +81,7 @@ jobs:
       - run: flutter build apk
         working-directory: example
 
-      - uses: actions/upload-artifact@v3
+      - uses: actions/upload-artifact@v4
         with:
           name: artifacts
           path: example/build/app/outputs/flutter-apk/app-release.apk
