@@ -1,7 +1,7 @@
 import 'dart:async';
 
+import 'package:app_links/app_links.dart';
 import 'package:oauth2/oauth2.dart' as oauth2;
-import 'package:uni_links/uni_links.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import 'crowdin_auth_config.dart';
@@ -30,12 +30,13 @@ class CrowdinOauth {
       secret: config.clientSecret,
       basicAuth: false,
     );
+    final _uriLinkStream = AppLinks().uriLinkStream;
 
     var authorizationUrl = grant.getAuthorizationUrl(
         Uri.parse(config.redirectUri),
         scopes: ['project.translation']);
 
-    _sub = uriLinkStream.listen((Uri? uri) async {
+    _sub = _uriLinkStream.listen((Uri? uri) async {
       if (uri != null && uri.toString().startsWith(config.redirectUri)) {
         var client =
             await grant.handleAuthorizationResponse(uri.queryParameters);

@@ -118,7 +118,7 @@ class CrowdinPreviewManager {
       },
       onError: (e) {
         CrowdinException(
-            'Something went wrong during receiving translation ( for real time preview');
+            'Something went wrong during receiving translation for real time preview');
       },
     );
 
