@@ -226,16 +226,22 @@ bool canUseCachedTranslation({
 
 Future<bool> _isConnectionTypeAllowed(
     InternetConnectionType connectionType) async {
-  var connectionStatus = await Connectivity().checkConnectivity();
+  var connectionResult = await Connectivity().checkConnectivity();
+  //ignore: unnecessary_type_check
+  final List<ConnectivityResult> connectionStatus = connectionResult is Iterable
+      ? [...connectionResult as Iterable]
+      //ignore: unnecessary_cast
+      : [connectionResult as ConnectivityResult];
+
   switch (connectionType) {
     case InternetConnectionType.any:
-      return connectionStatus != ConnectivityResult.none;
+      return !connectionStatus.contains(ConnectivityResult.none);
     case InternetConnectionType.wifi:
-      return connectionStatus == ConnectivityResult.wifi;
+      return connectionStatus.contains(ConnectivityResult.wifi);
     case InternetConnectionType.mobileData:
-      return connectionStatus == ConnectivityResult.mobile;
+      return connectionStatus.contains(ConnectivityResult.mobile);
     case InternetConnectionType.ethernet:
-      return connectionStatus == ConnectivityResult.ethernet;
+      return connectionStatus.contains(ConnectivityResult.ethernet);
   }
 }
 
