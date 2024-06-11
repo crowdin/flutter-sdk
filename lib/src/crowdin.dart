@@ -146,7 +146,8 @@ class Crowdin {
 
       distribution = await _api.loadTranslations(
           path: _distributionsMap[mappedLocale.toLanguageTag()][0] as String,
-          distributionHash: _distributionHash);
+          distributionHash: _distributionHash,
+          timeStamp: _timestamp.toString());
       if (distribution != null) {
         /// todo remove when distribution file locale will be fixed
         distribution['@@locale'] = locale.toString();

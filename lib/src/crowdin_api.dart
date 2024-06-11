@@ -7,11 +7,13 @@ import 'crowdin_logger.dart';
 class CrowdinApi {
   Future<Map<String, dynamic>?> loadTranslations({
     required String distributionHash,
+    required String timeStamp,
     String? path,
   }) async {
     try {
       var response = await http.get(
-        Uri.parse('https://distributions.crowdin.net/$distributionHash$path'),
+        Uri.https('distributions.crowdin.net', '/$distributionHash$path',
+            {'timestamp': timeStamp}),
       );
       Map<String, dynamic> responseDecoded =
           jsonDecode(utf8.decode(response.bodyBytes));
