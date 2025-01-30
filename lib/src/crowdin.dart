@@ -142,7 +142,10 @@ class Crowdin {
 
       // map locales to avoid problems with different language codes on Crowdin side and supported
       // by GlobalMaterialLocalizations class for some countries
-      Locale mappedLocale = CrowdinMapper.mapLocale(locale);
+      Locale mappedLocale =
+          _distributionsMap.keys.contains(locale.toLanguageTag())
+              ? locale
+              : CrowdinMapper.mapLocale(locale);
 
       distribution = await _api.loadTranslations(
           path: _distributionsMap[mappedLocale.toLanguageTag()][0] as String,
