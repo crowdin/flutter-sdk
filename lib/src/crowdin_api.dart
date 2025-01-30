@@ -81,4 +81,33 @@ class CrowdinApi {
       return null;
     }
   }
+
+  Future<String?> getWebsocketTicket({
+    required String accessToken,
+    required String event,
+    String? organizationName,
+  }) async {
+    try {
+      String organizationDomain =
+          organizationName != null ? '$organizationName.' : '';
+      var response = await http.post(
+          Uri.parse(
+              'https://${organizationDomain}api.crowdin.com/api/v2/user/websocket-ticket'),
+          headers: {
+            'Authorization': 'Bearer $accessToken',
+            'Content-Type': 'application/json'
+          },
+          body: jsonEncode({
+            "event": event,
+            "context": {"mode": "translate"}
+          }));
+      Map<String, dynamic> responseDecoded =
+          jsonDecode(utf8.decode(response.bodyBytes));
+      return responseDecoded['data']['ticket'];
+    } catch (e) {
+      CrowdinLogger.printLog(
+          "something went wrong. Crowdin couldn't download websocket ticket file. Next exception occurred: $e");
+      return null;
+    }
+  }
 }
