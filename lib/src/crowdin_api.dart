@@ -106,7 +106,7 @@ class CrowdinApi {
       return responseDecoded['data']['ticket'];
     } catch (e) {
       CrowdinLogger.printLog(
-          "something went wrong. Crowdin couldn't download websocket ticket file. Next exception occurred: $e");
+          "Something went wrong. Crowdin couldn't get the WebSocket ticket. The following exception was thrown:: $e");
       return null;
     }
   }

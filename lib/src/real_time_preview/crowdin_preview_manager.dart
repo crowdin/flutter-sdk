@@ -142,7 +142,7 @@ class CrowdinPreviewManager {
     String langCode = previewArb.locale.languageCode;
     if (_metadata == null) {
       CrowdinLogger.printLog(
-          'Something went wrong during subscribing to translations for real time preview. Metadata is not provided');
+          'Something went wrong when subscribing to translations for real-time preview. Metadata is not provided');
     } else {
       _CrowdinMetadata metadata = _metadata!;
       final webSocketTicketEvent =
@@ -160,7 +160,7 @@ class CrowdinPreviewManager {
           _channel.sink.add(data);
         } else {
           CrowdinLogger.printLog(
-              'Something went wrong during subscribing to translations for real time preview. Websocket ticket is not provided');
+              'Something went wrong when subscribing to real-time preview translations. WebSocket ticket is not provided');
         }
       }
     }
