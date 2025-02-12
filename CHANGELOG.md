@@ -3,6 +3,10 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## 0.6.4
+
+* fix: Spanish Language not handling properly within the SDK (es-ES)
+
 ## 0.6.3
 
 * fix: timestamp query for translation request
