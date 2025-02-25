@@ -3,6 +3,11 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## 0.7.0
+
+* feat: websocket security improvement
+* fix: intl update to 0.20.2 max
+
 ## 0.6.4
 
 * fix: Spanish Language not handling properly within the SDK (es-ES)
