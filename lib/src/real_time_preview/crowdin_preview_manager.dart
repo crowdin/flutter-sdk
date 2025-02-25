@@ -4,6 +4,7 @@ import 'dart:convert';
 import 'package:crowdin_sdk/crowdin_sdk.dart';
 import 'package:crowdin_sdk/src/common/gen_l10n_types.dart';
 import 'package:crowdin_sdk/src/crowdin_api.dart';
+import 'package:crowdin_sdk/src/crowdin_logger.dart';
 import 'package:crowdin_sdk/src/exceptions/crowdin_exceptions.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:oauth2/oauth2.dart' as oauth2;
@@ -24,6 +25,7 @@ class CrowdinPreviewManager {
 
   late CrowdinOauth _auth;
   late CrowdinApi _api;
+  late oauth2.Credentials _credentials;
 
   late final WebSocketChannel _channel;
 
@@ -44,7 +46,7 @@ class CrowdinPreviewManager {
     previewArb = distributionArb;
 
     if (_metadata != null) {
-      _subscribeToAllTranslations(_metadata!);
+      _subscribeToAllTranslations();
     }
   }
 
@@ -81,12 +83,12 @@ class CrowdinPreviewManager {
   }
 
   Future<void> _onAuthenticated(oauth2.Credentials credentials) async {
-    _metadata = await _getMetadata(credentials: credentials);
+    _credentials = credentials;
+    await _getMetadata(credentials: credentials);
     _connectWebSocket(credentials: credentials);
   }
 
-  Future<_CrowdinMetadata> _getMetadata(
-      {required oauth2.Credentials credentials}) async {
+  Future<void> _getMetadata({required oauth2.Credentials credentials}) async {
     var metadataResp = await _api.getMetadata(
       accessToken: credentials.accessToken,
       distributionHash: distributionHash,
@@ -94,7 +96,7 @@ class CrowdinPreviewManager {
     );
     if (metadataResp != null) {
       var metadata = _CrowdinMetadata.fromJson(metadataResp);
-      return metadata;
+      _metadata = metadata;
     } else {
       throw CrowdinException(
           "Can't receive metadata. Real-time preview will be unavailable");
@@ -122,20 +124,45 @@ class CrowdinPreviewManager {
       },
     );
 
-    if (_metadata != null) {
-      _subscribeToAllTranslations(_metadata!);
-    }
+    await _subscribeToAllTranslations();
   }
 
-  void _subscribeToAllTranslations(_CrowdinMetadata metadata) {
+  Future<String?> _getWebsocketTicket({
+    required oauth2.Credentials credentials,
+    required String event,
+  }) async {
+    return _api.getWebsocketTicket(
+      accessToken: credentials.accessToken,
+      event: event,
+      organizationName: config.organizationName,
+    );
+  }
+
+  Future<void> _subscribeToAllTranslations() async {
     String langCode = previewArb.locale.languageCode;
-    for (var id in finalMapping.values) {
-      var data = jsonEncode({
-        'action': 'subscribe',
-        'event':
-            'update-draft:${metadata.wsHash}:${metadata.projectId}:${metadata.userId}:$langCode:$id',
-      });
-      _channel.sink.add(data);
+    if (_metadata == null) {
+      CrowdinLogger.printLog(
+          'Something went wrong when subscribing to translations for real-time preview. Metadata is not provided');
+    } else {
+      _CrowdinMetadata metadata = _metadata!;
+      final webSocketTicketEvent =
+          'update-draft:${metadata.wsHash}:${metadata.projectId}:${metadata.userId}';
+      final ticket = await _getWebsocketTicket(
+          credentials: _credentials, event: webSocketTicketEvent);
+      for (var id in finalMapping.values) {
+        final String event = '$webSocketTicketEvent:$langCode:$id';
+        if (ticket != null) {
+          var data = jsonEncode({
+            'action': 'subscribe',
+            'ticket': ticket,
+            'event': event,
+          });
+          _channel.sink.add(data);
+        } else {
+          CrowdinLogger.printLog(
+              'Something went wrong when subscribing to real-time preview translations. WebSocket ticket is not provided');
+        }
+      }
     }
   }
 
