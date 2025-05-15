@@ -11,6 +11,16 @@ class CrowdinMapper {
         : locale;
   }
 
+  /// Maps a lanugage code to a [Locale] object.
+  /// Reference https://support.crowdin.com/developer/language-codes/
+  static Locale localeFromLanguageCode(String languageCode) {
+    final parts = languageCode.split('-');
+    final lang = parts.first;
+    final country = parts.length > 1 ? parts.last : null;
+    return mapLocale(
+        Locale.fromSubtags(languageCode: lang, countryCode: country));
+  }
+
   // _localesMap contains language codes that is different on Crowdin and supported by GlobalMaterialLocalizations class
   static const Map<String, String> _localesMap = {
     'hy': 'hy-AM', // Armenian
