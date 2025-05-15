@@ -50,8 +50,10 @@ class Crowdin {
 
   static bool get withRealTimeUpdates => _withRealTimeUpdates;
 
+  static Map<String, dynamic>? _manifest;
+
   /// contains the manifest if it has been fetched before
-  static Map<String, dynamic>? manifest;
+  static Map<String, dynamic>? get manifest => _manifest;
 
   @visibleForTesting
   static set withRealTimeUpdates(bool value) {
@@ -96,7 +98,7 @@ class Crowdin {
     var manifest = await _api.getManifest(distributionHash: _distributionHash);
 
     if (manifest != null) {
-      Crowdin.manifest = manifest;
+      _manifest = manifest;
       _distributionsMap = manifest['content'];
 
       /// fetch manifest file to check if new updates available
