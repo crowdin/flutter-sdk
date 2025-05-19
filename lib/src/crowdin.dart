@@ -124,7 +124,6 @@ class Crowdin {
     }
   }
 
-  @visibleForTesting
   static void checkManifestForLocale(Locale locale) {
     if (manifest == null) {
       throw CrowdinException(
