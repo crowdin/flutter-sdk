@@ -139,10 +139,10 @@ void main() {
           isA<void>());
     });
     test(
-        'should succeed and fallback on language code only if locale with both language and country code is not found',
+        'should throw if country variant of locale is not supported according to manifest',
         () {
       expect(() => Crowdin.checkManifestForLocale(const Locale('en', 'US')),
-          isA<void>());
+          throwsA(isA<CrowdinException>()));
     });
     test('should throw if manifest not set', () {
       Crowdin.manifest = null;

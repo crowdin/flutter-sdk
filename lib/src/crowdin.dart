@@ -141,10 +141,8 @@ class Crowdin {
 
     allLanguages.firstWhere(
         (l) => l.toLanguageTag() == mappedLocale.toLanguageTag(),
-        orElse: () => allLanguages.firstWhere(
-            (l2) => l2.languageCode == mappedLocale.languageCode,
-            orElse: () => throw CrowdinException(
-                'Locale ${locale.toLanguageTag()} is not supported for this Crowdin project.')));
+        orElse: () => throw CrowdinException(
+            'Locale ${locale.toLanguageTag()} is not a target language for this Crowdin project.'));
   }
 
   /// Load translations from Crowdin for a specific locale
