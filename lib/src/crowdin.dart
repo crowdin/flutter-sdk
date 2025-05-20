@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:crowdin_sdk/src/crowdin_api.dart';
+import 'package:crowdin_sdk/src/crowdin_request_limiter.dart';
 import 'package:crowdin_sdk/src/crowdin_storage.dart';
 import 'package:crowdin_sdk/src/crowdin_extractor.dart';
 import 'package:crowdin_sdk/src/crowdin_mapper.dart';
@@ -71,7 +72,9 @@ class Crowdin {
   }) async {
     await _storage.init();
 
-    _timestampCached = _storage.getTranslationTimestampFromStorage();
+    CrowdinRequestLimiter().init(_storage);
+
+    _timestampCached = _storage.getTranslationTimestamp();
 
     _distributionHash = distributionHash;
     CrowdinLogger.printLog('distributionHash $_distributionHash');
@@ -116,7 +119,8 @@ class Crowdin {
   static Future<void> loadTranslations(Locale locale) async {
     Map<String, dynamic>? distribution;
 
-    if (!await _isConnectionTypeAllowed(_connectionType)) {
+    if (!await _isConnectionTypeAllowed(_connectionType) ||
+        CrowdinRequestLimiter().pauseRequests) {
       _arb = null;
       return; // return from function if connection type is forbidden for downloading translations
     }
@@ -129,7 +133,7 @@ class Crowdin {
 
     try {
       if (!canUpdate) {
-        distribution = _storage.getTranslationFromStorage(locale);
+        distribution = _storage.getTranslation(locale);
         if (distribution != null) {
           _arb = AppResourceBundle(distribution);
           if (_withRealTimeUpdates) {
@@ -155,7 +159,7 @@ class Crowdin {
         /// todo remove when distribution file locale will be fixed
         distribution['@@locale'] = locale.toString();
 
-        _storage.setDistributionToStorage(
+        _storage.setDistribution(
           jsonEncode(distribution),
         );
         _arb = AppResourceBundle(distribution);
@@ -166,7 +170,7 @@ class Crowdin {
         }
 
         if (_timestamp != null && _timestamp != _timestampCached) {
-          _storage.setTranslationTimeStampStorage(_timestamp!);
+          _storage.setTranslationTimeStamp(_timestamp!);
           _timestampCached = _timestamp;
         }
       }
