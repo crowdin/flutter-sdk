@@ -6,6 +6,7 @@ import 'package:crowdin_sdk/src/crowdin_request_limiter.dart';
 import 'package:crowdin_sdk/src/crowdin_storage.dart';
 import 'package:crowdin_sdk/src/crowdin_extractor.dart';
 import 'package:crowdin_sdk/src/crowdin_mapper.dart';
+import 'package:crowdin_sdk/src/exceptions/crowdin_exceptions.dart';
 import 'package:crowdin_sdk/src/real_time_preview/crowdin_preview_manager.dart';
 import 'package:flutter/widgets.dart';
 
@@ -50,6 +51,16 @@ class Crowdin {
   static bool _withRealTimeUpdates = false;
 
   static bool get withRealTimeUpdates => _withRealTimeUpdates;
+
+  static Map<String, dynamic>? _manifest;
+
+  /// contains the manifest if it has been fetched before
+  static Map<String, dynamic>? get manifest => _manifest;
+
+  @visibleForTesting
+  static set manifest(Map<String, dynamic>? value) {
+    _manifest = value;
+  }
 
   @visibleForTesting
   static set withRealTimeUpdates(bool value) {
@@ -96,6 +107,7 @@ class Crowdin {
     var manifest = await _api.getManifest(distributionHash: _distributionHash);
 
     if (manifest != null) {
+      _manifest = manifest;
       _distributionsMap = manifest['content'];
 
       /// fetch manifest file to check if new updates available
@@ -115,9 +127,33 @@ class Crowdin {
     }
   }
 
+  static void checkManifestForLocale(Locale locale) {
+    if (manifest == null) {
+      throw CrowdinException(
+          'Crowdin manifest is not set. Please call Crowdin.init() before loading translations.');
+    }
+
+    final mappedLocale = CrowdinMapper.mapLocale(locale);
+
+    var languages = (manifest!['languages'] as List<dynamic>? ?? [])
+        .map((v) => CrowdinMapper.localeFromLanguageCode(v.toString()));
+    var customLanguages = (manifest!['customLanguages'] as List<dynamic>? ?? [])
+        .map((v) => CrowdinMapper.localeFromLanguageCode(v.toString()));
+    var allLanguages = [...languages, ...customLanguages];
+
+    allLanguages.firstWhere(
+        (l) => l.toLanguageTag() == mappedLocale.toLanguageTag(),
+        orElse: () => throw CrowdinException(
+            'Locale ${locale.toLanguageTag()} is not a target language for this Crowdin project.'));
+  }
+
   /// Load translations from Crowdin for a specific locale
   static Future<void> loadTranslations(Locale locale) async {
     Map<String, dynamic>? distribution;
+
+    if (manifest != null) {
+      checkManifestForLocale(locale);
+    }
 
     if (!await _isConnectionTypeAllowed(_connectionType) ||
         CrowdinRequestLimiter().pauseRequests) {
