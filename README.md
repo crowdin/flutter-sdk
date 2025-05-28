@@ -267,6 +267,16 @@ For more information about OAuth authorization in Crowdin, please check [this ar
   - Swedish - `sv`: `sv-SE`
   - Urdu (India) - `ur`: `ur-IN`
 
+- Since flutter tool no longer generate a synthetic package:flutter_gen, please follow 1st way from [Migration Guide](https://docs.flutter.dev/release/breaking-changes/flutter-generate-i10n-source#migration-guide):
+  - Specify synthetic-package: false in the accompanying [l10n.yaml](https://docs.flutter.dev/ui/accessibility-and-internationalization/internationalization#configuring-the-l10n-yaml-file) file:
+    `synthetic-package: false`
+
+  - The files are generated into the path specified by arb-dir
+    `arb-dir: lib/i18n`
+
+  - Or, specifically provide an output path:
+    `output-dir: lib/src/generated/i18n`
+
 ## Contributing
 
 If you would like to contribute, please read the [Contributing Guidelines](https://github.com/crowdin/flutter-sdk/blob/main/CONTRIBUTING.md).
