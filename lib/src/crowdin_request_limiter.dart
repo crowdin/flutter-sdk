@@ -62,7 +62,8 @@ class CrowdinRequestLimiter {
   reset() {
     if (!_stopPermanently) {
       _pauseRequests = false;
-      _storage.setErrorMap({});
+      _errorMap = {};
+      _storage.setErrorMap(_errorMap);
     }
   }
 
