@@ -152,7 +152,13 @@ class Crowdin {
     Map<String, dynamic>? distribution;
 
     if (manifest != null) {
-      checkManifestForLocale(locale);
+      try {
+        checkManifestForLocale(locale);
+      } catch (e) {
+        CrowdinLogger.printLog(e.toString());
+        _arb = null;
+        return;
+      }
     }
 
     if (!await _isConnectionTypeAllowed(_connectionType) ||

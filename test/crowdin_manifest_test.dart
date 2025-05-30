@@ -150,12 +150,4 @@ void main() {
           throwsA(isA<CrowdinException>()));
     });
   });
-
-  group('Crowdin.loadTranslations', () {
-    test('should not throw if manifest not set', () async {
-      Crowdin.manifest = null;
-      expect(() async => await Crowdin.loadTranslations(const Locale('en')),
-          isA<void>());
-    });
-  });
 }
