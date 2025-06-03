@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## 0.8.0
+
+- feat: expose downloaded manifest statically + check if locale is supported according to manifest
+- feat: stop requests when distribution deleted
+- docs: flutter_gen synthetic package migration
+
 ## 0.7.0
 
 * feat: websocket security improvement
