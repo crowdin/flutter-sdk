@@ -24,9 +24,8 @@ void main() {
 
     test('set and get translation timestamp', () async {
       const int timestamp = 123456;
-      await crowdinStorage.setTranslationTimeStampStorage(timestamp);
-      final int? retrievedTimestamp =
-          crowdinStorage.getTranslationTimestampFromStorage();
+      await crowdinStorage.setTranslationTimeStamp(timestamp);
+      final int? retrievedTimestamp = crowdinStorage.getTranslationTimestamp();
       expect(retrievedTimestamp, equals(timestamp));
     });
 
@@ -36,33 +35,30 @@ void main() {
       final Map<String, dynamic> expectedDistribution =
           jsonDecode(distributionJson);
 
-      await crowdinStorage.setDistributionToStorage(distributionJson);
+      await crowdinStorage.setDistribution(distributionJson);
 
       final Map<String, dynamic>? retrievedDistribution =
-          crowdinStorage.getTranslationFromStorage(const Locale('en', 'US'));
+          crowdinStorage.getTranslation(const Locale('en', 'US'));
 
       expect(retrievedDistribution, equals(expectedDistribution));
     });
 
     test('get exception in case of empty distribution ', () async {
-      await crowdinStorage.setDistributionToStorage('');
+      await crowdinStorage.setDistribution('');
 
-      expect(
-          () => crowdinStorage
-              .getTranslationFromStorage(const Locale('en', 'US')),
+      expect(() => crowdinStorage.getTranslation(const Locale('en', 'US')),
           throwsA(const TypeMatcher<CrowdinException>()));
     });
 
     test('get null if timestamp is missed', () async {
-      final int? retrievedTimestamp =
-          crowdinStorage.getTranslationTimestampFromStorage();
+      final int? retrievedTimestamp = crowdinStorage.getTranslationTimestamp();
 
       expect(retrievedTimestamp, isNull);
     });
 
     test('get null if distribution is missed', () async {
       final Map<String, dynamic>? retrievedDistribution =
-          crowdinStorage.getTranslationFromStorage(const Locale('en', 'US'));
+          crowdinStorage.getTranslation(const Locale('en', 'US'));
 
       expect(retrievedDistribution, isNull);
     });
@@ -70,10 +66,10 @@ void main() {
     test('get null if distribution locale mismatched', () async {
       const String distributionJson =
           '{"@@locale": "en_US", "hello_world": "Hello, world!"}';
-      await crowdinStorage.setDistributionToStorage(distributionJson);
+      await crowdinStorage.setDistribution(distributionJson);
 
       final Map<String, dynamic>? retrievedDistribution =
-          crowdinStorage.getTranslationFromStorage(const Locale('es', 'ES'));
+          crowdinStorage.getTranslation(const Locale('es', 'ES'));
 
       expect(retrievedDistribution, isNull);
     });

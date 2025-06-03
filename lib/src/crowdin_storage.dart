@@ -1,11 +1,14 @@
 import 'dart:convert';
 import 'dart:ui';
 
+import 'package:crowdin_sdk/src/crowdin_logger.dart';
 import 'package:crowdin_sdk/src/exceptions/crowdin_exceptions.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 String _kCrowdinTexts = 'crowdin_texts';
 String _kTranslationTimestamp = 'translation_timestamp';
+String _kIsPausedPermanently = 'is_paused_permanently';
+String _kErrorMap = 'errorMap';
 
 class CrowdinStorage {
   CrowdinStorage();
@@ -17,7 +20,7 @@ class CrowdinStorage {
     return _sharedPrefs;
   }
 
-  Future<void> setTranslationTimeStampStorage(int? timestamp) async {
+  Future<void> setTranslationTimeStamp(int? timestamp) async {
     try {
       if (_sharedPrefs.containsKey(_kTranslationTimestamp)) {
         await _sharedPrefs.remove(_kTranslationTimestamp);
@@ -28,7 +31,7 @@ class CrowdinStorage {
     }
   }
 
-  int? getTranslationTimestampFromStorage() {
+  int? getTranslationTimestamp() {
     try {
       int? translationTimestamp = _sharedPrefs.getInt(_kTranslationTimestamp);
       return translationTimestamp;
@@ -37,7 +40,7 @@ class CrowdinStorage {
     }
   }
 
-  Future<void> setDistributionToStorage(String distribution) async {
+  Future<void> setDistribution(String distribution) async {
     try {
       if (_sharedPrefs.containsKey(_kCrowdinTexts)) {
         await _sharedPrefs.remove(_kCrowdinTexts);
@@ -48,7 +51,7 @@ class CrowdinStorage {
     }
   }
 
-  Map<String, dynamic>? getTranslationFromStorage(Locale locale) {
+  Map<String, dynamic>? getTranslation(Locale locale) {
     try {
       String? distributionStr = _sharedPrefs.getString(_kCrowdinTexts);
       if (distributionStr != null) {
@@ -64,5 +67,44 @@ class CrowdinStorage {
       throw CrowdinException("Can't get distribution from storage");
     }
     return null;
+  }
+
+  void setIsPausedPermanently(bool shouldPause) {
+    try {
+      _sharedPrefs.setBool(_kIsPausedPermanently, shouldPause);
+    } catch (ex) {
+      throw CrowdinException("Can't store the isPausedPermanently value");
+    }
+  }
+
+  bool? getIsPausedPermanently() {
+    try {
+      bool? isPausedPermanently = _sharedPrefs.getBool(_kIsPausedPermanently);
+      return isPausedPermanently;
+    } catch (ex) {
+      throw CrowdinException("Can't get isPausedPermanently from storage");
+    }
+  }
+
+  void setErrorMap(Map<String, int> errorMap) {
+    try {
+      _sharedPrefs.setString(_kErrorMap, jsonEncode(errorMap));
+    } catch (ex) {
+      throw CrowdinException("Can't store the errorMap");
+    }
+  }
+
+  Map<String, int>? getErrorMap() {
+    try {
+      String? errorMapString = _sharedPrefs.getString(_kErrorMap);
+      if (errorMapString != null) {
+        Map<String, dynamic> decodedMap = jsonDecode(errorMapString);
+        return decodedMap.map((k, v) => MapEntry(k, v as int));
+      }
+      return errorMapString != null ? jsonDecode(errorMapString) : null;
+    } catch (ex) {
+      CrowdinLogger.printLog("Can't get errorMap from storage");
+      return null;
+    }
   }
 }
