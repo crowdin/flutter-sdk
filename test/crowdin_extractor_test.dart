@@ -143,7 +143,8 @@ void main() {
   group('Placeholders without metadata', () {
     Extractor extractor = Extractor();
 
-    test('should infer and substitute simple placeholders without @metadata', () {
+    test('should infer and substitute simple placeholders without @metadata',
+        () {
       var otaArb = {
         "@@locale": "en",
         "pageInfo": "Page {current} of {total}",
@@ -175,7 +176,8 @@ void main() {
       expect(result, 'Hello John, you have 10 messages');
     });
 
-    test('should handle mixed: some placeholders with metadata, some without', () {
+    test('should handle mixed: some placeholders with metadata, some without',
+        () {
       var mixedArb = {
         "@@locale": "en",
         "greeting": "Hello {userName}, you are {age} years old",
@@ -196,7 +198,8 @@ void main() {
       expect(result, 'Hello Alice, you are 25 years old');
     });
 
-    test('should infer placeholders from select expressions without metadata', () {
+    test('should infer placeholders from select expressions without metadata',
+        () {
       var selectArb = {
         "@@locale": "en",
         "gender": "{choice, select, male{He} female{She} other{They}}",
@@ -208,7 +211,8 @@ void main() {
       expect(message.placeholders.containsKey('choice'), true);
       expect(message.placeholders['choice']?.isSelect, true);
 
-      final resultMale = extractor.getText('en', bundle, 'gender', {'choice': 'male'});
+      final resultMale =
+          extractor.getText('en', bundle, 'gender', {'choice': 'male'});
       expect(resultMale, 'He');
     });
   });
