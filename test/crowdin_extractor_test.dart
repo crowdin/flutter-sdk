@@ -139,4 +139,77 @@ void main() {
       expect(result, 'No selection chosen');
     });
   });
+
+  group('Placeholders without metadata', () {
+    Extractor extractor = Extractor();
+
+    test('should infer and substitute simple placeholders without @metadata', () {
+      var otaArb = {
+        "@@locale": "en",
+        "pageInfo": "Page {current} of {total}",
+      };
+
+      final result = extractor.getText(
+        'en',
+        AppResourceBundle(otaArb),
+        'pageInfo',
+        {'current': 3, 'total': 10},
+      );
+
+      expect(result, 'Page 3 of 10');
+    });
+
+    test('should handle multiple placeholders without metadata', () {
+      var otaArb = {
+        "@@locale": "en",
+        "greeting": "Hello {userName}, you have {count} messages",
+      };
+
+      final result = extractor.getText(
+        'en',
+        AppResourceBundle(otaArb),
+        'greeting',
+        {'userName': 'John', 'count': 10},
+      );
+
+      expect(result, 'Hello John, you have 10 messages');
+    });
+
+    test('should handle mixed: some placeholders with metadata, some without', () {
+      var mixedArb = {
+        "@@locale": "en",
+        "greeting": "Hello {userName}, you are {age} years old",
+        "@greeting": {
+          "placeholders": {
+            "userName": {"type": "String"}
+          }
+        }
+      };
+
+      final result = extractor.getText(
+        'en',
+        AppResourceBundle(mixedArb),
+        'greeting',
+        {'userName': 'Alice', 'age': 25},
+      );
+
+      expect(result, 'Hello Alice, you are 25 years old');
+    });
+
+    test('should infer placeholders from select expressions without metadata', () {
+      var selectArb = {
+        "@@locale": "en",
+        "gender": "{choice, select, male{He} female{She} other{They}}",
+      };
+
+      final bundle = AppResourceBundle(selectArb);
+      final message = Message(bundle, 'gender', false);
+
+      expect(message.placeholders.containsKey('choice'), true);
+      expect(message.placeholders['choice']?.isSelect, true);
+
+      final resultMale = extractor.getText('en', bundle, 'gender', {'choice': 'male'});
+      expect(resultMale, 'He');
+    });
+  });
 }
