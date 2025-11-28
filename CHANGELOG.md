@@ -3,6 +3,10 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## 0.8.1
+
+- fix: add undeclared placeholders to the placeholders list
+
 ## 0.8.0
 
 - feat: expose downloaded manifest statically + check if locale is supported according to manifest
