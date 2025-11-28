@@ -542,6 +542,7 @@ class Message {
         traversalStack.addAll(node.children);
       }
     }
+    placeholders.addAll(undeclaredPlaceholders);
   }
 }
 
