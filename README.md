@@ -60,7 +60,7 @@ To manage distributions, open the Crowdin project and go to the *Translations* >
 
   ```yml
   dependencies:
-    crowdin_sdk: ^0.8.0
+    crowdin_sdk: ^0.8.1
 
     flutter_localizations:
       sdk: flutter
