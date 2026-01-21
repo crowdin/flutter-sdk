@@ -459,7 +459,7 @@ class Message {
 
   static final RegExp _pluralRE = RegExp(r'\s*\{([\w\s,]*),\s*plural\s*,');
 
-  bool get isPlural => _pluralMatch != null && _pluralMatch!.groupCount == 1;
+  bool get isPlural => _pluralMatch != null && _pluralMatch.groupCount == 1;
 
   Placeholder getCountPlaceholder() {
     assert(isPlural);
