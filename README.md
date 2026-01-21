@@ -60,7 +60,8 @@ This architecture ensures your app always has working translations (from local A
 
 ## Requirements
 
-* Dart >=2.17.0
+* Flutter >=3.22.0
+* Dart >=3.4.0
 
 ## Setup
 
