@@ -145,12 +145,11 @@ class CrowdinPreviewManager {
           'Something went wrong when subscribing to translations for real-time preview. Metadata is not provided');
     } else {
       _CrowdinMetadata metadata = _metadata!;
-      final webSocketTicketEvent =
-          'update-draft:${metadata.wsHash}:${metadata.projectId}:${metadata.userId}';
-      final ticket = await _getWebsocketTicket(
-          credentials: _credentials, event: webSocketTicketEvent);
       for (var id in finalMapping.values) {
-        final String event = '$webSocketTicketEvent:$langCode:$id';
+        final String event =
+            'update-draft:${metadata.wsHash}:${metadata.projectId}:${metadata.userId}:$langCode:$id';
+        final ticket =
+            await _getWebsocketTicket(credentials: _credentials, event: event);
         if (ticket != null) {
           var data = jsonEncode({
             'action': 'subscribe',
