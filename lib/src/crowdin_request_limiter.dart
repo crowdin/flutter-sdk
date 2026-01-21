@@ -23,7 +23,7 @@ class CrowdinRequestLimiter {
   bool get pauseRequests =>
       _stopPermanently || _pauseRequests || _checkIsPausedForToday();
 
-  init(CrowdinStorage storage) {
+  void init(CrowdinStorage storage) async {
     _storage = storage;
     _stopPermanently = _storage.getIsPausedPermanently() ?? false;
     _errorMap = _storage.getErrorMap() ?? {};
@@ -59,7 +59,7 @@ class CrowdinRequestLimiter {
     _storage.setErrorMap(_cleanErrorMapFromUnusedDays());
   }
 
-  reset() {
+  void reset() {
     if (!_stopPermanently) {
       _pauseRequests = false;
       _errorMap = {};

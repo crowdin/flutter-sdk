@@ -34,7 +34,7 @@ void main() {
 
   test('should initialize with storage values', () async {
     storage.setIsPausedPermanently(true);
-    await requestLimiter.init(storage);
+    requestLimiter.init(storage);
     expect(storage.getIsPausedPermanently(), true);
     expect(requestLimiter.pauseRequests, true);
   });
@@ -49,13 +49,13 @@ void main() {
 
   test('should pause requests after max errors in a day', () async {
     storage.setErrorMap({getTodayDateString(): 10});
-    await requestLimiter.init(storage);
+    requestLimiter.init(storage);
     expect(requestLimiter.pauseRequests, true);
   });
 
   test('should reset error map and pause state', () async {
     storage.setErrorMap({getTodayDateString(): 10});
-    await requestLimiter.init(storage);
+    requestLimiter.init(storage);
     expect(requestLimiter.pauseRequests, true);
     requestLimiter.reset();
     expect(requestLimiter.pauseRequests, false);
@@ -67,7 +67,7 @@ void main() {
       _formatter.format(DateTime.now().subtract(const Duration(days: 1))): 10,
       _formatter.format(DateTime.now().subtract(const Duration(days: 2))): 10,
     });
-    await requestLimiter.init(storage);
+    requestLimiter.init(storage);
     requestLimiter.incrementErrorCounter();
     expect(requestLimiter.pauseRequests, true);
   });

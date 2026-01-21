@@ -101,7 +101,7 @@ void main() {
 
     test('getManifest returns null and increment error count on 400 status',
         () async {
-      await requestLimiter.init(storage);
+      requestLimiter.init(storage);
 
       final uri =
           Uri.parse('https://distributions.crowdin.net/hash/manifest.json');
@@ -119,7 +119,7 @@ void main() {
         'getManifest returns null and do not call request when requests paused',
         () async {
       storage.setIsPausedPermanently(true);
-      await requestLimiter.init(storage);
+      requestLimiter.init(storage);
 
       final uri =
           Uri.parse('https://distributions.crowdin.net/hash/manifest.json');
