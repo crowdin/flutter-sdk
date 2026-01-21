@@ -43,14 +43,6 @@ class L10nConfig {
 
       bool syntheticPackage = yamlGenConfig['synthetic-package'] ?? false;
 
-      if (syntheticPackage) {
-        print(
-            '⚠️  Warning: synthetic-package: true is deprecated in Flutter 3.32+.');
-        print('   Consider setting synthetic-package: false in l10n.yaml');
-        print(
-            '   See: https://docs.flutter.dev/release/breaking-changes/flutter-generate-i10n-source');
-      }
-
       return L10nConfig(
         arbDir: arbDir,
         templateArbFile: templateArbFile,
