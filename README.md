@@ -6,7 +6,7 @@
   </picture>
 </p>
 
-# Crowdin Flutter SDK [<img src="https://img.shields.io/badge/beta-yellow"/>](https://github.com/crowdin/flutter-sdk)
+# Crowdin Flutter SDK
 
 The Crowdin Flutter SDK enables Over-The-Air (OTA) translation updates, delivering new translations from your Crowdin project directly to users without requiring app store updates. The SDK works on top of Flutter's standard localization system (`flutter_localizations`), providing a seamless bridge between your local ARB files and Crowdin's Content Delivery Network.
 
@@ -87,7 +87,7 @@ To manage distributions, open the Crowdin project and go to the *Translations* >
 
   ```yml
   dependencies:
-    crowdin_sdk: ^0.8.2
+    crowdin_sdk: ^1.0.0
 
     flutter_localizations:
       sdk: flutter
@@ -341,7 +341,7 @@ For more information about OAuth authorization in Crowdin, please check [this ar
   - Swedish - `sv`: `sv-SE`
   - Urdu (India) - `ur`: `ur-IN`
 
-- **synthetic-package default**: Starting from v0.8.2, the SDK defaults to `synthetic-package: false` to align with Flutter 3.32+ deprecation of the synthetic `flutter_gen` package. If you're upgrading from an earlier version, see the [Migration Guide](https://docs.flutter.dev/release/breaking-changes/flutter-generate-i10n-source#migration-guide):
+- **synthetic-package default**: Starting from v1.0.0, the SDK defaults to `synthetic-package: false` to align with Flutter 3.32+ deprecation of the synthetic `flutter_gen` package. If you're upgrading from an earlier version, see the [Migration Guide](https://docs.flutter.dev/release/breaking-changes/flutter-generate-i10n-source#migration-guide):
   - Add `synthetic-package: false` to your `l10n.yaml` (or rely on the new default)
   - Update imports from `package:flutter_gen/gen_l10n/...` to your local path (e.g., `package:your_app/l10n/...`)
   - Run `flutter pub run crowdin_sdk:gen` to regenerate
