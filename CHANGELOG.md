@@ -3,6 +3,26 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## 0.8.2
+
+### Breaking Changes
+
+- Default `synthetic-package` changed from `true` to `false` to align with Flutter 3.32+ deprecation
+- Import paths changed from `package:flutter_gen/gen_l10n/...` to direct source imports
+
+### Migration
+
+1. Add `synthetic-package: false` to your `l10n.yaml` (or rely on new default)
+2. Update imports:
+   ```dart
+   // Before
+   import 'package:flutter_gen/gen_l10n/crowdin_localizations.dart';
+
+   // After
+   import 'package:your_app/l10n/crowdin_localizations.dart';
+   ```
+3. Run `flutter pub run crowdin_sdk:gen` to regenerate
+
 ## 0.8.1
 
 - fix: add undeclared placeholders to the placeholders list

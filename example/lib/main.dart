@@ -2,8 +2,8 @@ import 'dart:convert';
 
 import 'package:crowdin_sdk/crowdin_sdk.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
-import 'package:flutter_gen/gen_l10n/crowdin_localizations.dart';
+import 'l10n/app_localizations.dart';
+import 'l10n/crowdin_localizations.dart';
 
 import 'package:intl/intl.dart';
 
