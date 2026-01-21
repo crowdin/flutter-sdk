@@ -8,7 +8,7 @@
 
 # Crowdin Flutter SDK [<img src="https://img.shields.io/badge/beta-yellow"/>](https://github.com/crowdin/flutter-sdk)
 
-The Crowdin Flutter SDK delivers all new translations from Crowdin project to the application immediately. So there is no need to update the application via Store to get the new version with the localization.
+The Crowdin Flutter SDK enables Over-The-Air (OTA) translation updates, delivering new translations from your Crowdin project directly to users without requiring app store updates. The SDK works on top of Flutter's standard localization system (`flutter_localizations`), providing a seamless bridge between your local ARB files and Crowdin's Content Delivery Network.
 
 <div align="center">
 
@@ -28,11 +28,35 @@ The Crowdin Flutter SDK delivers all new translations from Crowdin project to th
 
 ## Features
 
-- Load remote strings from Crowdin Over-The-Air Content Delivery Network
-  - Built-in translations caching mechanism (enabled by default, can be disabled)
+- **Seamless integration with Flutter's localization**
+  - Generates a wrapper class that bridges Flutter's `gen_l10n` output with Crowdin CDN
+  - ARB files are created and maintained by you (the SDK does not generate ARB files)
+  - Automatic fallback to local ARB files when cloud translations are unavailable
+- **Over-The-Air translation updates**
+  - Load remote translations from Crowdin Content Delivery Network
+  - Built-in caching mechanism (enabled by default) for offline support
   - Network usage configuration (All, only Wi-Fi or Cellular)
-  - Load static strings from the bundled ARB files (usable as a fallback for the CDN strings)
-- Real-Time Preview – all the translations that are done in the Editor can be shown in your version of the application in real-time. View the translations already made and the ones you're currently typing in.
+- **Real-Time Preview** – all the translations that are done in the Editor can be shown in your version of the application in real-time. View the translations already made and the ones you're currently typing in.
+
+## How It Works
+
+The Crowdin Flutter SDK works in conjunction with Flutter's standard localization tools:
+
+```mermaid
+flowchart LR
+    ARB[ARB Files<br/>Created by you] --> GenL10n[Flutter gen_l10n<br/>Generates .dart classes]
+    GenL10n --> CrowdinGen[Crowdin Generator<br/>Creates wrapper class]
+    CrowdinGen --> Runtime[Runtime<br/>OTA updates + fallback]
+```
+
+**The workflow:**
+
+1. **You create and maintain** ARB localization files (e.g., `app_en.arb`, `app_es.arb`) in your project
+2. **Flutter's `gen_l10n` tool** generates Dart localization classes from your ARB files
+3. **Crowdin SDK generator** (`flutter pub run crowdin_sdk:gen`) creates a wrapper class that extends Flutter's generated classes
+4. **At runtime**, the SDK fetches fresh translations from Crowdin CDN and falls back to local ARB files when needed
+
+This architecture ensures your app always has working translations (from local ARB files) while enabling dynamic updates from Crowdin.
 
 ## Requirements
 
@@ -55,6 +79,9 @@ To manage distributions, open the Crowdin project and go to the *Translations* >
 - First of all, your Flutter project should be internationalized using the `flutter_localizations` package. For more detail, see [Setting up an internationalized app](https://docs.flutter.dev/development/accessibility-and-localization/internationalization#setting-up).
 - Create a project in [Crowdin](https://crowdin.com/).
 - Upload your `app_en.arb` file to the created Crowdin project. Optionally, you can also [Upload Existing Translations](https://support.crowdin.com/uploading-translations/).
+  
+  > **Note:** ARB files must be created and maintained manually in your project. The Crowdin SDK does not generate ARB files from Crowdin—it generates a wrapper class to integrate Crowdin translations with Flutter's localization system.
+
 - [Set up a Distribution](https://support.crowdin.com/content-delivery/#distribution-setup).
 - Add the `crowdin_sdk` dependency to your project:
 
@@ -70,13 +97,15 @@ To manage distributions, open the Crowdin project and go to the *Translations* >
     generate: true
   ```
 
-- Run the following command to generate Crowdin localization:
+- Run the following command to generate the Crowdin wrapper class:
 
-  ```consloe
+  ```console
   flutter pub run crowdin_sdk:gen
   ```
 
-  As a result, the `Crowdin_localizations.dart` will be created in the `{FLUTTER_PROJECT}/.dart_tool/flutter_gen/gen_l10n` directory.
+  This generates `crowdin_localizations.dart` in the `{FLUTTER_PROJECT}/.dart_tool/flutter_gen/gen_l10n` directory. This wrapper class extends Flutter's generated localization classes to integrate Crowdin OTA translations.
+  
+  > **Important:** Re-run this command whenever you modify the structure of your ARB files (e.g., add/remove keys or change parameters).
 
 - Update localizationsDelegates in your project:
 
@@ -132,6 +161,41 @@ After receiving the translations, change the app locale as usual and the transla
 | `distributionHash` | Crowdin Distribution Hash                                                                                                                                                                             |
 | `connectionType`   | Network type to be used for translations download. Supported values are `any`, `wifi`, `mobileData`, `ethernet`                                                                                       |
 | `updatesInterval`  | Translations update interval. Translations will not be updated more frequently than the designated time interval (default minimum is 15 minutes). Instead, it will use previously cached translations |
+
+## Translation Loading and Caching
+
+### When to call `loadTranslations()`
+
+The `Crowdin.loadTranslations()` method fetches translations from Crowdin's CDN. You should call it:
+
+- When the user changes the app language
+- On app launch to fetch the latest translations (optional—cached translations are used automatically)
+- When you want to manually refresh translations from Crowdin
+
+**Important:** You do NOT need to call `loadTranslations()` every time you access a translation. Once loaded, translations are available synchronously through the standard Flutter localization API (`AppLocalizations.of(context)`).
+
+### How caching works
+
+- **First call**: Downloads translations from Crowdin CDN and caches them locally
+- **Subsequent calls**: Uses cached translations if the `updatesInterval` hasn't expired
+- **Persistence**: Cache survives app restarts, reducing network requests and improving performance
+- **Updates**: Automatically checks for new translations based on your `updatesInterval` setting
+
+### Translation flow and fallback behavior
+
+The SDK provides automatic fallback to ensure your app always has working translations:
+
+1. **Primary**: Tries to use translations from Crowdin CDN (if loaded successfully)
+2. **Fallback**: Uses local ARB files if cloud translations are unavailable
+
+**Fallback occurs when:**
+
+- Network is unavailable during `loadTranslations()`
+- Cloud translation structure doesn't match local (e.g., parameters added/removed)
+- Translation key is missing in cloud distribution
+- Parsing error in cloud translation
+
+**Important:** If the translation structure in Crowdin changes significantly (e.g., different parameters), the SDK cannot process it and automatically falls back to local ARB files. To handle structure changes, you must update your local ARB files, re-run `flutter pub run crowdin_sdk:gen`, and rebuild your app.
 
 ## Real-Time Preview
 
@@ -251,9 +315,19 @@ For more information about OAuth authorization in Crowdin, please check [this ar
 
 ## Notes
 
-- The CDN feature does not update the localization files. if you want to add new translations to the localization files you need to do it yourself.
-- Once SDK receives the translations, it's stored on the device as application files for further sessions to minimize requests the next time the app starts. Storage time can be configured.
-- CDN caches all the translations in release and even when new translations are released in Crowdin, CDN may return them with a delay.
+### Best Practices
+
+- **Call `loadTranslations()` strategically**: Use it when changing language or to fetch the latest updates, not on every translation access. Translations are synchronous after loading.
+- **Keep local ARB files as source of truth**: Always test with local ARB files before relying on cloud translations. They serve as your fallback.
+- **Configure `updatesInterval` appropriately**: Balance translation freshness with network usage based on your update frequency needs.
+
+### Important Clarifications
+
+- **ARB file management**: You must create and maintain ARB files manually. The Crowdin SDK generator creates wrapper classes, not ARB files.
+- **CDN and local files**: The CDN feature does not update your local ARB files. If you want to add new translations or modify structures, update the ARB files manually and re-run `flutter pub run crowdin_sdk:gen`.
+- **Structural changes**: When translation structures change in Crowdin (e.g., adding/removing parameters), you must update your local ARB files and rebuild the app. The SDK will automatically fall back to local ARB if cloud structures don't match.
+- **Caching behavior**: Once the SDK receives translations, they're stored on the device for future sessions to minimize network requests. Storage time can be configured via `updatesInterval`.
+- **CDN delay**: CDN caches all translations in release, so even when new translations are released in Crowdin, CDN may return them with a delay.
 - Since some languages have different language codes maintained by the intl package and by Crowdin (for example, intl uses "es" for the Spanish language, and Crowdin uses "es-ES"). For the following intl language codes Crowdin SDK uses equivalent language codes:
 
   - Armenian - `hy`: `hy-AM`
