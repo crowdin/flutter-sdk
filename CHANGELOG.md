@@ -9,6 +9,7 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 
 ### Breaking Changes
 
+- **Minimum requirements updated**: Dart SDK `>=3.4.0 <4.0.0`, Flutter `>=3.22.0`
 - Default `synthetic-package` changed from `true` to `false` to align with Flutter 3.32+ deprecation
 - Import paths changed from `package:flutter_gen/gen_l10n/...` to direct source imports
 
