@@ -82,9 +82,15 @@ class CrowdinLocalization extends ${l10nConfig.outputClass} {
       buffer.writeln(
           "  String get $key => Crowdin.getText(localeName, '$key') ?? _fallbackTexts.$key;");
     } else {
-      var params = generateMethodParameters(message).join(', ');
-      var values =
-          placeholders.map((placeholder) => placeholder.name).join(', ');
+      var paramsList = generateMethodParameters(message);
+      var params = l10nConfig.useNamedParameters
+          ? '{${paramsList.map((p) => 'required $p').join(', ')}}'
+          : paramsList.join(', ');
+      var values = l10nConfig.useNamedParameters
+          ? placeholders
+              .map((placeholder) => '${placeholder.name}: ${placeholder.name}')
+              .join(', ')
+          : placeholders.map((placeholder) => placeholder.name).join(', ');
       var args = placeholders
           .map((placeholder) => '\'${placeholder.name}\':${placeholder.name}')
           .join(', ');

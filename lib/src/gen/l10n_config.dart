@@ -11,6 +11,7 @@ class L10nConfig {
   String templateArbFile;
   String outputClass;
   bool syntheticPackage;
+  bool useNamedParameters;
 
   L10nConfig({
     required this.arbDir,
@@ -19,6 +20,7 @@ class L10nConfig {
     required this.outputDir,
     required this.outputClass,
     this.syntheticPackage = false,
+    this.useNamedParameters = false,
   });
 
   String get finalOutputDir => syntheticPackage
@@ -43,6 +45,8 @@ class L10nConfig {
 
       bool syntheticPackage = yamlGenConfig['synthetic-package'] ?? false;
 
+      bool useNamedParameters = yamlGenConfig['use-named-parameters'] ?? false;
+
       return L10nConfig(
         arbDir: arbDir,
         templateArbFile: templateArbFile,
@@ -50,6 +54,7 @@ class L10nConfig {
         outputDir: outputDir,
         syntheticPackage: syntheticPackage,
         outputLocalizationFile: outputLocalizationFile,
+        useNamedParameters: useNamedParameters,
       );
     } else {
       throw Exception('No l10n.yaml file');
