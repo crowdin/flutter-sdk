@@ -147,7 +147,7 @@ class CrowdinPreviewManager {
       _CrowdinMetadata metadata = _metadata!;
       for (var id in finalMapping.values) {
         final String event =
-            'update-draft:${metadata.wsHash}:${metadata.projectId}:${metadata.userId}:$langCode:$id';
+            'update-draft:${metadata.wsHash}:pr{${metadata.projectId}}:us{${metadata.userId}}:$langCode:tr{$id}';
         final ticket =
             await _getWebsocketTicket(credentials: _credentials, event: event);
         if (ticket != null) {
