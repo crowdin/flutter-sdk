@@ -3,6 +3,10 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## 1.1.1
+
+chore: update real-time preview WebSocket event naming
+
 ## 1.1.0
 
 feat: support named parameters
