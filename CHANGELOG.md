@@ -3,7 +3,7 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
-## Unreleased
+## 1.1.2
 
 fix: allow the `intl` 0.20.x line used by current Flutter SDK releases
 
